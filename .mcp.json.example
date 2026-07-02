@@ -1,0 +1,35 @@
+{
+  "//": "Copy to .mcp.json and keep ONLY the servers this project actually uses. See docs/TOOLING.md for the full menu and per-role recommendations. Never hardcode secrets here — reference environment variables (e.g. \"${VAR}\") and set them in your shell or .env, which is git-ignored.",
+
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    },
+
+    "//playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    },
+
+    "//supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?read_only=true&project_ref=${SUPABASE_PROJECT_REF}"
+    },
+
+    "//github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp"
+    },
+
+    "//sentry": {
+      "type": "http",
+      "url": "https://mcp.sentry.dev/mcp"
+    },
+
+    "//semgrep": {
+      "command": "uvx",
+      "args": ["semgrep-mcp"]
+    }
+  }
+}

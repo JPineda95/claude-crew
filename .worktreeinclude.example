@@ -1,0 +1,12 @@
+# .worktreeinclude — copy to `.worktreeinclude` and edit.
+#
+# Git-ignored files are NOT copied into a new worktree by default, so a fresh
+# worktree can't run without its env/secrets. List the git-ignored files each new
+# worktree needs; Claude Code seeds them into every worktree it creates.
+#
+# One glob per line. Examples:
+
+.env.local
+.env.development.local
+# .npmrc
+# certs/localhost.pem

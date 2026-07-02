@@ -1,0 +1,17 @@
+{
+  "name": "claude-crew",
+  "description": "A technology-agnostic AI engineering crew: 14 expert subagents (architect, frontend, backend, DBA, designer, QA, DevOps, copywriter, SEO/AEO, security, data compliance, and reviewers) plus an orchestrating workflow, git/worktree/commit protocol, and quality gates.",
+  "version": "1.1.0",
+  "author": { "name": "John Pineda" },
+  "homepage": "https://github.com/JPineda95/claude-crew",
+  "repository": "https://github.com/JPineda95/claude-crew",
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "subagents",
+    "workflow",
+    "orchestration",
+    "boilerplate",
+    "engineering-team"
+  ]
+}
