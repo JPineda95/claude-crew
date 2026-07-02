@@ -5,9 +5,9 @@
 # Usage:
 #   scripts/install.sh /path/to/your/project
 #
-# Copies the agents, commands, scripts, docs, orchestrator CLAUDE.md, and the
-# PROJECT template into the target repo. Never overwrites an existing CLAUDE.md
-# or PROJECT.md without asking. Idempotent for the .claude/ payload.
+# Copies the agents, commands, scripts, skills, docs, orchestrator CLAUDE.md,
+# and the PROJECT template into the target repo. Never overwrites an existing
+# CLAUDE.md or PROJECT.md without asking. Idempotent for the .claude/ payload.
 #
 set -euo pipefail
 
@@ -29,7 +29,16 @@ mkdir -p "${DEST}/.claude" "${DEST}/docs"
 cp -R "${SRC}/.claude/agents"   "${DEST}/.claude/"
 cp -R "${SRC}/.claude/commands" "${DEST}/.claude/"
 cp -R "${SRC}/.claude/scripts"  "${DEST}/.claude/"
+cp -R "${SRC}/.claude/skills"   "${DEST}/.claude/"
 cp -R "${SRC}/docs/." "${DEST}/docs/"
+
+# skills-lock.json — lets `npx skills update` refresh the taste library in the
+# target repo. Don't clobber a lock the target already manages.
+if [[ ! -f "${DEST}/skills-lock.json" ]]; then
+  cp "${SRC}/skills-lock.json" "${DEST}/skills-lock.json"
+elif ! cmp -s "${SRC}/skills-lock.json" "${DEST}/skills-lock.json"; then
+  echo "  · kept existing skills-lock.json — merge ${SRC}/skills-lock.json by hand if you want 'npx skills update' to track the crew's design skills"
+fi
 
 # settings.json — copy only if the target has none (don't clobber project config).
 if [[ ! -f "${DEST}/.claude/settings.json" ]]; then
