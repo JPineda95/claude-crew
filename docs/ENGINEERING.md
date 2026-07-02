@@ -100,7 +100,29 @@ report it as a recommendation; let the orchestrator decide.
   API change, new dependency, new infra cost), stop and surface it.
 - If two agents need the same files, follow `docs/WORKTREES.md` — do not race.
 
-## 7. Git discipline (summary — full rules in docs)
+## 7. Shell discipline (you run unattended)
+
+Agents run headless — nobody is at the keyboard to answer a prompt. A command
+that waits for input sits silent until a watchdog kills the whole agent and the
+task fails. Rules:
+
+- **Every command must be non-interactive.** Pass every answer as a flag or an
+  env var: `--yes` / `-y`, `--non-interactive`, `CI=1`. Scaffolders are the
+  classic trap — e.g. `npx -y create-next-app@latest . --typescript --tailwind
+  --eslint --app` (every question answered up front), never a bare
+  `npx create-next-app`.
+- **Never run a command that can prompt** — logins, credential prompts, config
+  wizards, deletes that ask for confirmation. If a tool has no non-interactive
+  mode, stop and report it instead of running it.
+- **Run long commands in the background.** Anything that can exceed ~2 minutes
+  (dependency installs, builds, downloads) runs via the Bash tool's
+  `run_in_background`, then poll for completion. Do **not** raise the foreground
+  timeout to cover a long silent command — a silent foreground call is
+  indistinguishable from a hang and can get the whole agent killed.
+- **Prefer output that shows life.** For foreground work, a command that prints
+  progress is diagnosable; one that is silent for minutes is not.
+
+## 8. Git discipline (summary — full rules in docs)
 
 - One task → one branch. See `docs/WORKTREES.md`.
 - Rebase your feature branch onto the integration branch to stay current; never

@@ -78,6 +78,14 @@ Intake → Design → Plan → Test-first → Build → Verify → Review → Fi
 - **Ship:** only when reviewers approve and the gate is green — then prepare
   commits and get authorization (see Guardrails).
 
+**When a subagent fails or stalls** (e.g. "Agent stalled: no progress"), do not
+re-run it blindly: its partial work persists in its worktree. Inspect the state
+(`git status`, what got written), then respawn the same specialist with a prompt
+that states what is already done and where it stopped. If the same task stalls
+twice, split it into smaller delegations. Scaffold and install steps are the
+usual culprits — interactive prompts and long silent installs; make sure task
+prompts enforce shell discipline (charter §7).
+
 **Right-size it.** A typo or config tweak is a direct edit + gate run, not a
 committee. Reserve the full lifecycle for changes that span layers or carry real
 risk. Always add `security-engineer` + `reviewer-security` when a change touches
@@ -97,6 +105,9 @@ a third party that receives user data — and before any public launch.
   `docs/COMMITS.md`.
 - **Verify, then claim.** Run it, test it, read the output. Report failures
   honestly with evidence.
+- **Shell discipline (charter §7):** agents run unattended — every command
+  non-interactive (answers as flags, `CI=1`), nothing that can prompt, long
+  installs/builds in the background.
 - Every agent ends with the structured **handoff** (charter §4) so you can thread
   the work together.
 
