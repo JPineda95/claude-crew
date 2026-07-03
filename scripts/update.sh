@@ -148,6 +148,8 @@ COMMIT="$(git -C "${SRC}" rev-parse --short HEAD 2>/dev/null || echo unknown)"
 {
   echo "# claude-crew manifest — written by install.sh/update.sh; do not edit by hand."
   echo "# source: ${SRC}"
+  REMOTE="$(git -C "${SRC}" remote get-url origin 2>/dev/null || true)"
+  [[ -n "${REMOTE}" ]] && echo "# remote: ${REMOTE}"
   echo "# commit: ${COMMIT}"
   echo "# date: $(date +%Y-%m-%d)"
   (cd "${SRC}" && find ${PAYLOAD_DIRS} -type f ! -name '.DS_Store' | LC_ALL=C sort) | while IFS= read -r rel; do

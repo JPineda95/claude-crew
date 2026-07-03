@@ -49,6 +49,12 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 - `docs/TOOLING.md` — Notion MCP entry (orchestrator, optional) with the
   plan-tier and allowlisting caveats.
 - `Refs: <TICKET-ID>` commit-trailer convention (`docs/COMMITS.md` §4).
+- **Self-updating installs** — `.claude/scripts/crew-update.sh` now ships with
+  the crew into every consuming project: run it from inside the project to
+  pull the latest crew (resolves the source via the manifest's `# source:` /
+  `# remote:` lines, or clones the public repo; `CREW_SOURCE`/`CREW_REPO`/
+  `CREW_REF` override), then hands off to the manifest-protected
+  `update.sh` sync. Manifests now record the source's git remote.
 
 ### Fixed
 

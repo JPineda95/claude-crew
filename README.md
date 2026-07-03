@@ -71,6 +71,12 @@ protecting anything you customized — your version stays, the new one lands
 next to it as `<file>.crew-new` (`settings.json` → `settings.crew.json`) for a
 manual merge. `PROJECT.md` is never touched.
 
+The updater also **ships with the crew**: from inside any installed project,
+run `.claude/scripts/crew-update.sh` — it finds the crew source via the
+manifest (or clones the repo when no local checkout exists; `CREW_SOURCE`,
+`CREW_REPO`, `CREW_REF` override) and runs the same manifest-protected sync.
+No claude-crew checkout needs to be kept around.
+
 ### Option C — install as a Claude Code plugin
 ```bash
 scripts/build-plugin.sh                          # assembles dist/claude-crew

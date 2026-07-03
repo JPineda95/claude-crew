@@ -71,9 +71,11 @@ cp "${SRC}/.worktreeinclude.example" "${DEST}/.worktreeinclude.example"
 # scripts/update.sh can later update untouched files in place and protect
 # customized ones. Commit it with the rest of .claude/.
 COMMIT="$(git -C "${SRC}" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+REMOTE="$(git -C "${SRC}" remote get-url origin 2>/dev/null || true)"
 {
   echo "# claude-crew manifest — written by install.sh/update.sh; do not edit by hand."
   echo "# source: ${SRC}"
+  [[ -n "${REMOTE}" ]] && echo "# remote: ${REMOTE}"
   echo "# commit: ${COMMIT}"
   echo "# date: $(date +%Y-%m-%d)"
   (cd "${SRC}" && find .claude/agents .claude/commands .claude/scripts .claude/skills docs -type f ! -name '.DS_Store' | LC_ALL=C sort) | while IFS= read -r rel; do
@@ -89,4 +91,5 @@ echo "Done. Next:"
 echo "  1. Fill in ${DEST}/PROJECT.md (stack, commands, integration branch, rules)."
 echo "  2. Install the MCP servers/plugins you need (see docs/TOOLING.md)."
 echo "  3. Set your validation gate in .claude/scripts/validate.sh (or CLAUDE_VALIDATE_CMD)."
-echo "  4. Later, pull crew updates with: ${SRC}/scripts/update.sh ${DEST}"
+echo "  4. Later, pull crew updates from inside the project: .claude/scripts/crew-update.sh"
+echo "     (it finds this checkout via the manifest, or clones the repo if it's gone)"
