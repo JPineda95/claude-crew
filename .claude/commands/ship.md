@@ -21,16 +21,27 @@ Steps:
 2. **Confirm the branch.** If on the integration/default branch, create the
    feature branch first (`<type>/<slug>` per `PROJECT.md` naming). Never commit
    to the integration branch directly.
-3. **Group into atomic commits.** Split the diff into logical, self-contained
+3. **Ticket linkage.** If the branch name carries a ticket id
+   (`<type>/<PREFIX>-<n>-…`, prefix from `PROJECT.md` §12), this is ticketed
+   work (`docs/TICKETS.md` §5): use `Refs: <ID>` commit trailers, suffix the PR
+   title with the id — `feat: … (KANI-12)` — and give the PR a `Ticket:` line
+   plus manual testing notes generated from the card's acceptance criteria
+   (`docs/WORKFLOW.md` §8).
+4. **Group into atomic commits.** Split the diff into logical, self-contained
    commits (one concern each). For each, write a Conventional Commit message with
    a body that explains **why** — the reasoning and trade-offs, not a restatement
    of the diff. Add `Refs:`/`Closes:` and a `Co-authored-by:` trailer.
-4. **Ship.** In Ship mode `pr` (the default): commit, push the feature branch,
+5. **Ship.** In Ship mode `pr` (the default): commit, push the feature branch,
    and open a PR against `<integration-branch>` with the description spec from
-   `docs/WORKFLOW.md` §8. Report the PR URL and stop — the human reviews and
-   merges. If `PROJECT.md` sets Ship mode `ask`: show the proposed commit split
-   and full messages instead, and wait for approval before running
+   `docs/WORKFLOW.md` §8 — from the branch's own checkout (in a worktree:
+   `cd <worktree> && gh pr create`). Report the PR URL and stop — the human
+   reviews and merges. If `PROJECT.md` sets Ship mode `ask`: show the proposed
+   commit split and full messages instead, and wait for approval before running
    `git commit` / `git push`.
-5. **Never merge your own PR.** Deploying always requires explicit human
+6. **Update the card (ticketed work, best-effort).** After the PR opens: set
+   the card's Status to Code Review and its `PR` property, and append a Work
+   Log line (`docs/TICKETS.md` §5.2). A failed board write never blocks or
+   reverts the ship — report it and move on (§9).
+7. **Never merge your own PR.** Deploying always requires explicit human
    authorization.
-6. Never force-push a shared branch; `--force-with-lease` only, on your own branch.
+8. Never force-push a shared branch; `--force-with-lease` only, on your own branch.

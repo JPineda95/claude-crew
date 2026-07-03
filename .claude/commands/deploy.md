@@ -19,7 +19,11 @@ Steps:
    `PROJECT.md` §5. If no production branch is configured, use the repo's
    default branch (`git remote show origin`). If they are the same branch,
    this project has no promotion step — stop and say so.
-2. **Preflight.** The working tree must be clean — stop if it isn't (don't
+2. **Sweep the board (ticketed projects).** If `PROJECT.md` §12 declares
+   `Ticketing: notion`, run the merge sweep first (`docs/TICKETS.md` §8) so
+   merged-but-unswept cards reach Dev Complete before the release is computed.
+   Board failures never block the deploy (§9).
+3. **Preflight.** The working tree must be clean — stop if it isn't (don't
    stash on the user's behalf). Then compare the remote branches:
    - `git log origin/<production>..origin/<integration> --oneline` is the
      release. If it's empty, there is nothing to deploy — stop and report.
@@ -27,24 +31,33 @@ Steps:
      empty. If production has commits the integration branch lacks (e.g. a
      hotfix), stop: merge production back into the integration branch first,
      re-run the gate there, then run `/deploy` again.
-3. **Gate on the integration branch.** Check it out, pull, and run the
+4. **Gate on the integration branch.** Check it out, pull, and run the
    validation gate (lint + full test suite + typecheck/build per `PROJECT.md`,
    plus the e2e smoke set when configured). If anything is red, stop and
    report — never promote a red integration branch.
-4. **Promote.** Check out the production branch, pull, then
+5. **Promote.** Check out the production branch, pull, then
    `git merge --no-ff <integration-branch>` with a `chore(release): …`
-   message whose body lists what ships (the commit subjects from step 2, plus
+   message whose body lists what ships (the commit subjects from step 3, plus
    any context from $ARGUMENTS). Push the production branch.
    - If the push is rejected by branch protection, don't fight it: open a
      release PR from the integration branch into the production branch with
      `gh pr create` (description = the shipped-changes list), report the URL,
      and stop — the human merges it.
-   - A merge conflict here means step 2 was skipped or the remote moved —
+   - A merge conflict here means step 3 was skipped or the remote moved —
      abort the merge (`git merge --abort`), stop, and report.
-5. **Wrap up.** Switch back to the integration branch. Report the merge commit
+6. **Advance the board (ticketed projects, best-effort).** After the push
+   succeeds: read the Dev Complete cards (ladder, `docs/TICKETS.md` §6). For
+   each card whose Work Log carries a sweep merge SHA, check
+   `git merge-base --is-ancestor <sha> <promoted tip>` — ancestors move to
+   **In QA** with a Work Log line; non-ancestors (merged after the release was
+   cut) stay Dev Complete with a note for the next deploy. **Spikes are
+   exempt** (`docs/TICKETS.md` §5.3). Board moves stop at In QA — Done is
+   human-only, and a board failure never blocks the deploy (§9).
+7. **Wrap up.** Switch back to the integration branch. Report the merge commit
    SHA and the list of shipped changes, and remind the human that whatever
    pipeline watches the production branch (Vercel, CI/CD) is now deploying —
    verifying the live deploy is on them / `devops-engineer`.
-6. **Hard limits.** Never force-push either branch, never rewrite history, and
-   run nothing beyond git and `gh` — no infra or platform commands. Rollback,
-   if ever needed, is `git revert` of the merge commit, not a reset.
+8. **Hard limits.** Never force-push either branch, never rewrite history, and
+   run nothing beyond git, `gh`, and best-effort board writes via the Notion
+   tools — no infra or platform commands. Rollback, if ever needed, is
+   `git revert` of the merge commit, not a reset.
