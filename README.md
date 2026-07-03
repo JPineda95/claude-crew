@@ -13,12 +13,6 @@ through a design → test → build → review → ship workflow. Optionally, pu
 `/spike` `/epic`, triage them on the board, and let `/work` build every Dev
 Ready ticket in parallel ([docs/TICKETS.md](docs/TICKETS.md)).
 
-> **v2 breaking change:** `/feature` no longer runs the build lifecycle — it
-> files a Story ticket. **`/work`** is the build command now;
-> `/work <description>` behaves exactly like the old `/feature`, board or no
-> board. Upgraders via `update.sh`: if you customized `feature.md`, merge
-> `feature.md.crew-new` deliberately.
-
 ---
 
 ## The crew
