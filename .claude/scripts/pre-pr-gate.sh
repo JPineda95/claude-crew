@@ -20,11 +20,23 @@
 #     an agent writing `PR_GATE_SKIP=1 gh pr create` gains nothing. Human use
 #     only.
 #
-# Known accepted limitation: matching is textual. A command that merely quotes
-# the phrase (e.g. git commit -m "before gh pr create") runs the gate too —
-# harmless when green; if it blocks, reword the message. PRs opened outside
-# the Bash tool (e.g. a GitHub MCP) are not intercepted — the workflow docs
-# remain the gate there. Full policy: docs/TESTING.md §5.
+# Worktrees: a PR opened from a ticket worktree arrives as
+# `cd <worktree> && gh pr create …` (leading VAR=value assignments are
+# stripped first, so `CI=1 cd <worktree> && …` works too). The gate honors a
+# single leading `cd <dir> &&` and runs the validation command AND the diff
+# check from that directory — otherwise it would validate whatever branch the
+# main checkout happens to be on. Without a cd prefix, creating a PR while the
+# current checkout sits on the integration branch is blocked (the diff would
+# be empty and the tests-accompany-logic check silently vacuous).
+#
+# Known accepted limitations: matching is textual. A command that merely
+# quotes the phrase (e.g. git commit -m "before gh pr create") runs the gate
+# too — harmless when green; if it blocks, reword the message. Only a LEADING
+# `cd <dir> &&` is honored — a cd buried mid-command is not parsed. The cd
+# target must be a literal path (`~` and a leading $HOME are expanded; other
+# variables are not — the gate blocks with a retry hint rather than guessing).
+# PRs opened outside the Bash tool (e.g. a GitHub MCP) are not intercepted —
+# the workflow docs remain the gate there. Full policy: docs/TESTING.md §5.
 #
 set -uo pipefail
 
@@ -56,6 +68,46 @@ fail() {
   exit 2
 }
 
+# Honor a single leading `cd <dir> &&` so the gate validates the checkout the
+# PR is actually created from (ticket worktrees — docs/WORKTREES.md). Leading
+# VAR=value env assignments are stripped before matching.
+RUN_DIR="$(pwd)"
+CD_PREFIX=0
+CMD_HEAD="${CMD}"
+while [[ "${CMD_HEAD}" =~ ^[[:space:]]*[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+(.*)$ ]]; do
+  CMD_HEAD="${BASH_REMATCH[1]}"
+done
+if [[ "${CMD_HEAD}" =~ ^[[:space:]]*cd[[:space:]]+(\"([^\"]+)\"|\'([^\']+)\'|([^;\&\|[:space:]]+))[[:space:]]*\&\& ]]; then
+  CD_DIR="${BASH_REMATCH[2]}${BASH_REMATCH[3]}${BASH_REMATCH[4]}"
+  CD_DIR="${CD_DIR/#\~/$HOME}"
+  CD_DIR="${CD_DIR/#\$HOME/$HOME}"
+  CD_DIR="${CD_DIR/#\$\{HOME\}/$HOME}"
+  if [[ "${CD_DIR}" == *'$'* ]]; then
+    # Never eval agent-controlled input to expand it — an embedded command
+    # substitution would run before the gate decides.
+    fail "the command starts with 'cd ${CD_DIR}' — the pre-PR gate can't expand
+shell variables in cd targets. Retry with a literal absolute path."
+  fi
+  if [[ -d "${CD_DIR}" ]]; then
+    RUN_DIR="${CD_DIR}"
+    CD_PREFIX=1
+  else
+    fail "the command starts with 'cd ${CD_DIR}' but that directory doesn't exist."
+  fi
+fi
+
+# Exact-name check: trusts CLAUDE_INTEGRATION_BRANCH (default `main`) verbatim.
+BASE="${CLAUDE_INTEGRATION_BRANCH:-main}"
+if [[ "${CD_PREFIX}" == "0" ]] \
+  && git -C "${RUN_DIR}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  CURRENT_BRANCH="$(git -C "${RUN_DIR}" branch --show-current 2>/dev/null || true)"
+  if [[ -n "${CURRENT_BRANCH}" && "${CURRENT_BRANCH}" == "${BASE}" ]]; then
+    fail "this checkout is on the integration branch ('${BASE}') — the gate
+would validate the wrong code. Run the command from the branch's checkout
+instead: 'cd <ticket-worktree> && gh pr create …' (docs/WORKTREES.md)."
+  fi
+fi
+
 GATE_CMD="${CLAUDE_VALIDATE_CMD:-}"
 if [[ -z "${GATE_CMD}" ]]; then
   fail "no validation gate is configured. Set CLAUDE_VALIDATE_CMD to 'lint + full
@@ -63,15 +115,15 @@ test suite' (docs/TESTING.md §5, PROJECT.md §3–4), run it green, then retry.
 If this project has no test suite yet, run /tests to bootstrap one."
 fi
 
-echo "▶ pre-PR gate: ${GATE_CMD}" >&2
-if ! bash -lc "${GATE_CMD}" >&2; then
+echo "▶ pre-PR gate (in ${RUN_DIR}): ${GATE_CMD}" >&2
+if ! (cd "${RUN_DIR}" && bash -lc "${GATE_CMD}") >&2; then
   fail "the validation gate failed. Fix the failures above, then retry 'gh pr create'."
 fi
 
 E2E_CMD="${CLAUDE_E2E_SMOKE_CMD:-}"
 if [[ -n "${E2E_CMD}" ]]; then
   echo "▶ pre-PR e2e smoke: ${E2E_CMD}" >&2
-  if ! bash -lc "${E2E_CMD}" >&2; then
+  if ! (cd "${RUN_DIR}" && bash -lc "${E2E_CMD}") >&2; then
     fail "the e2e smoke suite failed — a core flow may be broken. Fix it, then retry."
   fi
 fi
@@ -82,16 +134,15 @@ case "${CMD}" in
   *"PR_GATE_ALLOW_NO_TESTS=1"*) ALLOW_NO_TESTS=1 ;;
 esac
 if [[ "${ALLOW_NO_TESTS}" != "1" ]] \
-  && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  BASE="${CLAUDE_INTEGRATION_BRANCH:-main}"
+  && git -C "${RUN_DIR}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   RANGE=""
-  if git rev-parse --verify --quiet "origin/${BASE}" >/dev/null; then
+  if git -C "${RUN_DIR}" rev-parse --verify --quiet "origin/${BASE}" >/dev/null; then
     RANGE="origin/${BASE}...HEAD"
-  elif git rev-parse --verify --quiet "${BASE}" >/dev/null; then
+  elif git -C "${RUN_DIR}" rev-parse --verify --quiet "${BASE}" >/dev/null; then
     RANGE="${BASE}...HEAD"
   fi
   if [[ -n "${RANGE}" ]]; then
-    CHANGED="$(git diff --name-only "${RANGE}" 2>/dev/null || true)"
+    CHANGED="$(git -C "${RUN_DIR}" diff --name-only "${RANGE}" 2>/dev/null || true)"
     TEST_RE='(^|/)(tests?|__tests__|cypress|e2e|spec)(/|$)|\.(test|spec|cy)\.|_test\.'
     CODE_RE='\.(ts|tsx|js|jsx|mjs|cjs|py|go|rb|rs|java|kt|kts|swift|cs|php|vue|svelte|dart|scala|ex|exs)$'
     code_changed="$(printf '%s\n' "${CHANGED}" | grep -E "${CODE_RE}" | grep -Ev "${TEST_RE}" || true)"
