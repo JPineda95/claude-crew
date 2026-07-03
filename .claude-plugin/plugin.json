@@ -1,7 +1,7 @@
 {
   "name": "claude-crew",
   "description": "A technology-agnostic AI engineering crew: 14 expert subagents (architect, frontend, backend, DBA, designer, QA, DevOps, copywriter, SEO/AEO, security, data compliance, and reviewers) plus an orchestrating workflow (/work), an optional Notion kanban ticket layer (/board, /feature, /bug, /spike, /epic), git/worktree/commit protocol, and quality gates.",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "author": { "name": "John Pineda" },
   "homepage": "https://github.com/JPineda95/claude-crew",
   "repository": "https://github.com/JPineda95/claude-crew",
