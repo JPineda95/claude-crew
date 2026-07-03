@@ -56,9 +56,12 @@ gate commands below exist and pass.*
 - **Test data & env:** *(how e2e seeds/cleans data; test DB/URL; secrets source)*
 
 ## 5. Git & integration
-- **Integration branch** *(what `<integration-branch>` means in the docs)*: `main`
+- **Integration branch** *(what `<integration-branch>` means in the docs —
+  never the production branch: the crew NEVER commits to `main`. If the repo
+  only has `main`, the crew creates `dev` off it on first run, pushes it, and
+  records it here)*: `dev`
 - **Production branch** *(what `/deploy` merges the integration branch into —
-  leave equal to the integration branch if there is no promotion step)*: `main`
+  only a human-run `/deploy` ever moves it)*: `main`
 - **Branch naming:** `<type>/<slug>` *(e.g. `feat/per-location-availability`)*
 - **Ship mode:** `pr` *(default: each finished unit of work is committed on its
   own branch, pushed, and opened as a PR — the human reviews and merges. How

@@ -7,7 +7,7 @@
 > This doc is technology-agnostic. Wherever it says **the validation gate**, run
 > the command your `PROJECT.md` declares (tests + lint + typecheck + build).
 > Wherever it says `<integration-branch>`, use the branch your `PROJECT.md`
-> integrates into (default `main`; some projects use `dev`/`develop`).
+> integrates into (default `dev` — the crew never integrates on `main`).
 
 ## 1. Mental model
 

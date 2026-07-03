@@ -117,7 +117,10 @@ Intake → Design → Plan → Test-first → Build → Verify → Review → Fi
   manual testing notes). Lint + the full test suite (+ e2e smoke) must pass
   first — a hook physically blocks PR creation while the gate is red. You
   review and merge — the crew never merges its own PR. (Set Ship mode `ask` in
-  `PROJECT.md` for prepare-and-wait instead.)
+  `PROJECT.md` for prepare-and-wait instead.) The crew **never commits to
+  `main`**: work integrates into `dev` (created automatically if the repo
+  doesn't have one), and a human-run `/deploy` is the only path into
+  production.
 
 **Open-PR policy (ticketed work):** at most one open crew PR per ticket (the
 ticket id is the key), and never more open crew ticket-PRs than **Max parallel

@@ -11,7 +11,11 @@ are the orchestrator — delegate; don't do it all yourself.
 ## Mode resolution (do this first)
 
 Read `PROJECT.md` — §5 for the integration branch and naming, §12 for the
-ticketing config (prefix, data source id, Max parallel tickets). Pick the mode
+ticketing config (prefix, data source id, Max parallel tickets). If §5 names
+no integration branch separate from the production/default branch — or the
+named branch doesn't exist — **create `dev` off the default branch, push it,
+record it in `PROJECT.md` §5, and use it**: the crew NEVER commits to `main`;
+only a human-run `/deploy` moves it (guardrail 1). Pick the mode
 deterministically from the input above:
 
 1. First token matches `^<PREFIX>-[0-9]+$` (prefix from §12) → **Ticket mode**.

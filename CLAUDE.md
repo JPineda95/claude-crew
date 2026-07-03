@@ -170,6 +170,11 @@ a third party that receives user data — and before any public launch.
    Never commit to or push the integration branch directly, and never merge
    your own PR — the human reviews and merges. How many PRs may be open at
    once is the open-PR policy (`docs/WORKFLOW.md` §8 — normative).
+   **NEVER commit to `main`** (or whatever the production/default branch is):
+   nothing moves it but a human-run `/deploy`. If the project has no
+   integration branch separate from it, create `dev` off it, push it, record
+   it in `PROJECT.md` §5, and work off `dev` — PRs target the integration
+   branch, never production.
 2. **Never force-push shared branches;** `--force-with-lease` only, on your own
    branch. Never rewrite published history.
 3. **Never commit secrets.** No `.env`, keys, or tokens in the diff, logs, or the

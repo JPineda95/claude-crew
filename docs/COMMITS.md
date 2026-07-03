@@ -6,7 +6,8 @@
 >
 > Technology-agnostic. **the validation gate** = the command your `PROJECT.md`
 > declares (tests + lint + typecheck + build). `<integration-branch>` = the
-> branch your `PROJECT.md` integrates into (default `main`).
+> branch your `PROJECT.md` integrates into (default `dev` — the crew never
+> integrates on `main`).
 
 ## 1. Integration strategy
 

@@ -3,6 +3,19 @@
 All notable changes to claude-crew. Follows [Keep a Changelog](https://keepachangelog.com/)
 loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
+## 2.1.0 — 2026-07-03
+
+### Changed
+
+- **New hard rule: the crew NEVER commits to `main`** (or the production/
+  default branch) — only a human-run `/deploy` moves it. Projects without an
+  integration branch separate from it get `dev` created automatically (off the
+  default branch, pushed, recorded in `PROJECT.md` §5) the first time the crew
+  works there; PRs always target the integration branch, never production.
+  `PROJECT.template.md` §5's default integration branch is now `dev`.
+  Encoded in CLAUDE.md guardrail 1, ENGINEERING.md §8, WORKFLOW.md §8,
+  work.md, ship.md, and the `/onboard` interview.
+
 ## 2.0.0 — 2026-07-03
 
 ### ⚠ Breaking
