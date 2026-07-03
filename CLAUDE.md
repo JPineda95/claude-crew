@@ -129,7 +129,9 @@ a third party that receives user data — and before any public launch.
 - **Tests are the gate (`docs/TESTING.md`):** TDD with red evidence is the
   default for anything with logic; every core flow keeps a green e2e spec;
   lint + the full suite (+ e2e smoke) must pass before any PR — the
-  `pre-pr-gate.sh` hook blocks `gh pr create` otherwise.
+  `pre-pr-gate.sh` hook blocks `gh pr create` otherwise; on GitHub-hosted
+  projects a CI workflow re-runs the same gate on every PR as a required
+  check (`docs/TESTING.md` §8).
 - **Shell discipline (charter §7):** agents run unattended — every command
   non-interactive (answers as flags, `CI=1`), nothing that can prompt, long
   installs/builds in the background.

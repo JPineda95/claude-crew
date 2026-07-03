@@ -26,6 +26,11 @@ Proceed:
       `PROJECT.md` §3–4, and `CLAUDE_VALIDATE_CMD` / `CLAUDE_E2E_SMOKE_CMD`
       in `.claude/settings.local.json` env so `validate.sh` and
       `pre-pr-gate.sh` enforce them.
+   6. The CI gate, when the repo is hosted on GitHub and has no workflow yet:
+      `.github/workflows/gate.yml` mirroring the validation gate
+      (`docs/TESTING.md` §8), recorded in `PROJECT.md` §4. Remind the human to
+      make it a required check on the integration branch — that part is
+      theirs (repo settings).
 4. **Build** — delegate waves to `qa-engineer` (parallelize where files are
    disjoint, worktrees per `docs/WORKTREES.md`). Every new test must fail if
    the behavior it protects breaks — spot-check by mutation (temporarily break
