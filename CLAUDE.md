@@ -136,6 +136,10 @@ a third party that receives user data — and before any public launch.
   branches by merge.
 - **Commits** are atomic and use Conventional Commits with a body that explains
   **why**. See **`docs/COMMITS.md`**.
+- **Deploys go through `/deploy`** (`docs/WORKFLOW.md` §9): it promotes the
+  integration branch into the production branch after re-running the gate. The
+  human invoking it is the explicit authorization guardrail 4 requires — never
+  promote on your own initiative.
 
 ---
 

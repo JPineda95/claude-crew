@@ -115,6 +115,7 @@ lifecycle is for changes that span layers or carry real risk.
 | `/comply [target]` | Data-compliance audit + generate privacy policy, ToS, cookie-banner spec |
 | `/tests [focus]` | Bootstrap or backfill the test suite — audit gaps by risk, then unit/integration/Cypress e2e for the core flows |
 | `/ship [context]` | Commit the work, push the feature branch, and open a PR for review |
+| `/deploy [context]` | Merge the integration branch into the production branch and push — the human-authorized deploy step |
 
 ---
 
@@ -165,7 +166,7 @@ claude-crew/
 ├── README.md
 ├── .claude/
 │   ├── agents/                # the 14 specialist subagents
-│   ├── commands/              # /onboard /feature /plan /review /harden /comply /ship /tests
+│   ├── commands/              # /onboard /feature /plan /review /harden /comply /ship /tests /deploy
 │   ├── skills/                # the taste library — 9 anti-slop design skills
 │   ├── scripts/               # validate.sh (Stop gate) + pre-pr-gate.sh (blocks red PRs)
 │   └── settings.json          # permissions + quality-gate hooks

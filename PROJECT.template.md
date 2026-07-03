@@ -57,6 +57,8 @@ gate commands below exist and pass.*
 
 ## 5. Git & integration
 - **Integration branch** *(what `<integration-branch>` means in the docs)*: `main`
+- **Production branch** *(what `/deploy` merges the integration branch into —
+  leave equal to the integration branch if there is no promotion step)*: `main`
 - **Branch naming:** `<type>/<slug>` *(e.g. `feat/per-location-availability`)*
 - **Ship mode:** `pr` *(default: each finished `/feature` is committed on its
   feature branch, pushed, and opened as a PR — the human reviews and merges, and

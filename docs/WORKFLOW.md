@@ -40,6 +40,7 @@ sizing" below). The full path for a substantial feature:
 6. Review        reviewer-architecture + reviewer-code-quality + reviewer-security (parallel)
 7. Fix & iterate address CRITICAL/WARNING findings; re-review (max ~3 rounds)
 8. Ship          gate green (lint + tests + e2e smoke) → commit, push, PR; human reviews & merges
+9. Deploy        human runs /deploy → gate re-run → integration branch merged into production
 ```
 
 ### 0. Intake
@@ -152,6 +153,18 @@ own PR. Address review comments with follow-up commits on the same branch
 (re-run the gate before pushing). The next feature starts only after this PR is
 merged or explicitly closed. `devops-engineer` handles the deploy and rollback
 plan — deploys always require explicit authorization.
+
+### 9. Deploy
+
+Projects that separate an integration branch from a production branch (e.g.
+`dev` → `main`, both set in `PROJECT.md` §5) promote with **`/deploy`**: it
+re-runs the validation gate on the integration branch, merges it into the
+production branch with `--no-ff`, and pushes — whatever pipeline watches the
+production branch takes it from there. The human running `/deploy` is the
+explicit authorization that deploys require; the crew never promotes on its own
+initiative. If the production branch is protected against direct pushes, the
+command opens a release PR instead. When the two branches are the same, there
+is no promotion step and `/deploy` is a no-op.
 
 ## Parallelization & worktrees
 
