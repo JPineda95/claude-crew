@@ -37,7 +37,7 @@ spawn subagents — all fan-out happens here in the main thread.**
 | `database-architect` | Schema, migrations, indexing, access policies, query performance |
 | `backend-engineer` | APIs, business logic, auth, jobs, integrations |
 | `frontend-engineer` | Components, pages, client state, accessibility, UI performance |
-| `qa-engineer` | Test strategy & tests — before impl (failing tests) and after (verify) |
+| `qa-engineer` | Test strategy & tests — failing tests before impl, verification after; owns the e2e core-flow suite (`docs/TESTING.md`) |
 | `security-engineer` | Threat modeling & hardening — auth, money, PII, uploads, external input |
 | `devops-engineer` | CI/CD, IaC, containers, deploys, config, observability |
 | `copywriter` | UI microcopy, errors, emails, marketing copy — in the right locale |
@@ -65,7 +65,9 @@ Intake → Design → Plan → Test-first → Build → Verify → Review → Fi
   read `PROJECT.md`.
 - **Design & Plan:** `architect` produces a design brief + a task list with
   owners, dependencies, and a hot-file map (which files multiple tasks touch).
-- **Test-first:** `qa-engineer` writes failing tests before implementation (TDD).
+- **Test-first:** `qa-engineer` writes failing tests before implementation
+  (TDD, `docs/TESTING.md`) — red evidence required; e2e specs update when a
+  core flow changes.
 - **Build:** delegate each task to its owner. Run independent, disjoint-file
   tasks **in parallel** (spawn agents in one turn); serialize on hot files.
 - **Verify:** agents self-verify; `qa-engineer` runs the full suite. Never claim
@@ -75,8 +77,10 @@ Intake → Design → Plan → Test-first → Build → Verify → Review → Fi
   `APPROVE` / `REQUEST CHANGES` with severity-tagged findings.
 - **Fix & iterate:** fix every CRITICAL, weigh WARNING/SUGGESTION, re-run the
   gate, re-review if needed (cap ~3 rounds, then escalate).
-- **Ship:** only when reviewers approve and the gate is green — then prepare
-  commits and get authorization (see Guardrails).
+- **Ship:** only when reviewers approve and the gate is green — then commit on
+  the feature branch, push it, and open a PR with a complete description
+  (`docs/WORKFLOW.md` §8). The human reviews and merges; never merge your own
+  PR, and don't start the next feature until they do.
 
 **When a subagent fails or stalls** (e.g. "Agent stalled: no progress"), do not
 re-run it blindly: its partial work persists in its worktree. Inspect the state
@@ -105,6 +109,10 @@ a third party that receives user data — and before any public launch.
   `docs/COMMITS.md`.
 - **Verify, then claim.** Run it, test it, read the output. Report failures
   honestly with evidence.
+- **Tests are the gate (`docs/TESTING.md`):** TDD with red evidence is the
+  default for anything with logic; every core flow keeps a green e2e spec;
+  lint + the full suite (+ e2e smoke) must pass before any PR — the
+  `pre-pr-gate.sh` hook blocks `gh pr create` otherwise.
 - **Shell discipline (charter §7):** agents run unattended — every command
   non-interactive (answers as flags, `CI=1`), nothing that can prompt, long
   installs/builds in the background.
@@ -115,9 +123,12 @@ a third party that receives user data — and before any public launch.
 
 ## Git, worktrees & commits (summary — full text in the docs)
 
+- **One feature → one branch → one PR.** Each `/feature` gets its own branch off
+  the integration branch and ships as a pull request the human merges
+  (`docs/WORKFLOW.md` §8).
 - **One task → one branch.** Parallel agents editing at once get isolated
-  worktrees (`claude --worktree <name>`, or `isolation: worktree`). See
-  **`docs/WORKTREES.md`**.
+  worktrees (`claude --worktree <name>`, or `isolation: worktree`), branched off
+  the feature branch. See **`docs/WORKTREES.md`**.
 - **Minimize conflicts by decomposition:** assign disjoint file ownership;
   serialize writes to hot files.
 - **Rebase your own feature branch** onto the integration branch to stay current;
@@ -130,9 +141,13 @@ a third party that receives user data — and before any public launch.
 
 ## Guardrails (hard rules)
 
-1. **Commit/push only when authorized.** Do not commit or push unless the user
-   asked or `PROJECT.md` opts into autonomous commits. Preparing a commit and
-   showing it for approval is always fine. If on the default branch, branch first.
+1. **Ship through the PR gate.** Committing on the feature branch, pushing it,
+   and opening the PR when a feature is finished (reviewers approve + gate
+   green) is standing policy — no per-feature authorization needed
+   (`PROJECT.md` can set **Ship mode: `ask`** to revert to prepare-and-wait).
+   Never commit to or push the integration branch directly, and never merge
+   your own PR — the human reviews and merges, and the next feature waits for
+   that merge.
 2. **Never force-push shared branches;** `--force-with-lease` only, on your own
    branch. Never rewrite published history.
 3. **Never commit secrets.** No `.env`, keys, or tokens in the diff, logs, or the

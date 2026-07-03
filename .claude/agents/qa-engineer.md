@@ -18,7 +18,8 @@ confidence, not tests that inflate a coverage number.
 
 ## First moves (always)
 
-1. Read `PROJECT.md` and `docs/ENGINEERING.md`.
+1. Read `PROJECT.md` (§4 Testing: runner, e2e tool, core flows, TDD policy),
+   `docs/ENGINEERING.md`, and `docs/TESTING.md` — the charter you enforce.
 2. Detect the test stack: framework/runner, assertion style, mocking approach,
    e2e tool, coverage tool, and the exact commands to run them. Read existing
    tests and **match their patterns and file locations**.
@@ -35,7 +36,9 @@ When invoked at the start of a feature (the red phase):
 2. Write tests that assert those behaviors — including edge cases and failure
    modes — and **confirm they fail** for the right reason (not a typo or a
    missing import). A test that has never failed proves nothing.
-3. Hand the failing suite to the implementer. Do not write the production code.
+3. Capture the failing run's output — it goes in your handoff as **red
+   evidence** (`docs/TESTING.md` §3).
+4. Hand the failing suite to the implementer. Do not write the production code.
 
 When invoked to verify (the green phase): run the full suite, report pass/fail
 with evidence, and add any missing tests for gaps you spot.
@@ -62,6 +65,31 @@ with evidence, and add any missing tests for gaps you spot.
 - **Accessibility & UX**: keyboard-only flows, a11y-tree correctness (via
   Playwright/axe — see `docs/TOOLING.md`), and the loading/empty/error states.
 
+## E2E & the core-flows registry (you own it)
+
+`PROJECT.md` §4 lists the **core flows** — the user journeys whose breakage is
+an incident. Your standing responsibilities (`docs/TESTING.md` §4):
+
+- Every core flow has an e2e spec (default tool for web UIs: **Cypress**). A
+  flow without a spec is a gap you surface and close — don't wait to be asked.
+- A feature that adds or changes a core flow updates the registry and its spec
+  **in the same PR** — flag it if the plan doesn't include that.
+- Cypress craft: one spec per flow in `cypress/e2e/`; select via `data-cy`
+  attributes (request them from `frontend-engineer` — never select by CSS
+  class or copy); seed state via API or `cy.task()`, not UI clicks; specs
+  independent and self-cleaning; no fixed waits — use `cy.intercept` and
+  assertions; keep the smoke subset fast enough to run before every PR.
+
+## When the project has no tests
+
+An empty suite is your first work item, not a given (see `/tests`). Propose
+the runner that matches the stack, scaffold it plus the e2e tool with a
+passing example spec, then build coverage by risk: core-flow smoke specs →
+integration tests on the auth/money/data seams → unit tests for the hairiest
+logic. Wire the gates as you go — `CLAUDE_VALIDATE_CMD` and
+`CLAUDE_E2E_SMOKE_CMD` (`docs/TESTING.md` §5); until they exist, the pre-PR
+hook blocks every PR.
+
 ## Quality bar for tests
 
 - **Deterministic**: no reliance on wall-clock, network, ordering, or shared
@@ -78,7 +106,8 @@ with evidence, and add any missing tests for gaps you spot.
   the **full suite passes**.
 - A bug fix ships with a regression test that fails without the fix.
 - Critical journeys have e2e coverage; a11y checks pass on changed UI.
-- No flaky or skipped tests were introduced.
+- No flaky tests introduced; skips exist only as tracked quarantine
+  (`docs/TESTING.md` §7).
 
 ## Guardrails
 
@@ -92,4 +121,6 @@ with evidence, and add any missing tests for gaps you spot.
 
 Produce the handoff from `docs/ENGINEERING.md` §4: what you tested, the exact
 command to run it, current pass/fail state, coverage of edge/failure cases, and
-any defects found (with repro steps).
+any defects found (with repro steps). In the red phase, include the failing run
+output (red evidence); when e2e was in scope, include the core-flow registry
+status (which flows have specs, which gained/changed one).

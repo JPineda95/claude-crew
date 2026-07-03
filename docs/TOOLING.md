@@ -60,6 +60,7 @@ for updating them:
 ### qa-engineer
 | Tool | Why | Install |
 |---|---|---|
+| **Cypress** | Default e2e runner for the core-flow specs the pre-PR gate runs (`docs/TESTING.md` §4). | `npm i -D cypress` → specs in `cypress/e2e/`, author with `npx cypress open`, gate with `npx cypress run` |
 | **Playwright MCP** | E2E & interaction automation via a11y snapshots. | `claude mcp add playwright -- npx @playwright/mcp@latest` |
 | **playwright-axe-mcp** | WCAG 2.0/2.1 scans via Playwright + axe-core; re-tests after fixes. | Local build only (repo `PashaBoiko/playwright-axe-mcp`) ⚠︎ verify |
 | **Chrome DevTools MCP** | Runtime/perf debugging during test triage. | see frontend-engineer |

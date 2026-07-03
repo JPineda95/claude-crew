@@ -48,7 +48,9 @@ If the stack is ambiguous and the choice is consequential, ask — do not guess.
 A change is done only when **all** of these hold:
 
 - [ ] It does what the task asked, and nothing it wasn't asked to do.
-- [ ] Tests exist for the new behavior and the **full test suite passes**.
+- [ ] Tests exist for the new behavior — written first when feasible (TDD,
+      `docs/TESTING.md`) — and the **full test suite passes**.
+- [ ] A changed core flow has its e2e spec updated (`docs/TESTING.md` §4).
 - [ ] Linter and formatter pass with zero new warnings.
 - [ ] The build/typecheck succeeds.
 - [ ] No secrets, credentials, or PII are committed.
@@ -129,6 +131,8 @@ task fails. Rules:
   rebase shared/published history.
 - Commit in atomic units with Conventional Commit messages that explain **why**.
   See `docs/COMMITS.md`.
-- **Never commit or push without explicit human authorization** unless the
-  project's `PROJECT.md` opts into autonomous commits. Preparing a commit and
-  showing it for approval is always allowed.
+- **Ship via pull request.** A finished feature is committed on its feature
+  branch, pushed, and opened as a PR with a complete description
+  (`docs/WORKFLOW.md` §8) — standing policy, unless `PROJECT.md` sets Ship
+  mode `ask`. Never push the integration branch, never merge a crew PR, and
+  never deploy without explicit human authorization.

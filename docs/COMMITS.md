@@ -215,10 +215,11 @@ Refs: #467
 These are **hard constraints**. An agent that cannot satisfy them stops and
 reports rather than proceeding.
 
-1. **Commit/push only when authorized.** Do not commit or push unless the human
-   asked, or `PROJECT.md` explicitly opts into autonomous commits. Preparing a
-   commit and showing it for approval is always allowed. If on the default
-   branch, branch first.
+1. **Ship through the PR gate.** Commit on your own feature/task branch — never
+   the integration branch (if on it, branch first). At feature completion, push
+   the feature branch and open a PR (WORKFLOW.md §8); that is standing policy
+   unless `PROJECT.md` sets Ship mode `ask`. Merging the PR is the human's
+   call — never merge your own.
 2. **Verify before commit.** Run **the validation gate** and commit only when it
    passes. Never commit code that fails tests or lint.
 3. **Never force-push a shared/published branch.** `main`, `dev`, `release/*`, or

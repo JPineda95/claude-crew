@@ -51,9 +51,16 @@ Open the folder in Claude Code and start with `/feature <what to build>`.
 ### Option B — add the crew to an existing project
 ```bash
 /path/to/claude-crew/scripts/install.sh /path/to/your/project
+
+# later, after pulling new crew versions, sync them into the project:
+/path/to/claude-crew/scripts/update.sh /path/to/your/project
 ```
-Copies the agents, commands, scripts, docs, and orchestrator into the target
-(non-destructively), and seeds `PROJECT.md` from the template.
+Copies the agents, commands, scripts, skills, docs, and orchestrator into the
+target (non-destructively), and seeds `PROJECT.md` from the template.
+`update.sh` uses the recorded manifest to update untouched files in place while
+protecting anything you customized — your version stays, the new one lands
+next to it as `<file>.crew-new` (`settings.json` → `settings.crew.json`) for a
+manual merge. `PROJECT.md` is never touched.
 
 ### Option C — install as a Claude Code plugin
 ```bash
@@ -87,8 +94,12 @@ Intake → Design → Plan → Test-first → Build → Verify → Review → Fi
   in git worktrees when they edit at the same time.
 - **Review** — three reviewers run in parallel and return `APPROVE` /
   `REQUEST CHANGES` with severity-tagged findings.
-- **Ship** — commits are atomic and message-rich; the crew asks before committing
-  unless you opt into autonomous commits in `PROJECT.md`.
+- **Ship** — commits are atomic and message-rich; each feature ships from its own
+  branch as a pull request with a complete description. Lint + the full test
+  suite (+ e2e smoke) must pass first — a hook physically blocks PR creation
+  while the gate is red. You review and merge — the crew never merges its own
+  PR, and the next feature waits for that merge. (Set Ship mode `ask` in
+  `PROJECT.md` for prepare-and-wait instead.)
 
 Process is **right-sized**: a typo is a one-line edit, not a committee. The full
 lifecycle is for changes that span layers or carry real risk.
@@ -102,7 +113,8 @@ lifecycle is for changes that span layers or carry real risk.
 | `/review [base]` | Run the three reviewers in parallel on the current diff |
 | `/harden [target]` | Threat-model + security-review a change or area |
 | `/comply [target]` | Data-compliance audit + generate privacy policy, ToS, cookie-banner spec |
-| `/ship [context]` | Prepare atomic, well-messaged commits (asks before committing) |
+| `/tests [focus]` | Bootstrap or backfill the test suite — audit gaps by risk, then unit/integration/Cypress e2e for the core flows |
+| `/ship [context]` | Commit the work, push the feature branch, and open a PR for review |
 
 ---
 
@@ -130,6 +142,9 @@ Update commands for each source live in [`docs/TOOLING.md`](docs/TOOLING.md).
   stack detection, Definition of Done, and the handoff format every agent uses.
 - **[docs/WORKFLOW.md](docs/WORKFLOW.md)** — when to spin up each agent, how to
   parallelize, and how to right-size the process.
+- **[docs/TESTING.md](docs/TESTING.md)** — the testing charter: tests as the
+  executable spec, TDD with red evidence, Cypress e2e for core flows, and the
+  pre-PR gate that blocks untested PRs.
 - **[docs/WORKTREES.md](docs/WORKTREES.md)** — running many agents in parallel
   without collisions: worktrees, disjoint file ownership, hot-file locking,
   cleanup. Uses Claude Code's native `--worktree` / `isolation: worktree`.
@@ -150,14 +165,15 @@ claude-crew/
 ├── README.md
 ├── .claude/
 │   ├── agents/                # the 14 specialist subagents
-│   ├── commands/              # /onboard /feature /plan /review /harden /comply /ship
+│   ├── commands/              # /onboard /feature /plan /review /harden /comply /ship /tests
 │   ├── skills/                # the taste library — 9 anti-slop design skills
-│   ├── scripts/validate.sh    # the validation-gate hook
-│   └── settings.json          # permissions + Stop-hook quality gate
+│   ├── scripts/               # validate.sh (Stop gate) + pre-pr-gate.sh (blocks red PRs)
+│   └── settings.json          # permissions + quality-gate hooks
 ├── .claude-plugin/            # plugin.json + marketplace.json (Option C)
-├── docs/                      # ENGINEERING, WORKFLOW, WORKTREES, COMMITS, TOOLING
+├── docs/                      # ENGINEERING, WORKFLOW, TESTING, WORKTREES, COMMITS, TOOLING
 ├── scripts/
 │   ├── install.sh             # copy the crew into an existing project
+│   ├── update.sh              # pull crew updates into an installed project
 │   └── build-plugin.sh        # assemble the plugin form into dist/
 ├── .mcp.json.example          # copy → .mcp.json, keep only what you use
 └── .worktreeinclude.example   # git-ignored files to seed into new worktrees

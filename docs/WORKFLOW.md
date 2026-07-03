@@ -36,10 +36,10 @@ sizing" below). The full path for a substantial feature:
 2. Plan          architect produces the task list, owners, dependencies, hot files
 3. Test-first    qa-engineer writes failing tests (red)
 4. Build         specialists implement in parallel where files are disjoint (green)
-5. Verify        qa-engineer runs the suite; agents self-verify (run the app/tests)
+5. Verify        qa-engineer runs the full suite + e2e smoke; agents self-verify
 6. Review        reviewer-architecture + reviewer-code-quality + reviewer-security (parallel)
 7. Fix & iterate address CRITICAL/WARNING findings; re-review (max ~3 rounds)
-8. Ship          orchestrator prepares commits; human authorizes; devops deploys
+8. Ship          gate green (lint + tests + e2e smoke) → commit, push, PR; human reviews & merges
 ```
 
 ### 0. Intake
@@ -73,8 +73,12 @@ decide what runs in parallel and what must serialize (see "Parallelization").
 ### 3. Test-first (red)
 
 Spin up `qa-engineer` to translate acceptance criteria into failing tests
-**before** implementation. Confirm they fail for the right reason. This is the
-default per the TDD workflow; skip only for changes with no testable logic.
+**before** implementation ([TESTING.md](./TESTING.md) §3), including the e2e
+spec when the feature adds or changes a core flow. Confirm they fail for the
+right reason and capture the failing output as **red evidence** in the handoff.
+TDD is the default for anything with logic; exemptions are narrow (pure
+copy/docs/config) and MUST be recorded in the PR's Testing section — the
+pre-PR hook refuses code changes that touch no tests.
 
 ### 4. Build (green)
 
@@ -88,8 +92,10 @@ follows the Engineering Charter.
 ### 5. Verify
 
 Each agent self-verifies (runs the tests/app for its change). Then `qa-engineer`
-runs the full suite and does exploratory/e2e checks on the critical path. Nothing
-proceeds on an unverified claim — run it and read the output.
+runs the full suite plus the e2e smoke set for any touched core flow
+([TESTING.md](./TESTING.md) §4–5), and does exploratory checks on the critical
+path. Nothing proceeds on an unverified claim — run it and read the output; the
+summary feeds the PR's Testing section.
 
 ### 6. Review (the gate)
 
@@ -109,10 +115,43 @@ introduce new issues, re-review — cap at ~3 rounds, then escalate to the human
 ### 8. Ship
 
 Only when: all reviewers `APPROVE`, the validation gate is green, and commits
-follow [COMMITS.md](./COMMITS.md). The orchestrator prepares atomic commits and
-**waits for explicit human authorization** to commit/push unless `PROJECT.md`
-opts into autonomous commits. `devops-engineer` handles the deploy and rollback
-plan.
+follow [COMMITS.md](./COMMITS.md). Then the orchestrator ships — this is
+standing policy, no per-feature authorization needed (`PROJECT.md` can set
+**Ship mode: `ask`** to revert to prepare-and-wait):
+
+1. **Run the pre-PR gate fresh**: lint + the full test suite, plus the e2e
+   smoke set when configured ([TESTING.md](./TESTING.md) §5). This is also
+   enforced deterministically — the `.claude/scripts/pre-pr-gate.sh` hook
+   blocks `gh pr create` while the gate is red or unconfigured, or when the
+   diff changes code without touching a single test.
+2. Write atomic commits on the feature branch per [COMMITS.md](./COMMITS.md).
+3. Push the feature branch — never the integration branch.
+4. Open a PR against `<integration-branch>` with `gh pr create` (title in
+   Conventional Commit style). If `gh` is missing or unauthenticated, push,
+   then hand the human the compare URL plus the description text.
+5. Report the PR URL and stop.
+
+**The PR description** must let the reviewer judge the change without
+re-deriving context:
+
+- **Summary** — what the feature does and why, 2–4 sentences, user-visible
+  behavior first.
+- **Changes** — grouped by area (schema / API / UI / tests / infra), one line
+  each; call out key design decisions and any deviation from the design brief.
+- **How to verify** — exact commands plus the manual steps to see it working.
+- **Testing** — what is covered, the gate + e2e smoke results (paste the
+  summary), and anything deliberately untested **with the reason** (TDD
+  exemptions and `PR_GATE_ALLOW_NO_TESTS` overrides are justified here).
+- **Crew review** — reviewer verdicts and rounds; any unresolved WARNINGs with
+  the reasoning for shipping anyway.
+- **Risks & follow-ups** — migrations, env/config changes, rollback notes,
+  known limitations.
+
+**The PR is the gate.** The human reviews and merges; the crew never merges its
+own PR. Address review comments with follow-up commits on the same branch
+(re-run the gate before pushing). The next feature starts only after this PR is
+merged or explicitly closed. `devops-engineer` handles the deploy and rollback
+plan — deploys always require explicit authorization.
 
 ## Parallelization & worktrees
 

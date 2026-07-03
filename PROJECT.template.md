@@ -35,36 +35,56 @@
 - **Build / typecheck:** `…`
 - **Migrations (up/down):** `…`
 
-## 4. Git & integration
+## 4. Testing
+*`docs/TESTING.md` governs how the crew writes and runs tests; this section
+declares this project's specifics. The pre-PR hook blocks every PR until the
+gate commands below exist and pass.*
+
+- **Unit/integration runner & command:** `…` *(e.g. Vitest — `npm run test`)*
+- **E2E tool & command:** `…` *(default for web UIs: Cypress — `npx cypress run`;
+  CLI/API projects use the equivalent top-level harness, or state `none —
+  covered at integration layer` explicitly)*
+- **E2E smoke subset (runs before every PR):** `…` *(e.g.
+  `npx cypress run --spec "cypress/e2e/smoke/**"`)*
+- **Core flows** *(the ≈5–10 user journeys that must never break — each one gets
+  an e2e spec, kept current by `qa-engineer`)*:
+  1. *e.g. sign up → onboard → land on dashboard*
+  2. *e.g. search → book → confirmation email*
+- **TDD policy:** `default` *(failing tests first for anything with logic —
+  `docs/TESTING.md` §3)*
+- **Coverage focus:** *(optional: a floor %, or the hotspots that must stay covered)*
+- **Test data & env:** *(how e2e seeds/cleans data; test DB/URL; secrets source)*
+
+## 5. Git & integration
 - **Integration branch** *(what `<integration-branch>` means in the docs)*: `main`
 - **Branch naming:** `<type>/<slug>` *(e.g. `feat/per-location-availability`)*
-- **Autonomous commits?** `no` *(default: agents prepare commits and wait for
-  human approval. Set to `yes` only if you want the crew to commit without asking
-  — pushing/deploying still needs authorization.)*
+- **Ship mode:** `pr` *(default: each finished `/feature` is committed on its
+  feature branch, pushed, and opened as a PR — the human reviews and merges, and
+  the next feature waits for that merge. Set to `ask` to have the crew prepare
+  commits and wait for approval instead. Deploys always need authorization.)*
 - **Autonomous deploy?** `no`
 
-## 5. Conventions & non-negotiables
+## 6. Conventions & non-negotiables
 *Project-specific rules that override defaults. Examples:*
 - *Code style specifics (indent, quotes) beyond what the formatter enforces.*
 - *"All timezone logic flows through `src/lib/timezone-service.ts`."*
 - *"Server actions only — no REST layer."*
 - *"RLS on every table; users access only their own rows."*
-- *Testing policy (e.g. "TDD always; write failing tests first").*
 
-## 6. Architecture notes
+## 7. Architecture notes
 *A few sentences or a small map: routing model, data-flow pattern, where the
 important code lives. Enough that `architect` and reviewers orient fast.*
 
-## 7. Tooling installed
+## 8. Tooling installed
 *Which MCP servers / plugins from `docs/TOOLING.md` this project uses, so agents
 know what tools they can call.*
 - *e.g. Supabase MCP (read-only), Playwright MCP, Context7, security-guidance.*
 
-## 8. Environment
+## 9. Environment
 *Required env vars (names only — never values). Where secrets live. Which
 git-ignored files a fresh worktree needs (mirror these in `.worktreeinclude`).*
 
-## 9. Data & compliance
+## 10. Data & compliance
 *What `data-compliance-officer` needs to know. The applicable law follows your
 users, not your company address.*
 
@@ -78,6 +98,6 @@ users, not your company address.*
 - **Known constraints:** *(e.g. "clients' end-customers are also data subjects",
   "no minors", "health data → special category")*
 
-## 10. Out of scope / known constraints
+## 11. Out of scope / known constraints
 *Things not to touch, decisions already made, deliberate tech debt, deadlines,
 budget limits.*
