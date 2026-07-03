@@ -96,8 +96,18 @@ shell variables in cd targets. Retry with a literal absolute path."
   fi
 fi
 
-# Exact-name check: trusts CLAUDE_INTEGRATION_BRANCH (default `main`) verbatim.
-BASE="${CLAUDE_INTEGRATION_BRANCH:-main}"
+# Exact-name check: trusts CLAUDE_INTEGRATION_BRANCH verbatim. Unset, it
+# prefers `dev` when the repo has one — the crew never integrates on main
+# (CLAUDE.md guardrail 1) — falling back to `main`.
+BASE="${CLAUDE_INTEGRATION_BRANCH:-}"
+if [[ -z "${BASE}" ]]; then
+  if git -C "${RUN_DIR}" rev-parse --verify --quiet "origin/dev" >/dev/null 2>&1 \
+    || git -C "${RUN_DIR}" rev-parse --verify --quiet "dev" >/dev/null 2>&1; then
+    BASE="dev"
+  else
+    BASE="main"
+  fi
+fi
 if [[ "${CD_PREFIX}" == "0" ]] \
   && git -C "${RUN_DIR}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   CURRENT_BRANCH="$(git -C "${RUN_DIR}" branch --show-current 2>/dev/null || true)"

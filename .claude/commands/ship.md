@@ -20,7 +20,10 @@ Steps:
    (`docs/TESTING.md` §3) — the pre-PR hook will refuse the PR anyway.
 2. **Confirm the branch.** If on the integration/default branch, create the
    feature branch first (`<type>/<slug>` per `PROJECT.md` naming). Never commit
-   to the integration branch directly.
+   to the integration branch directly — and NEVER to `main`/the production
+   branch. The PR targets `<integration-branch>` only; if `PROJECT.md` §5
+   names none separate from production, create `dev` off the default branch,
+   push it, record it in §5, and target that.
 3. **Ticket linkage.** If the branch name carries a ticket id
    (`<type>/<PREFIX>-<n>-…`, prefix from `PROJECT.md` §12), this is ticketed
    work (`docs/TICKETS.md` §5): use `Refs: <ID>` commit trailers, suffix the PR

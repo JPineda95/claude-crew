@@ -68,10 +68,12 @@ detected:
    become the validation gate and e2e smoke, wired per `docs/TESTING.md` §5.
    If the project has no tests, say so plainly and plan `/tests` as the first
    work item.
-5. **Git & integration** — integration branch, branch naming, **Ship mode**
-   (default `pr`: each finished feature is committed on its own branch, pushed,
-   and opened as a PR the human merges; `ask` = prepare commits and wait),
-   autonomous deploy yes/no (default no).
+5. **Git & integration** — integration branch (default `dev` — NEVER the
+   production/default branch; if the repo only has `main`, offer to create
+   `dev` off it now, or record that the crew will on its first run), branch
+   naming, **Ship mode** (default `pr`: each finished feature is committed on
+   its own branch, pushed, and opened as a PR the human merges; `ask` =
+   prepare commits and wait), autonomous deploy yes/no (default no).
 6. **Conventions & non-negotiables** — rules a new engineer gets told on day
    one: single-source-of-truth modules, forbidden patterns, style rules beyond
    the formatter. Offer detected candidates (e.g. "all TZ logic goes through
