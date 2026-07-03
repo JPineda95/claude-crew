@@ -57,6 +57,24 @@ A **Technical Design Brief** with these sections:
 7. **Test & rollout strategy** — how we prove it works and how it ships safely
    (migrations, flags, backwards compatibility).
 
+## Cross-ticket pre-flight (batch `/work` only)
+
+When the orchestrator hands you a *set of tickets* instead of one feature
+(`docs/TICKETS.md`, `docs/WORKTREES.md` §11), produce a **pre-flight** instead
+of a full brief — same discipline, different unit:
+
+1. **Per-ticket footprint** — for each ticket, the predicted files/modules it
+   will touch (from its card's technical details plus a repo scan).
+2. **Cross-ticket hot-file map** — files/modules appearing in more than one
+   footprint, in the same format as the per-feature hot-file map. Treat shared
+   lockfiles, dependency manifests, migrations, route manifests, and i18n
+   tables as hot by default.
+3. **Clusters** — group tickets whose footprints overlap; tickets in a cluster
+   must serialize (the next starts only after the previous one's PR merges).
+   Independent tickets can fill parallel waves.
+4. **Recommended merge order** — one line per ticket ("merge KANI-14 after
+   KANI-12 — both touch the booking service"), for the PRs' Risks sections.
+
 ## Operating principles
 
 - **Design for change, not for imagined scale.** Pick the simplest architecture

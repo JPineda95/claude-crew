@@ -43,7 +43,9 @@ Detect and note, with evidence:
 - **Data & compliance signals**: datastore, auth provider, third-party SDKs/
   pixels/email/analytics/payments in the dependency list, personal-data-looking
   columns in the schema, existing policy pages, UI locale from the strings.
-- **Tooling**: `.mcp.json`, installed plugins, existing `.claude/` config.
+- **Tooling**: `.mcp.json`, installed plugins, existing `.claude/` config —
+  including whether a Notion MCP is connected and whether `PROJECT.md` §12
+  already records a ticket board.
 - An existing `PROJECT.md` → switch to **update mode**: diff it against reality
   and the template, and only interview for what's missing, stale, or new.
 
@@ -85,6 +87,10 @@ detected:
     special-category constraints. Offer what the scan found as the starting list.
 11. **Out of scope / known constraints** — what not to touch, decisions already
     made, deliberate tech debt, deadlines/budget.
+12. **Ticketing** — does the team want the optional Notion kanban
+    (`docs/TICKETS.md`)? Default `none`. If yes, record `Ticketing: none` for
+    now anyway and point at `/board` — onboarding never creates Notion
+    artifacts; `/board` does, and it fills in the §12 identifiers itself.
 
 If an answer contradicts the code (e.g. user names a command that doesn't
 exist), say so and resolve it now — don't record either version silently.
@@ -101,4 +107,5 @@ exist), say so and resolve it now — don't record either version silently.
 4. Close with the two-line status: which sections carry `TODO`s, and the
    recommended next step (usually installing tooling from `docs/TOOLING.md`;
    then `/tests` if the project has no suite yet — the pre-PR hook blocks PRs
-   until the gate exists; then `/feature`).
+   until the gate exists; then `/board` if the team wants the kanban; then
+   `/work` — or `/feature` to file the first ticket).

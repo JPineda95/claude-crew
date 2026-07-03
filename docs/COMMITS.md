@@ -154,7 +154,10 @@ git push --force-with-lease
 - **Wrap the body at 72 columns**; subject ≤ 50–72 chars.
 - **Atomic commits:** one logical change per commit; it builds and passes the gate
   on its own and can be reverted in isolation.
-- **Reference issues** in a footer: `Refs: #123`, `Closes: #123`.
+- **Reference issues** in a footer: `Refs: #123`, `Closes: #123`. For ticketed
+  work ([TICKETS.md](./TICKETS.md)) reference the card as `Refs: KANI-12` —
+  the bare ticket id, **never** `#`-prefixed (`#12` autolinks to an unrelated
+  GitHub issue). Keep `Refs: #n` for actual GitHub issues.
 - **Blank line** between subject and body, and before footers.
 
 **Template**

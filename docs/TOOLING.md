@@ -184,6 +184,20 @@ engine-specific server, plus **Prisma/Drizzle MCP** if that ORM is in use.
 > agent drafts (privacy policy, ToS, cookie policy) is a draft for review by
 > qualified counsel in the relevant jurisdiction.
 
+### orchestrator — ticketing (optional)
+| Tool | Why | Install |
+|---|---|---|
+| **Notion MCP (official, hosted)** | Powers the optional kanban ticket layer (`docs/TICKETS.md`): `/board` creates the board; `/feature` `/bug` `/spike` `/epic` file cards; `/work` reads Dev Ready tickets and moves cards. | `claude mcp add --transport http --scope user notion https://mcp.notion.com/mcp`, then `/mcp` to complete the OAuth |
+
+> **Caveats that shape the crew's usage** (already baked into `docs/TICKETS.md`):
+> Notion's SQL and view-query tools need a Business-plan workspace with Notion
+> AI — the crew never depends on them (scoped-search + fetch fallback,
+> verified on a non-Business workspace). The installed server's
+> tool-name prefix varies, so commands reference tools by function, never by
+> full name. Before batch `/work`, allowlist your Notion server's tools in
+> `.claude/settings.local.json` permissions or unattended runs stall on
+> permission prompts.
+
 ## 2. Plugin marketplaces worth adding
 
 | Marketplace | What it offers | Add | Verdict |

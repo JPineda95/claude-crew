@@ -27,6 +27,11 @@
 
 ## The default lifecycle
 
+**`/work` drives this lifecycle** — with a plain description (classic mode), a
+ticket id, or across every Dev Ready ticket on the board
+([TICKETS.md](./TICKETS.md)). `/feature`, `/bug`, `/spike`, and `/epic` *file
+tickets*; they don't build.
+
 Not every task needs every phase. Scale the process to the risk (see "Right-
 sizing" below). The full path for a substantial feature:
 
@@ -128,8 +133,13 @@ standing policy, no per-feature authorization needed (`PROJECT.md` can set
 2. Write atomic commits on the feature branch per [COMMITS.md](./COMMITS.md).
 3. Push the feature branch — never the integration branch.
 4. Open a PR against `<integration-branch>` with `gh pr create` (title in
-   Conventional Commit style). If `gh` is missing or unauthenticated, push,
-   then hand the human the compare URL plus the description text.
+   Conventional Commit style; for ticketed work append the ticket id as a
+   suffix — `feat: add user invites (KANI-12)` — never `#`-prefixed, which
+   GitHub would autolink to the wrong issue). Open it **from the branch's own
+   checkout** — in a ticket worktree that means `cd <worktree> && gh pr create`
+   so the pre-PR hook validates the right code. If `gh` is missing or
+   unauthenticated, push, then hand the human the compare URL plus the
+   description text.
 5. Report the PR URL and stop.
 
 **The PR description** must let the reviewer judge the change without
@@ -137,9 +147,22 @@ re-deriving context:
 
 - **Summary** — what the feature does and why, 2–4 sentences, user-visible
   behavior first.
+- **Ticket** — for ticketed work: the ticket id and card URL
+  ([TICKETS.md](./TICKETS.md) §5).
 - **Changes** — grouped by area (schema / API / UI / tests / infra), one line
   each; call out key design decisions and any deviation from the design brief.
-- **How to verify** — exact commands plus the manual steps to see it working.
+- **How to verify** — exact commands, plus **numbered manual testing notes** a
+  human can follow click-by-click:
+
+  ```
+  1. Go to <url or screen>
+  2. Click <button X> / submit <form>
+  3. Confirm <observable outcome>
+  ```
+
+  For ticketed work, *generate* these from the card's acceptance criteria —
+  one sequence per criterion — never paste the raw card (cards may hold
+  internal details; PRs can be public).
 - **Testing** — what is covered, the gate + e2e smoke results (paste the
   summary), and anything deliberately untested **with the reason** (TDD
   exemptions and `PR_GATE_ALLOW_NO_TESTS` overrides are justified here).
@@ -150,9 +173,20 @@ re-deriving context:
 
 **The PR is the gate.** The human reviews and merges; the crew never merges its
 own PR. Address review comments with follow-up commits on the same branch
-(re-run the gate before pushing). The next feature starts only after this PR is
-merged or explicitly closed. `devops-engineer` handles the deploy and rollback
-plan — deploys always require explicit authorization.
+(re-run the gate before pushing). `devops-engineer` handles the deploy and
+rollback plan — deploys always require explicit authorization.
+
+**Open-PR policy (ticketed work):** at most one open crew PR per ticket (the
+ticket id is the key), and never more open crew ticket-PRs than **Max parallel
+tickets** (`PROJECT.md` §12, default 3). Crew PRs are identified by their
+head-branch pattern `<type>/<PREFIX>-<n>-*` via `gh pr list --json headRefName`.
+Do not start new ticket work while any open crew PR has unaddressed human
+change requests. Ticketless work keeps the classic rule: one open crew PR at a
+time. Ticketless crew PRs are recognized by the `Crew review` section in
+their body (`gh pr list --json headRefName,body`).
+
+This section is normative — it supersedes any older "one feature → one open PR"
+phrasing elsewhere.
 
 ### 9. Deploy
 
@@ -164,7 +198,20 @@ production branch takes it from there. The human running `/deploy` is the
 explicit authorization that deploys require; the crew never promotes on its own
 initiative. If the production branch is protected against direct pushes, the
 command opens a release PR instead. When the two branches are the same, there
-is no promotion step and `/deploy` is a no-op.
+is no promotion step and `/deploy` is a no-op. On ticketed projects, `/deploy`
+also advances the board: cards whose merge is in the promoted release move
+Dev Complete → In QA ([TICKETS.md](./TICKETS.md) §1).
+
+### 10. Tickets & the board (optional)
+
+Projects can put a Notion kanban in front of this lifecycle —
+[TICKETS.md](./TICKETS.md) is the charter. In short: `/board` creates the
+board; `/feature`, `/bug`, `/spike`, `/epic` interview you and file complete
+cards in **Backlog**; a human moves cards to **Dev Ready** (the triage gate);
+`/work <id>` or batch `/work` runs the lifecycle above per ticket, moving the
+card In Progress → Code Review as it goes; a merge sweep and `/deploy` advance
+merged work; the human closes the loop at In QA → Done. Without a board,
+nothing changes: `/work <description>` is the whole classic flow.
 
 ## Parallelization & worktrees
 
@@ -179,6 +226,8 @@ is no promotion step and `/deploy` is a no-op.
 - **Reviews always parallelize** — the three reviewers are read-only and never
   conflict.
 - **Integrate frequently** to keep branches short-lived (COMMITS.md §1).
+- **Across tickets** (batch `/work`): waves, a cross-ticket hot-file pre-flight,
+  and a serialized ship phase — see WORKTREES.md §11.
 
 ## Right-sizing the process
 

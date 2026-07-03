@@ -167,4 +167,9 @@ if [[ "${CUSTOM}" -gt 0 ]]; then
   case "${CREW_NEW_FILES}" in *settings.crew.json*)
     echo "  (settings.crew.json likely carries new hooks/permissions — e.g. the pre-PR test gate)" ;;
   esac
+  # Substring-matches the printed guard path (".claude/commands/feature.md.crew-new"),
+  # not the source-relative path — keep in sync with three_way's guard naming.
+  case "${CREW_NEW_FILES}" in *commands/feature.md*)
+    echo "  (NOTE: /feature was repurposed upstream in v2 — it now files a Story ticket; /work runs the build lifecycle. Merge feature.md.crew-new deliberately.)" ;;
+  esac
 fi

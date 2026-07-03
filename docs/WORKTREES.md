@@ -176,3 +176,39 @@ git worktree remove [--force] <path>         # tear down
 git worktree prune [-v]                      # reconcile metadata
 claude --worktree <name>                     # native Claude Code isolation
 ```
+
+## 11. Cross-ticket parallelism (batch `/work`)
+
+Batch `/work` runs several *tickets* — each its own feature-sized lifecycle —
+at once ([TICKETS.md](./TICKETS.md)). That multiplies everything in this doc:
+per ticket you get a branch, a worktree, and the ticket's own build agents.
+Extra rules apply:
+
+- **Two different caps.** `Max parallel tickets` (`PROJECT.md` §12, default 3)
+  counts *tickets in flight*; this doc's ~5–10 practical ceiling (§6) counts
+  *total agents across all of them*. A ticket's build phase can spawn several
+  agents, so 3 tickets ≈ 6–9 concurrent agents. Raise the ticket cap only with
+  the agent ceiling in mind.
+- **Waves.** Tickets run in waves of at most the cap. Within a wave only the
+  build phases run concurrently; design and ship interleave from the main
+  thread (subagents don't spawn subagents — the orchestrator carries every
+  pipeline).
+- **Cross-ticket hot files.** The per-feature hot-file map (§7) doesn't see
+  conflicts *between* tickets. Before any card moves, batch `/work` runs a
+  one-shot `architect` pre-flight over all ready tickets: per-ticket predicted
+  file footprint, a cross-ticket hot-file map, and **clusters** of overlapping
+  tickets. Clusters serialize internally — the next clustered ticket starts
+  only after the previous one's PR *merges*. Shared lockfiles, dependency
+  manifests, migrations, and i18n tables (§6–7) are cluster signals too.
+- **The ship phase is a queue.** One ticket at a time: rebase onto fresh
+  `origin/<integration-branch>`, run the gate, open the PR — then the next.
+  Never run N validation gates concurrently on one machine (§6: ports, shared
+  dev DBs, CPU starvation → false reds). Open each PR **from its worktree**
+  (`cd <worktree> && gh pr create`) so the pre-PR hook validates that checkout.
+  Note: the Stop-hook gate (`validate.sh`) only sees the session's main
+  checkout and silently no-ops for worktree edits — the pre-PR hook is the
+  enforcement point (TESTING.md §5).
+- **Merges shift the ground.** When a ticket's PR merges while others are
+  open, rebase the remaining ticket branches onto the new tip (COMMITS.md §2)
+  and re-run their gates before their PRs open. The architect pre-flight's
+  recommended merge order goes into each PR's *Risks & follow-ups* section.
