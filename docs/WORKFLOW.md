@@ -140,7 +140,9 @@ standing policy, no per-feature authorization needed (`PROJECT.md` can set
    so the pre-PR hook validates the right code. If `gh` is missing or
    unauthenticated, push, then hand the human the compare URL plus the
    description text.
-5. Report the PR URL and stop.
+5. Report the PR URL. When the CI gate is wired
+   ([TESTING.md](./TESTING.md) §8), watch the PR's check: a red check is the
+   crew's to fix on the feature branch before the human reviews. Then stop.
 
 **The PR description** must let the reviewer judge the change without
 re-deriving context:

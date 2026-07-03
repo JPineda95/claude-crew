@@ -3,6 +3,21 @@
 All notable changes to claude-crew. Follows [Keep a Changelog](https://keepachangelog.com/)
 loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
+## 2.2.0 — 2026-07-03
+
+### Added
+
+- **CI — the remote twin of the gate** (`docs/TESTING.md` §8): every
+  GitHub-hosted project SHOULD re-run the validation gate server-side on every
+  PR via a `.github/workflows/gate.yml` workflow, made binding by a required
+  branch-protection check on the integration branch. The section carries the
+  rules (workflow mirrors `CLAUDE_VALIDATE_CMD` — same-PR sync required; PRs
+  to integration AND production branches; no real secrets in the gate job —
+  dummy env values for framework builds; e2e smoke at most per PR) and a
+  reference workflow. `/tests` now scaffolds the workflow as part of
+  bootstrapping (step 6), `PROJECT.md` §4 gains a **CI gate** line, and
+  WORKFLOW.md §8 makes a red PR check the crew's to fix before human review.
+
 ## 2.1.0 — 2026-07-03
 
 ### Changed
