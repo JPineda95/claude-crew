@@ -46,6 +46,9 @@ gate commands below exist and pass.*
   covered at integration layer` explicitly)*
 - **E2E smoke subset (runs before every PR):** `…` *(e.g.
   `npx cypress run --spec "cypress/e2e/smoke/**"`)*
+- **CI gate:** `…` *(e.g. GitHub Actions — `.github/workflows/gate.yml` re-runs
+  the validation gate on every PR, required check on the integration branch;
+  `none yet` until wired — `docs/TESTING.md` §8)*
 - **Core flows** *(the ≈5–10 user journeys that must never break — each one gets
   an e2e spec, kept current by `qa-engineer`)*:
   1. *e.g. sign up → onboard → land on dashboard*

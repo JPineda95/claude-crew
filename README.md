@@ -193,8 +193,9 @@ Update commands for each source live in [`docs/TOOLING.md`](docs/TOOLING.md).
 - **[docs/WORKFLOW.md](docs/WORKFLOW.md)** — when to spin up each agent, how to
   parallelize, and how to right-size the process.
 - **[docs/TESTING.md](docs/TESTING.md)** — the testing charter: tests as the
-  executable spec, TDD with red evidence, Cypress e2e for core flows, and the
-  pre-PR gate that blocks untested PRs.
+  executable spec, TDD with red evidence, Cypress e2e for core flows, the
+  pre-PR gate that blocks untested PRs, and the CI workflow that re-runs the
+  gate on GitHub for every PR.
 - **[docs/WORKTREES.md](docs/WORKTREES.md)** — running many agents in parallel
   without collisions: worktrees, disjoint file ownership, hot-file locking,
   cleanup. Uses Claude Code's native `--worktree` / `isolation: worktree`.

@@ -91,6 +91,7 @@ the core flows are covered at the integration layer instead.
 | Verify phase | Full suite + e2e smoke for touched core flows | `qa-engineer` |
 | **Before any PR** | **Lint + full suite (+ e2e smoke when configured)** | `.claude/scripts/pre-pr-gate.sh` — a PreToolUse hook that **blocks `gh pr create`** while red or unconfigured |
 | End of any coding turn | The validation gate | `.claude/scripts/validate.sh` (Stop hook) |
+| Every PR, server-side | The same validation gate, re-run by the host | CI workflow + required branch-protection check (§8) |
 
 Configure once per project (in `.claude/settings.local.json` under `env`, or
 exported in the environment):
@@ -134,3 +135,67 @@ a tracking TODO naming an owner), then fix or delete it within the week.
 Never re-run a suite until it happens to pass and call that green — fix the
 cause. Determinism rules (fake time and randomness, isolated state) are in
 the `qa-engineer` spec.
+
+## 8. CI — the remote twin of the gate
+
+The hooks in §5 run only on the machine where the crew works. Nothing there
+re-checks a manually pushed commit, a `PR_GATE_SKIP` override, or a branch
+gone stale against the integration branch. CI closes that hole: the host
+re-runs the same validation gate on every PR, and branch protection makes the
+result binding. Every project hosted on a forge with CI (GitHub Actions being
+the default assumption) SHOULD have this wired; `/tests` scaffolds it as part
+of bootstrapping the suite, and `PROJECT.md` §4 declares it.
+
+Rules:
+
+- **One source of truth.** The workflow runs the same commands as
+  `CLAUDE_VALIDATE_CMD` (plus `CLAUDE_E2E_SMOKE_CMD` once configured), one
+  step per command. A PR that changes the gate commands MUST update the
+  workflow in the same PR — drift between the local gate and CI is a bug.
+- **Trigger:** every PR targeting the integration branch AND the production
+  branch (so `/deploy` promotions get re-checked too).
+- **Binding, not advisory:** protect the integration branch and require the
+  workflow's check to pass before merge (GitHub: Settings → Branches →
+  branch protection rule → "Require status checks to pass", or
+  `gh api repos/{owner}/{repo}/branches/<branch>/protection`). A red check
+  on a crew PR is the crew's to fix — on the feature branch, before the
+  human reviews.
+- **No real secrets in the gate job.** Unit/integration suites MUST run
+  hermetically (§2 — mocks, no live services), so the job needs no
+  credentials. A framework build step that insists on env vars at build time
+  gets **dummy values** inline in the workflow. Only a job that runs e2e
+  against a live environment may use real, CI-scoped secrets — never
+  production ones.
+- **Keep it fast.** The PR job runs lint + the full unit/integration suite
+  (+ the e2e smoke subset at most). The full e2e set runs on a schedule, not
+  per PR (§4).
+
+Reference workflow — GitHub Actions, Node example; adapt the runtime setup
+and mirror the project's actual gate commands from `PROJECT.md` §3:
+
+```yaml
+# .github/workflows/gate.yml
+name: gate
+on:
+  pull_request:
+    branches: [dev, main] # integration + production branch (PROJECT.md §5)
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Mirror CLAUDE_VALIDATE_CMD, one step per command:
+      - run: npm run lint
+      - run: npm run test
+      - run: npm run build
+        env:
+          # Dummy values only — the gate job never sees real credentials.
+          # List whatever the framework build demands at build time.
+          NEXT_PUBLIC_EXAMPLE_URL: "https://placeholder.invalid"
+```
