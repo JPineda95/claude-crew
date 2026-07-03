@@ -127,6 +127,10 @@ task fails. Rules:
 ## 8. Git discipline (summary — full rules in docs)
 
 - One task → one branch. See `docs/WORKTREES.md`.
+- **NEVER commit to `main`** (or the production/default branch) — only a
+  human-run `/deploy` moves it. No integration branch separate from it?
+  Create `dev` off it, push it, record it in `PROJECT.md` §5, and work off
+  `dev`.
 - Rebase your feature branch onto the integration branch to stay current; never
   rebase shared/published history.
 - Commit in atomic units with Conventional Commit messages that explain **why**.

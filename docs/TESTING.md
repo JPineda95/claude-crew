@@ -99,8 +99,10 @@ exported in the environment):
   `npm run lint && npm run test`.
 - `CLAUDE_E2E_SMOKE_CMD` — optional but recommended once Cypress exists, e.g.
   `npx cypress run --spec "cypress/e2e/smoke/**"`.
-- `CLAUDE_INTEGRATION_BRANCH` — only when the integration branch isn't `main`
-  (the hook diffs against it for the tests-accompany-logic check).
+- `CLAUDE_INTEGRATION_BRANCH` — only when auto-detection isn't enough: unset,
+  the hook prefers `dev` when the repo has one (the crew never integrates on
+  `main`), else `main` (it diffs against this branch for the
+  tests-accompany-logic check).
 
 The pre-PR hook also refuses a PR whose diff **changes code without touching a
 single test file**. For the narrow exemptions of §3, retry as

@@ -176,6 +176,12 @@ own PR. Address review comments with follow-up commits on the same branch
 (re-run the gate before pushing). `devops-engineer` handles the deploy and
 rollback plan — deploys always require explicit authorization.
 
+**PRs never target `main` (or the production branch).** Work integrates into
+`<integration-branch>` only; a human-run `/deploy` (§9) is the sole path into
+production. If `PROJECT.md` §5 names no integration branch separate from the
+default branch, the crew creates `dev` off it first, pushes it, and records it
+in §5.
+
 **Open-PR policy (ticketed work):** at most one open crew PR per ticket (the
 ticket id is the key), and never more open crew ticket-PRs than **Max parallel
 tickets** (`PROJECT.md` §12, default 3). Crew PRs are identified by their
