@@ -60,10 +60,11 @@ gate commands below exist and pass.*
 - **Production branch** *(what `/deploy` merges the integration branch into —
   leave equal to the integration branch if there is no promotion step)*: `main`
 - **Branch naming:** `<type>/<slug>` *(e.g. `feat/per-location-availability`)*
-- **Ship mode:** `pr` *(default: each finished `/feature` is committed on its
-  feature branch, pushed, and opened as a PR — the human reviews and merges, and
-  the next feature waits for that merge. Set to `ask` to have the crew prepare
-  commits and wait for approval instead. Deploys always need authorization.)*
+- **Ship mode:** `pr` *(default: each finished unit of work is committed on its
+  own branch, pushed, and opened as a PR — the human reviews and merges. How
+  many crew PRs may be open at once is the open-PR policy, `docs/WORKFLOW.md`
+  §8. Set to `ask` to have the crew prepare commits and wait for approval
+  instead. Deploys always need authorization.)*
 - **Autonomous deploy?** `no`
 
 ## 6. Conventions & non-negotiables
@@ -103,3 +104,19 @@ users, not your company address.*
 ## 11. Out of scope / known constraints
 *Things not to touch, decisions already made, deliberate tech debt, deadlines,
 budget limits.*
+
+## 12. Ticketing (optional — Notion kanban)
+*Written by `/board`; governed by `docs/TICKETS.md`. Leave `Ticketing: none` (or
+delete this section) to run the crew ticketless — `/work <description>` is the
+full lifecycle either way.*
+
+- **Ticketing:** `none` *(`notion` once `/board` has created the board)*
+- **Board section page:** *(Notion page URL)*
+- **Tickets database:** *(Notion database URL)*
+- **Data source id:** *(`collection://<uuid>` — from `/board`)*
+- **Ticket prefix:** *(e.g. `KANI` — set by `/board` at creation, **do not
+  edit**: Notion fixes it at the database, and branches/PRs/resume searches key
+  on it)*
+- **Status property:** `Status`
+- **Max parallel tickets:** `3` *(batch `/work` wave cap — counts tickets, not
+  agents; see `docs/WORKTREES.md` on the agent ceiling)*
