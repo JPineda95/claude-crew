@@ -27,6 +27,11 @@
       "url": "https://mcp.sentry.dev/mcp"
     },
 
+    "//notion": {
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp"
+    },
+
     "//semgrep": {
       "command": "uvx",
       "args": ["semgrep-mcp"]

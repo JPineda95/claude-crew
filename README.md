@@ -8,7 +8,16 @@
 
 Clone it to start a new project, or drop it into an existing one. The crew reads
 one file — `PROJECT.md` — to learn your stack and rules, then builds features
-through a design → test → build → review → ship workflow.
+through a design → test → build → review → ship workflow. Optionally, put a
+**Notion kanban board** in front of it: file tickets with `/feature` `/bug`
+`/spike` `/epic`, triage them on the board, and let `/work` build every Dev
+Ready ticket in parallel ([docs/TICKETS.md](docs/TICKETS.md)).
+
+> **v2 breaking change:** `/feature` no longer runs the build lifecycle — it
+> files a Story ticket. **`/work`** is the build command now;
+> `/work <description>` behaves exactly like the old `/feature`, board or no
+> board. Upgraders via `update.sh`: if you customized `feature.md`, merge
+> `feature.md.crew-new` deliberately.
 
 ---
 
@@ -46,7 +55,7 @@ cd my-app
 rm -rf .git && git init            # make it your project's repo
 cp PROJECT.template.md PROJECT.md  # then fill it in (stack, commands, rules)
 ```
-Open the folder in Claude Code and start with `/feature <what to build>`.
+Open the folder in Claude Code and start with `/work <what to build>`.
 
 ### Option B — add the crew to an existing project
 ```bash
@@ -69,6 +78,9 @@ scripts/build-plugin.sh                          # assembles dist/claude-crew
 /plugin marketplace add /absolute/path/to/claude-crew
 /plugin install claude-crew@claude-crew
 ```
+Plugin updates replace commands wholesale — plugin users get the v2 `/feature`
+change immediately (no `.crew-new` protection); on non-Notion projects
+`/feature` simply offers the classic build via `/work`.
 
 **After any option:** run **`/onboard`** — it scans the repo, interviews you
 section by section, and writes a complete `PROJECT.md` (or fill in
@@ -95,21 +107,49 @@ Intake → Design → Plan → Test-first → Build → Verify → Review → Fi
 - **Review** — three reviewers run in parallel and return `APPROVE` /
   `REQUEST CHANGES` with severity-tagged findings.
 - **Ship** — commits are atomic and message-rich; each feature ships from its own
-  branch as a pull request with a complete description. Lint + the full test
-  suite (+ e2e smoke) must pass first — a hook physically blocks PR creation
-  while the gate is red. You review and merge — the crew never merges its own
-  PR, and the next feature waits for that merge. (Set Ship mode `ask` in
+  branch as a pull request with a complete description (including click-by-click
+  manual testing notes). Lint + the full test suite (+ e2e smoke) must pass
+  first — a hook physically blocks PR creation while the gate is red. You
+  review and merge — the crew never merges its own PR. (Set Ship mode `ask` in
   `PROJECT.md` for prepare-and-wait instead.)
+
+**Open-PR policy (ticketed work):** at most one open crew PR per ticket (the
+ticket id is the key), and never more open crew ticket-PRs than **Max parallel
+tickets** (`PROJECT.md` §12, default 3). Crew PRs are identified by their
+head-branch pattern `<type>/<PREFIX>-<n>-*` via `gh pr list --json headRefName`.
+Do not start new ticket work while any open crew PR has unaddressed human
+change requests. Ticketless work keeps the classic rule: one open crew PR at a
+time. Ticketless crew PRs are recognized by the `Crew review` section in
+their body (`gh pr list --json headRefName,body`).
 
 Process is **right-sized**: a typo is a one-line edit, not a committee. The full
 lifecycle is for changes that span layers or carry real risk.
+
+### The ticket board (optional)
+
+Connect the official Notion MCP (`docs/TOOLING.md`), run **`/board`**, and the
+crew gets a kanban: **Backlog → Dev Ready → In Progress → Code Review → Dev
+Complete → In QA → Done**. `/feature`, `/bug`, `/spike`, `/epic` interview you
+and file complete cards (description, Given/When/Then acceptance criteria,
+technical details) with native ids like `KANI-12`. You triage Backlog → Dev
+Ready; `/work <id>` builds a ticket — or plain `/work` builds *every* Dev Ready
+ticket in parallel worktrees, one PR each. Cards move themselves as work
+progresses; the two human gates (triage, final sign-off) never do. On a blank
+repo, `/board` also proposes a starter backlog from your `PROJECT.md`. Full
+charter: [docs/TICKETS.md](docs/TICKETS.md). No Notion? Nothing changes —
+`/work <description>` is the whole classic flow.
 
 ### Slash commands
 | Command | Does |
 |---|---|
 | `/onboard` | Interview you + scan the repo to generate a complete `PROJECT.md` |
-| `/feature <desc>` | Run the full crew workflow end-to-end |
-| `/plan <desc>` | Have `architect` design & plan without implementing |
+| `/work [id \| desc]` | **The build command.** A ticket by id, every Dev Ready ticket in parallel, or a plain description (the classic full lifecycle) |
+| `/board [name]` | Create (or check/repair) the Notion section: summary page + kanban board. Optional |
+| `/feature <desc>` | Interview → file a **Story** ticket in the backlog *(v2: no longer builds — see `/work`)* |
+| `/bug <desc>` | Interview → file a **Bug** ticket (repro, expected vs actual, regression criteria) |
+| `/spike <desc>` | Interview → file a **Spike** ticket (timeboxed question; findings land on the card) |
+| `/epic <desc>` | Interview → architect breakdown → file an **Epic** + linked child Stories |
+| `/plan <desc \| id>` | Have `architect` design & plan without implementing |
 | `/review [base]` | Run the three reviewers in parallel on the current diff |
 | `/harden [target]` | Threat-model + security-review a change or area |
 | `/comply [target]` | Data-compliance audit + generate privacy policy, ToS, cookie-banner spec |
@@ -152,6 +192,9 @@ Update commands for each source live in [`docs/TOOLING.md`](docs/TOOLING.md).
 - **[docs/COMMITS.md](docs/COMMITS.md)** — integration strategy, the Golden Rule
   of rebasing, a conflict-resolution runbook, Conventional Commits, and hard
   safety rules for agents committing.
+- **[docs/TICKETS.md](docs/TICKETS.md)** — the optional kanban charter: card
+  anatomy, statuses & who moves what, Definition of Ready, the merge sweep, and
+  the degradation contract (a Notion failure never blocks engineering).
 - **[docs/TOOLING.md](docs/TOOLING.md)** — the MCP servers, plugins, and skills to
   install per role, with verified install commands.
 
@@ -166,12 +209,12 @@ claude-crew/
 ├── README.md
 ├── .claude/
 │   ├── agents/                # the 14 specialist subagents
-│   ├── commands/              # /onboard /feature /plan /review /harden /comply /ship /tests /deploy
+│   ├── commands/              # /onboard /work /board /feature /bug /spike /epic /plan /review /harden /comply /ship /tests /deploy
 │   ├── skills/                # the taste library — 9 anti-slop design skills
 │   ├── scripts/               # validate.sh (Stop gate) + pre-pr-gate.sh (blocks red PRs)
 │   └── settings.json          # permissions + quality-gate hooks
 ├── .claude-plugin/            # plugin.json + marketplace.json (Option C)
-├── docs/                      # ENGINEERING, WORKFLOW, TESTING, WORKTREES, COMMITS, TOOLING
+├── docs/                      # ENGINEERING, WORKFLOW, TESTING, WORKTREES, COMMITS, TICKETS, TOOLING
 ├── scripts/
 │   ├── install.sh             # copy the crew into an existing project
 │   ├── update.sh              # pull crew updates into an installed project

@@ -47,6 +47,12 @@ with no behavioral effect. An exemption MUST be stated in the PR's Testing
 section ("Tests: none — <reason>"), never silent. Every bug fix ships with a
 regression test that fails without the fix — no exceptions.
 
+**Ticketed work** ([TICKETS.md](./TICKETS.md)): the card's acceptance criteria
+ARE the acceptance criteria — **one red test per criterion**. Criteria too
+vague to fail a test fail the Definition of Ready (TICKETS.md §4) and get
+repaired or skipped before any code is written. For Bugs, the card's
+regression criteria drive the mandatory failing regression test.
+
 ## 4. Core flows & e2e
 
 `PROJECT.md` §4 lists the project's **core flows** — the ≈5–10 user journeys
@@ -101,6 +107,14 @@ single test file**. For the narrow exemptions of §3, retry as
 `PR_GATE_ALLOW_NO_TESTS=1 gh pr create …` — the override MUST be justified in
 the PR's Testing section. (`PR_GATE_SKIP=1` skips the whole gate but only works
 from the human's environment — agents can't set it inline.)
+
+**Worktrees:** the pre-PR hook honors a leading `cd <dir> &&` and runs the gate
+and the diff check **in that directory** — so open ticket PRs as
+`cd <worktree> && gh pr create …` (WORKTREES.md §11). Without a `cd` prefix it
+refuses to run from a checkout sitting on the integration branch. Known
+limitation: the Stop-hook gate (`validate.sh`) checks only the session's main
+checkout — with all edits in ticket worktrees it no-ops; the pre-PR gate is the
+enforcement point that matters.
 
 ## 6. Projects with no tests yet
 

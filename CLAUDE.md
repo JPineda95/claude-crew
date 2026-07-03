@@ -54,8 +54,12 @@ when to invoke it. You can always invoke one explicitly by name.
 
 ## Operating rhythm
 
-Full detail in **`docs/WORKFLOW.md`**. The default lifecycle for a substantial
-feature:
+Full detail in **`docs/WORKFLOW.md`**. **`/work` drives the lifecycle** — with
+a plain description, a ticket id, or across every Dev Ready ticket on the
+optional kanban board (`docs/TICKETS.md`). `/feature`, `/bug`, `/spike`, and
+`/epic` interview the user and *file tickets*; `/board` creates the board.
+Without a board, `/work <description>` is the whole classic flow. The default
+lifecycle for a substantial task:
 
 ```
 Intake → Design → Plan → Test-first → Build → Verify → Review → Fix → Ship
@@ -80,7 +84,20 @@ Intake → Design → Plan → Test-first → Build → Verify → Review → Fi
 - **Ship:** only when reviewers approve and the gate is green — then commit on
   the feature branch, push it, and open a PR with a complete description
   (`docs/WORKFLOW.md` §8). The human reviews and merges; never merge your own
-  PR, and don't start the next feature until they do.
+  PR. **Open-PR policy (ticketed work):** at most one open crew PR per ticket
+  (the ticket id is the key), and never more open crew ticket-PRs than **Max
+  parallel tickets** (`PROJECT.md` §12, default 3). Crew PRs are identified by
+  their head-branch pattern `<type>/<PREFIX>-<n>-*` via
+  `gh pr list --json headRefName`. Do not start new ticket work while any open
+  crew PR has unaddressed human change requests. Ticketless work keeps the
+  classic rule: one open crew PR at a time. Ticketless crew PRs are recognized
+  by the `Crew review` section in their body
+  (`gh pr list --json headRefName,body`).
+- **Tickets (optional, `docs/TICKETS.md`):** cards are filed in Backlog; a
+  human moves them to Dev Ready (the triage gate); `/work` moves them
+  In Progress → Code Review; a merge sweep and `/deploy` advance merged work;
+  In QA → Done is human. The board is a mirror — a Notion failure never blocks
+  an engineering step.
 
 **When a subagent fails or stalls** (e.g. "Agent stalled: no progress"), do not
 re-run it blindly: its partial work persists in its worktree. Inspect the state
@@ -123,9 +140,10 @@ a third party that receives user data — and before any public launch.
 
 ## Git, worktrees & commits (summary — full text in the docs)
 
-- **One feature → one branch → one PR.** Each `/feature` gets its own branch off
-  the integration branch and ships as a pull request the human merges
-  (`docs/WORKFLOW.md` §8).
+- **One ticket/feature → one branch → one PR.** Each unit of work (`/work`
+  run, or ticket in a batch) gets its own branch off the integration branch —
+  ticketed branches carry the id (`feat/KANI-12-slug`) — and ships as a pull
+  request the human merges (`docs/WORKFLOW.md` §8; open-PR policy above).
 - **One task → one branch.** Parallel agents editing at once get isolated
   worktrees (`claude --worktree <name>`, or `isolation: worktree`), branched off
   the feature branch. See **`docs/WORKTREES.md`**.
@@ -146,12 +164,12 @@ a third party that receives user data — and before any public launch.
 ## Guardrails (hard rules)
 
 1. **Ship through the PR gate.** Committing on the feature branch, pushing it,
-   and opening the PR when a feature is finished (reviewers approve + gate
+   and opening the PR when the work is finished (reviewers approve + gate
    green) is standing policy — no per-feature authorization needed
    (`PROJECT.md` can set **Ship mode: `ask`** to revert to prepare-and-wait).
    Never commit to or push the integration branch directly, and never merge
-   your own PR — the human reviews and merges, and the next feature waits for
-   that merge.
+   your own PR — the human reviews and merges. How many PRs may be open at
+   once is the open-PR policy (`docs/WORKFLOW.md` §8 — normative).
 2. **Never force-push shared branches;** `--force-with-lease` only, on your own
    branch. Never rewrite published history.
 3. **Never commit secrets.** No `.env`, keys, or tokens in the diff, logs, or the
@@ -174,8 +192,10 @@ a third party that receives user data — and before any public launch.
    alternative: copy the template and fill it in.)
 2. Install the MCP servers / plugins the project needs from `docs/TOOLING.md`
    (skip the rest — don't bloat context).
-3. Tune agent `model` tiers and `.claude/settings.json` permissions/hooks to
+3. Optional: connect the Notion MCP and run `/board` for the kanban ticket
+   layer (`docs/TICKETS.md`).
+4. Tune agent `model` tiers and `.claude/settings.json` permissions/hooks to
    taste.
-4. Add any project-specific specialist agents alongside the crew.
+5. Add any project-specific specialist agents alongside the crew.
 
 See `README.md` for the full setup guide.
