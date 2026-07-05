@@ -42,7 +42,10 @@ fi
 
 SRC=""
 CLONED=""
-cleanup() { [[ -n "${CLONED}" ]] && rm -rf "${CLONED}"; }
+# NB: the handler must end with status 0 — a failed `[[ … ]] &&` list here
+# becomes the script's exit code even after a successful sync (the trap runs on
+# EXIT, so its last status wins). Use an `if`, which ends 0 when the test fails.
+cleanup() { if [[ -n "${CLONED}" ]]; then rm -rf "${CLONED}"; fi; }
 trap cleanup EXIT
 
 if [[ -n "${CREW_SOURCE:-}" ]]; then
