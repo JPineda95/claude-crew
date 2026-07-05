@@ -32,6 +32,17 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
   - Roster is now **15 subagents**; `CLAUDE.md`, `README.md`, `docs/WORKFLOW.md`,
     and the plugin manifests updated accordingly.
 
+### Fixed
+
+- **`crew-update.sh` exited 1 after a successful local-source sync.** The `EXIT`
+  trap's cleanup ran `[[ -n "${CLONED}" ]] && rm …`; on the common local-checkout
+  path `CLONED` is empty, so the `&&` list ended non-zero and — being the last
+  command in the trap — became the script's exit code even though the sync
+  succeeded (red shell status; any `crew-update && next` wrapper would abort).
+  Rewritten as an `if`, which always ends 0 when the test fails. Re-applies the
+  fix from `898ddc0`, which was authored on `feat/never-commit-main` but was
+  orphaned and never reached `dev`/`main`.
+
 ## 2.2.0 — 2026-07-03
 
 ### Added
