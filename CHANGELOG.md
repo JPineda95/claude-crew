@@ -15,6 +15,9 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
   `docs/TESTING.md`'s e2e flow list when present), and a **data-model ERD**
   (`erDiagram`). Answers "what did we build and how is it wired?" after a batch of
   `/work`.
+  - **Focused runs.** Maps the whole system by default, or scopes to
+    `path:<dir>`, `flow:<name>`, `system`, or `data` (or a free-text hint) — a
+    focused run refreshes only the sections it covers.
   - **Zero dependency.** Mermaid is emitted as text and renders natively on
     GitHub, in Obsidian, and in VS Code; images can be exported on demand with
     `npx @mermaid-js/mermaid-cli` without adding a project dependency.

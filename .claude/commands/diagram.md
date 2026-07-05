@@ -1,6 +1,6 @@
 ---
 description: Map the architecture — refresh docs/ARCHITECTURE.md with Mermaid diagrams (system graph, core-flow sequences, data-model ERD).
-argument-hint: "[optional: a subsystem, path, or flow to focus on — defaults to the whole system]"
+argument-hint: "[optional focus — path:<dir> · flow:<name> · system · data; omit to map the whole system]"
 allowed-tools: Bash(git rev-parse:*), Bash(git status), Bash(git log:*)
 ---
 
@@ -17,8 +17,19 @@ Spawn the `diagrammer` agent to reverse-engineer the current codebase and write
   e2e core flows, use that as the flow set;
 - a **data-model ERD** (Mermaid `erDiagram`) from the real schema/migrations.
 
-If `$ARGUMENTS` names a subsystem, path, or a single flow, focus the map there
-instead of redrawing everything.
+**Focus (`$ARGUMENTS`)** — omit it to map the whole system; otherwise narrow the
+run so a large repo stays legible and refreshes stay cheap:
+
+- `path:<dir>` — only the subsystem under that path and what it connects to (all
+  three diagram families, scoped to it), e.g. `path:src/billing`.
+- `flow:<name>` — only the `sequenceDiagram` for that one flow, e.g. `flow:checkout`.
+- `system` — only the system / component graph.
+- `data` — only the data-model ERD.
+- anything else — a best-effort focus on whatever the free text names.
+
+A focused run refreshes only the sections it covers and leaves the rest of
+`docs/ARCHITECTURE.md` untouched (the `crew:diagram` markers preserve everything
+else).
 
 Rules for the run:
 

@@ -68,6 +68,11 @@ Write or refresh **`docs/ARCHITECTURE.md`** with these sections, in order:
 Close the doc with a **provenance footer**: `_Last mapped: <short-sha> on
 <how it was derived>._` Get the sha from `git rev-parse --short HEAD`.
 
+**Scope to the requested focus.** When the run is narrowed — a `path:<dir>`, a
+`flow:<name>`, `system`, or `data` (or free text naming a subsystem) — produce or
+refresh **only** the matching section(s) and leave the rest of the document as-is.
+An unscoped run covers all of the sections above.
+
 ## Refresh discipline (the map is living)
 
 Wrap the generated body between marker comments so a re-run updates the diagrams

@@ -168,6 +168,22 @@ charter: [docs/TICKETS.md](docs/TICKETS.md). No Notion? Nothing changes —
 | `/ship [context]` | Commit the work, push the feature branch, and open a PR for review |
 | `/deploy [context]` | Merge the integration branch into the production branch and push — the human-authorized deploy step |
 
+**`/diagram` focus.** Run it bare to map the whole system, or pass a focus so a
+large repo stays legible and refreshes stay cheap. A focused run refreshes only
+the sections it covers — the `crew:diagram` markers keep the rest of
+`docs/ARCHITECTURE.md` (including any hand-written notes) intact.
+
+| Focus | Maps |
+|---|---|
+| *(none)* | The whole system — component graph, a sequence diagram per core flow, and the ERD |
+| `path:<dir>` | Only that subsystem/directory and what it connects to — e.g. `/diagram path:src/billing` |
+| `flow:<name>` | Only the sequence diagram for that flow — e.g. `/diagram flow:checkout` |
+| `system` | Only the system / component graph |
+| `data` | Only the data-model ERD |
+
+Anything else is treated as a free-text hint — a best-effort focus on whatever it
+names.
+
 ---
 
 ## The taste library (anti-slop design)
