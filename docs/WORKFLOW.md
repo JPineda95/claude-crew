@@ -21,6 +21,7 @@
 | `copywriter` | UX writing / copy | sonnet | UI text, errors, emails, marketing/landing copy |
 | `seo-aeo-specialist` | SEO / AEO | sonnet | Public, indexable pages; discoverability; structured data |
 | `data-compliance-officer` | Data protection / privacy | opus | New personal-data collection, cookies/tracking, third-party processors, launch prep |
+| `diagrammer` | Architecture cartographer | opus | After building — (re)draw `docs/ARCHITECTURE.md`: component graph, core-flow sequences, ERD |
 | `reviewer-architecture` | Design review gate | opus | Before merge — structure, patterns, maintainability |
 | `reviewer-code-quality` | Correctness review gate | sonnet | Before merge — bugs, tests, readability |
 | `reviewer-security` | Security review gate | opus | Before merge — esp. security-relevant diffs |
@@ -247,6 +248,7 @@ nothing changes: `/work <description>` is the whole classic flow.
 | Anything touching auth/money/PII/uploads | Add `security-engineer` at design and `reviewer-security` at the gate — non-negotiable |
 | Public, indexable pages | Add `seo-aeo-specialist` and `copywriter` |
 | New personal-data collection, cookies/analytics, new data-receiving third party, public launch | Add `data-compliance-officer` (data map + artifacts + gap check) |
+| Lost track of what was built / how it's wired | Run `/diagram` — `diagrammer` maps it into `docs/ARCHITECTURE.md` (read-only on code) |
 
 Use judgment. The process exists to catch expensive mistakes, not to add ceremony
 to cheap ones.
