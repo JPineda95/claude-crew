@@ -1,6 +1,6 @@
 # claude-crew
 
-> A cloneable **AI engineering crew** for Claude Code. Fourteen expert subagents
+> A cloneable **AI engineering crew** for Claude Code. Fifteen expert subagents
 > that behave like a real product team, an orchestrator that knows when to spin
 > up each one, and battle-tested protocols for worktrees, rebasing, and commits.
 > **Technology-agnostic** — it detects and adapts to whatever stack a project
@@ -36,6 +36,7 @@ Ready ticket in parallel ([docs/TICKETS.md](docs/TICKETS.md)).
 | **copywriter** | UI microcopy, errors, emails, marketing copy | sonnet |
 | **seo-aeo-specialist** | Technical SEO + Answer/Generative Engine Optimization | sonnet |
 | **data-compliance-officer** | Data map, privacy policy, ToS, cookies/consent, data-subject rights | opus |
+| **diagrammer** | Reverse-engineers the code into a Mermaid architecture map — component graph, core-flow sequences, ERD | opus |
 | **reviewer-architecture** | Pre-merge gate: structure & maintainability | opus |
 | **reviewer-code-quality** | Pre-merge gate: correctness, tests, readability | sonnet |
 | **reviewer-security** | Pre-merge gate: OWASP-style vulnerabilities | opus |
@@ -162,6 +163,7 @@ charter: [docs/TICKETS.md](docs/TICKETS.md). No Notion? Nothing changes —
 | `/review [base]` | Run the three reviewers in parallel on the current diff |
 | `/harden [target]` | Threat-model + security-review a change or area |
 | `/comply [target]` | Data-compliance audit + generate privacy policy, ToS, cookie-banner spec |
+| `/diagram [focus]` | Refresh `docs/ARCHITECTURE.md` — Mermaid component graph, core-flow sequences, and data-model ERD, reverse-engineered from the code |
 | `/tests [focus]` | Bootstrap or backfill the test suite — audit gaps by risk, then unit/integration/Cypress e2e for the core flows |
 | `/ship [context]` | Commit the work, push the feature branch, and open a PR for review |
 | `/deploy [context]` | Merge the integration branch into the production branch and push — the human-authorized deploy step |
@@ -218,8 +220,8 @@ claude-crew/
 ├── PROJECT.template.md        # copy → PROJECT.md, fill per project
 ├── README.md
 ├── .claude/
-│   ├── agents/                # the 14 specialist subagents
-│   ├── commands/              # /onboard /work /board /feature /bug /spike /epic /plan /review /harden /comply /ship /tests /deploy
+│   ├── agents/                # the 15 specialist subagents
+│   ├── commands/              # /onboard /work /board /feature /bug /spike /epic /plan /review /harden /comply /diagram /ship /tests /deploy
 │   ├── skills/                # the taste library — 9 anti-slop design skills
 │   ├── scripts/               # validate.sh (Stop gate) + pre-pr-gate.sh (blocks red PRs)
 │   └── settings.json          # permissions + quality-gate hooks
