@@ -12,8 +12,12 @@
 # Source resolution, first match wins:
 #   1. $CREW_SOURCE                          — explicit path to a checkout
 #   2. "# source:" in .claude/crew-manifest  — the checkout that installed us
-#   3. $CREW_REPO, "# remote:" in the manifest, or the public repo — cloned
-#      shallow into a temp dir ($CREW_REF selects a branch/tag)
+#   3. $CREW_REPO, "# remote:" in the manifest, or the public repo — cloned shallow
+#
+# Whichever it resolves, it syncs the RELEASED ref: origin/main by default, or
+# $CREW_REF to dogfood a branch/tag. A local checkout is read through a throwaway
+# detached worktree of that ref — so the branch you happen to have checked out
+# (and any in-progress / open-PR work on it) is never synced into a project.
 #
 # Usage, from anywhere inside the project:
 #   .claude/scripts/crew-update.sh
@@ -40,48 +44,87 @@ if [[ ! -f "${MANIFEST}" ]]; then
   echo "note: no .claude/crew-manifest here — the sync runs in conservative legacy mode." >&2
 fi
 
-SRC=""
-CLONED=""
-# NB: the handler must end with status 0 — a failed `[[ … ]] &&` list here
-# becomes the script's exit code even after a successful sync (the trap runs on
-# EXIT, so its last status wins). Use an `if`, which ends 0 when the test fails.
-cleanup() { if [[ -n "${CLONED}" ]]; then rm -rf "${CLONED}"; fi; }
+# The released ref to sync. Default to main so a project never picks up
+# unreleased or open-PR work; CREW_REF dogfoods a specific branch/tag instead.
+REF="${CREW_REF:-main}"
+
+SRC=""        # crew source handed to update.sh (a materialized ref, never a work tree)
+SRC_REPO=""   # the local git checkout we materialize REF from (needed for cleanup)
+WORKTREE=""   # throwaway detached worktree of REF
+WT_PARENT=""  # its temp parent dir
+CLONED=""     # throwaway shallow clone (used only when there's no local checkout)
+# NB: this EXIT-trap handler must end with status 0 — a failed `[[ … ]] &&` list
+# here becomes the script's exit code even after a successful sync (the trap runs
+# on EXIT, so its last status wins). Keep the trailing `return 0`.
+cleanup() {
+  if [[ -n "${WORKTREE}" && -n "${SRC_REPO}" ]]; then
+    git -C "${SRC_REPO}" worktree remove --force "${WORKTREE}" >/dev/null 2>&1 || true
+  fi
+  if [[ -n "${WT_PARENT}" ]]; then rm -rf "${WT_PARENT}"; fi
+  if [[ -n "${CLONED}" ]]; then rm -rf "${CLONED}"; fi
+  return 0
+}
 trap cleanup EXIT
 
+# Locate a local checkout to materialize REF from (explicit, then the manifest).
+LOCAL_SRC=""
 if [[ -n "${CREW_SOURCE:-}" ]]; then
   looks_like_crew "${CREW_SOURCE}" \
     || { echo "error: CREW_SOURCE=${CREW_SOURCE} is not a claude-crew checkout" >&2; exit 1; }
-  SRC="${CREW_SOURCE}"
+  LOCAL_SRC="${CREW_SOURCE}"
 elif [[ -f "${MANIFEST}" ]]; then
   rec="$(sed -n 's/^# source: //p' "${MANIFEST}" | head -1)"
   if [[ -n "${rec}" ]] && looks_like_crew "${rec}"; then
-    SRC="${rec}"
+    LOCAL_SRC="${rec}"
   fi
 fi
 
-if [[ -n "${SRC}" ]]; then
-  if git -C "${SRC}" rev-parse --git-dir >/dev/null 2>&1; then
-    branch="$(git -C "${SRC}" branch --show-current 2>/dev/null || true)"
-    commit="$(git -C "${SRC}" rev-parse --short HEAD 2>/dev/null || echo '?')"
-    echo "Using local crew checkout: ${SRC} (${branch:-detached} @ ${commit})"
-    echo "  · not pulling it automatically — 'git -C ${SRC} pull' first if you want newer."
-  fi
+if [[ -n "${LOCAL_SRC}" ]] && git -C "${LOCAL_SRC}" rev-parse --git-dir >/dev/null 2>&1; then
+  # Local git checkout → materialize REF in a throwaway detached worktree, so we
+  # sync REF's content (not whatever branch is checked out) without touching the
+  # user's working tree.
+  SRC_REPO="${LOCAL_SRC}"
+  git -C "${SRC_REPO}" fetch --quiet origin "${REF}" >/dev/null 2>&1 || true
+  PICK="origin/${REF}"
+  git -C "${SRC_REPO}" rev-parse --verify --quiet "${PICK}" >/dev/null 2>&1 || PICK="${REF}"
+  git -C "${SRC_REPO}" rev-parse --verify --quiet "${PICK}" >/dev/null 2>&1 \
+    || { echo "error: can't resolve '${REF}' in ${SRC_REPO} — fetch it, or set CREW_REF to an existing ref." >&2; exit 1; }
+  WT_PARENT="$(mktemp -d "${TMPDIR:-/tmp}/claude-crew-wt.XXXXXX")"
+  WORKTREE="${WT_PARENT}/${REF//\//-}"
+  git -C "${SRC_REPO}" worktree add --quiet --detach "${WORKTREE}" "${PICK}" >/dev/null 2>&1 \
+    || { echo "error: couldn't check out '${PICK}' from ${SRC_REPO} (stale worktree? try 'git -C ${SRC_REPO} worktree prune')." >&2; exit 1; }
+  echo "Using crew source: ${SRC_REPO} @ ${PICK} ($(git -C "${WORKTREE}" rev-parse --short HEAD)) — released line."
+  SRC="${WORKTREE}"
+elif [[ -n "${LOCAL_SRC}" ]]; then
+  # A source path that isn't a git checkout — use it as-is.
+  SRC="${LOCAL_SRC}"
 else
+  # No local checkout → shallow-clone REF.
   REPO_URL="${CREW_REPO:-}"
   if [[ -z "${REPO_URL}" && -f "${MANIFEST}" ]]; then
     REPO_URL="$(sed -n 's/^# remote: //p' "${MANIFEST}" | head -1)"
   fi
   [[ -z "${REPO_URL}" ]] && REPO_URL="${DEFAULT_REPO}"
   CLONED="$(mktemp -d "${TMPDIR:-/tmp}/claude-crew.XXXXXX")"
-  echo "Fetching the crew from ${REPO_URL}${CREW_REF:+ (ref: ${CREW_REF})} …"
-  if [[ -n "${CREW_REF:-}" ]]; then
-    git clone --quiet --depth 1 --branch "${CREW_REF}" "${REPO_URL}" "${CLONED}/crew"
-  else
-    git clone --quiet --depth 1 "${REPO_URL}" "${CLONED}/crew"
-  fi
+  echo "Fetching the crew (${REF}) from ${REPO_URL} …"
+  git clone --quiet --depth 1 --branch "${REF}" "${REPO_URL}" "${CLONED}/crew"
   SRC="${CLONED}/crew"
-  looks_like_crew "${SRC}" \
-    || { echo "error: ${REPO_URL} doesn't look like a claude-crew repo" >&2; exit 1; }
 fi
 
+looks_like_crew "${SRC}" \
+  || { echo "error: resolved crew source ${SRC} doesn't look like a claude-crew repo" >&2; exit 1; }
+
 bash "${SRC}/scripts/update.sh" "${PROJECT}"
+
+# update.sh records "# source: <the crew source it ran from>". When we
+# materialized a ref in a throwaway worktree, that path is about to be deleted —
+# rewrite the manifest to the durable checkout so the next sync finds it again.
+# (Self-contained here so it holds regardless of the synced update.sh version.)
+if [[ -n "${SRC_REPO}" && -f "${MANIFEST}" ]]; then
+  tmp="$(mktemp)"
+  if sed "s|^# source: .*|# source: ${SRC_REPO}|" "${MANIFEST}" > "${tmp}"; then
+    mv "${tmp}" "${MANIFEST}"
+  else
+    rm -f "${tmp}"
+  fi
+fi

@@ -32,6 +32,16 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
   - Roster is now **15 subagents**; `CLAUDE.md`, `README.md`, `docs/WORKFLOW.md`,
     and the plugin manifests updated accordingly.
 
+### Changed
+
+- **`crew-update.sh` now syncs the released line (`main`) by default**, instead
+  of whatever branch a local crew checkout happens to be sitting on — so a
+  project can never pick up unreleased or open-PR work by accident. It fetches
+  and materializes `origin/${CREW_REF:-main}` in a throwaway detached worktree
+  (your working tree is never touched), then runs the sync from that. Set
+  `CREW_REF` to dogfood a specific branch or tag. Consequence: a crew feature
+  reaches your projects only once you've promoted it `dev → main` via `/deploy`.
+
 ### Fixed
 
 - **`crew-update.sh` exited 1 after a successful local-source sync.** The `EXIT`
