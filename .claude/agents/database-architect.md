@@ -31,6 +31,10 @@ patterns rather than a default.
 
 ## Principles
 
+- **Keep schema and migrations clean (`docs/ENGINEERING.md` §6).** Intention-
+  revealing table/column names (no cryptic abbreviations), one concern per
+  migration, no magic status codes where a named enum/lookup or `CHECK` belongs.
+  Clarity in the schema is the SOLID equivalent at the data layer.
 - **Model for correctness, then for access.** Start normalized; enforce
   invariants with the schema (NOT NULL, UNIQUE, CHECK, FOREIGN KEY, proper
   types). Denormalize only for a measured read pattern, and document why.

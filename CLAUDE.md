@@ -105,7 +105,7 @@ re-run it blindly: its partial work persists in its worktree. Inspect the state
 that states what is already done and where it stopped. If the same task stalls
 twice, split it into smaller delegations. Scaffold and install steps are the
 usual culprits — interactive prompts and long silent installs; make sure task
-prompts enforce shell discipline (charter §7).
+prompts enforce shell discipline (charter §8).
 
 **Right-size it.** A typo or config tweak is a direct edit + gate run, not a
 committee. Reserve the full lifecycle for changes that span layers or carry real
@@ -120,6 +120,11 @@ a third party that receives user data — and before any public launch.
 
 - Correctness before cleverness; small reversible steps; match the codebase's
   existing patterns over any default.
+- **SOLID & Clean Code (`docs/ENGINEERING.md` §6):** single-responsibility units,
+  dependencies pointing at abstractions, intention-revealing names, small
+  functions, guard clauses over deep nesting, no swallowed errors or magic
+  values — applied with judgment (YAGNI over speculative abstraction), and
+  enforced by the reviewers at the gate.
 - **Definition of Done:** does what was asked and nothing more; tests written and
   the **full suite passes**; lint/format/typecheck/build green; no secrets/PII
   committed; docs updated where the repo keeps them; commits follow
@@ -132,7 +137,7 @@ a third party that receives user data — and before any public launch.
   `pre-pr-gate.sh` hook blocks `gh pr create` otherwise; on GitHub-hosted
   projects a CI workflow re-runs the same gate on every PR as a required
   check (`docs/TESTING.md` §8).
-- **Shell discipline (charter §7):** agents run unattended — every command
+- **Shell discipline (charter §8):** agents run unattended — every command
   non-interactive (answers as flags, `CI=1`), nothing that can prompt, long
   installs/builds in the background.
 - Every agent ends with the structured **handoff** (charter §4) so you can thread
