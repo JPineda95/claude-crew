@@ -299,8 +299,8 @@ board-touching command runs. The **sweep** reconciles:
 ```
 
 - **Hosts:** start of `/work` (any mode), start of `/deploy`, and `/board`
-  status mode. **Nowhere else** — `/plan`, `/review`, `/harden`, `/comply` are
-  read-only and MUST NOT write to the board.
+  status mode. **Nowhere else** — `/plan`, `/review`, `/harden`, `/comply`,
+  `/diagram` are read-only and MUST NOT write to the board.
 - **Forward-only, single-edge, idempotent:** the sweep moves cards along
   exactly one edge (Code Review → Dev Complete), only from the expected source
   status. It never advances a card a human demoted, and a merged-then-reverted

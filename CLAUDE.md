@@ -43,6 +43,7 @@ spawn subagents — all fan-out happens here in the main thread.**
 | `copywriter` | UI microcopy, errors, emails, marketing copy — in the right locale |
 | `seo-aeo-specialist` | Discoverability of public pages: technical SEO, structured data, AEO/GEO |
 | `data-compliance-officer` | Data map & legal shippability: privacy policy, ToS, cookies/consent, data-subject rights, retention |
+| `diagrammer` | Reverse-engineers the codebase into a Mermaid architecture map (`docs/ARCHITECTURE.md`) — component graph, core-flow sequences, data-model ERD |
 | `reviewer-architecture` | Pre-merge gate: structure, patterns, maintainability |
 | `reviewer-code-quality` | Pre-merge gate: correctness, edge cases, tests, readability |
 | `reviewer-security` | Pre-merge gate: OWASP-style vulns (always for security-relevant diffs) |
@@ -98,6 +99,12 @@ Intake → Design → Plan → Test-first → Build → Verify → Review → Fi
   In Progress → Code Review; a merge sweep and `/deploy` advance merged work;
   In QA → Done is human. The board is a mirror — a Notion failure never blocks
   an engineering step.
+
+**Know what you built.** After a batch of work, run **`/diagram`** to have the
+`diagrammer` refresh **`docs/ARCHITECTURE.md`** — a Mermaid map (component graph,
+core-flow sequence diagrams, data-model ERD) reverse-engineered from the actual
+code, so the system stays legible as the crew keeps shipping. It's read-only on
+application code and renders on GitHub/Obsidian with no dependency.
 
 **When a subagent fails or stalls** (e.g. "Agent stalled: no progress"), do not
 re-run it blindly: its partial work persists in its worktree. Inspect the state

@@ -1,6 +1,6 @@
 # claude-crew
 
-> A cloneable **AI engineering crew** for Claude Code. Fourteen expert subagents
+> A cloneable **AI engineering crew** for Claude Code. Fifteen expert subagents
 > that behave like a real product team, an orchestrator that knows when to spin
 > up each one, and battle-tested protocols for worktrees, rebasing, and commits.
 > **Technology-agnostic** — it detects and adapts to whatever stack a project
@@ -12,12 +12,6 @@ through a design → test → build → review → ship workflow. Optionally, pu
 **Notion kanban board** in front of it: file tickets with `/feature` `/bug`
 `/spike` `/epic`, triage them on the board, and let `/work` build every Dev
 Ready ticket in parallel ([docs/TICKETS.md](docs/TICKETS.md)).
-
-> **v2 breaking change:** `/feature` no longer runs the build lifecycle — it
-> files a Story ticket. **`/work`** is the build command now;
-> `/work <description>` behaves exactly like the old `/feature`, board or no
-> board. Upgraders via `update.sh`: if you customized `feature.md`, merge
-> `feature.md.crew-new` deliberately.
 
 ---
 
@@ -36,6 +30,7 @@ Ready ticket in parallel ([docs/TICKETS.md](docs/TICKETS.md)).
 | **copywriter** | UI microcopy, errors, emails, marketing copy | sonnet |
 | **seo-aeo-specialist** | Technical SEO + Answer/Generative Engine Optimization | sonnet |
 | **data-compliance-officer** | Data map, privacy policy, ToS, cookies/consent, data-subject rights | opus |
+| **diagrammer** | Reverse-engineers the code into a Mermaid architecture map — component graph, core-flow sequences, ERD | opus |
 | **reviewer-architecture** | Pre-merge gate: structure & maintainability | opus |
 | **reviewer-code-quality** | Pre-merge gate: correctness, tests, readability | sonnet |
 | **reviewer-security** | Pre-merge gate: OWASP-style vulnerabilities | opus |
@@ -162,9 +157,26 @@ charter: [docs/TICKETS.md](docs/TICKETS.md). No Notion? Nothing changes —
 | `/review [base]` | Run the three reviewers in parallel on the current diff |
 | `/harden [target]` | Threat-model + security-review a change or area |
 | `/comply [target]` | Data-compliance audit + generate privacy policy, ToS, cookie-banner spec |
+| `/diagram [focus]` | Refresh `docs/ARCHITECTURE.md` — Mermaid component graph, core-flow sequences, and data-model ERD, reverse-engineered from the code |
 | `/tests [focus]` | Bootstrap or backfill the test suite — audit gaps by risk, then unit/integration/Cypress e2e for the core flows |
 | `/ship [context]` | Commit the work, push the feature branch, and open a PR for review |
 | `/deploy [context]` | Merge the integration branch into the production branch and push — the human-authorized deploy step |
+
+**`/diagram` focus.** Run it bare to map the whole system, or pass a focus so a
+large repo stays legible and refreshes stay cheap. A focused run refreshes only
+the sections it covers — the `crew:diagram` markers keep the rest of
+`docs/ARCHITECTURE.md` (including any hand-written notes) intact.
+
+| Focus | Maps |
+|---|---|
+| *(none)* | The whole system — component graph, a sequence diagram per core flow, and the ERD |
+| `path:<dir>` | Only that subsystem/directory and what it connects to — e.g. `/diagram path:src/billing` |
+| `flow:<name>` | Only the sequence diagram for that flow — e.g. `/diagram flow:checkout` |
+| `system` | Only the system / component graph |
+| `data` | Only the data-model ERD |
+
+Anything else is treated as a free-text hint — a best-effort focus on whatever it
+names.
 
 ---
 
@@ -218,8 +230,8 @@ claude-crew/
 ├── PROJECT.template.md        # copy → PROJECT.md, fill per project
 ├── README.md
 ├── .claude/
-│   ├── agents/                # the 14 specialist subagents
-│   ├── commands/              # /onboard /work /board /feature /bug /spike /epic /plan /review /harden /comply /ship /tests /deploy
+│   ├── agents/                # the 15 specialist subagents
+│   ├── commands/              # /onboard /work /board /feature /bug /spike /epic /plan /review /harden /comply /diagram /ship /tests /deploy
 │   ├── skills/                # the taste library — 9 anti-slop design skills
 │   ├── scripts/               # validate.sh (Stop gate) + pre-pr-gate.sh (blocks red PRs)
 │   └── settings.json          # permissions + quality-gate hooks

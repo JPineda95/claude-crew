@@ -27,6 +27,56 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 - Charter sections renumbered after inserting §6: Shell discipline is now §8,
   Git discipline §9. Cross-references updated.
 
+## 2.3.0 — 2026-07-05
+
+### Added
+
+- **`/diagram` — an architecture map you can read.** A new command drives a new
+  read-only **`diagrammer`** specialist that reverse-engineers the codebase and
+  writes/refreshes **`docs/ARCHITECTURE.md`** with three Mermaid diagram families:
+  a **system/component graph** (`flowchart`), a **`sequenceDiagram` per core
+  flow** (auth, primary create/checkout path, key jobs — sourced from
+  `docs/TESTING.md`'s e2e flow list when present), and a **data-model ERD**
+  (`erDiagram`). Answers "what did we build and how is it wired?" after a batch of
+  `/work`.
+  - **Focused runs.** Maps the whole system by default, or scopes to
+    `path:<dir>`, `flow:<name>`, `system`, or `data` (or a free-text hint) — a
+    focused run refreshes only the sections it covers.
+  - **Zero dependency.** Mermaid is emitted as text and renders natively on
+    GitHub, in Obsidian, and in VS Code; images can be exported on demand with
+    `npx @mermaid-js/mermaid-cli` without adding a project dependency.
+  - **Living doc.** Generated content sits between
+    `<!-- crew:diagram:start/end -->` markers so re-runs refresh the diagrams
+    without clobbering human-authored sections, and a `Last mapped: <sha>` footer
+    makes staleness visible.
+  - **Documents, never redesigns.** Read-only on application code (writes only
+    `docs/ARCHITECTURE.md`); every node must trace to real code, unresolved
+    wiring is marked `TODO: verify` rather than guessed, and architectural smells
+    are surfaced as recommendations for `architect`.
+  - Roster is now **15 subagents**; `CLAUDE.md`, `README.md`, `docs/WORKFLOW.md`,
+    and the plugin manifests updated accordingly.
+
+### Changed
+
+- **`crew-update.sh` now syncs the released line (`main`) by default**, instead
+  of whatever branch a local crew checkout happens to be sitting on — so a
+  project can never pick up unreleased or open-PR work by accident. It fetches
+  and materializes `origin/${CREW_REF:-main}` in a throwaway detached worktree
+  (your working tree is never touched), then runs the sync from that. Set
+  `CREW_REF` to dogfood a specific branch or tag. Consequence: a crew feature
+  reaches your projects only once you've promoted it `dev → main` via `/deploy`.
+
+### Fixed
+
+- **`crew-update.sh` exited 1 after a successful local-source sync.** The `EXIT`
+  trap's cleanup ran `[[ -n "${CLONED}" ]] && rm …`; on the common local-checkout
+  path `CLONED` is empty, so the `&&` list ended non-zero and — being the last
+  command in the trap — became the script's exit code even though the sync
+  succeeded (red shell status; any `crew-update && next` wrapper would abort).
+  Rewritten as an `if`, which always ends 0 when the test fails. Re-applies the
+  fix from `898ddc0`, which was authored on `feat/never-commit-main` but was
+  orphaned and never reached `dev`/`main`.
+
 ## 2.2.0 — 2026-07-03
 
 ### Added
