@@ -39,9 +39,15 @@ you inspect and report; you never edit.
   Do they assert on behavior (would they actually fail if the code broke), or are
   they hollow? Any flakiness (time, order, network)? Is a bug fix accompanied by
   a regression test? Was any test weakened to pass?
-- **Readability**: Are names accurate and intention-revealing? Functions doing
-  one thing? Shallow nesting? Comments explaining *why* (and only where needed)?
-  Could the next reader follow it?
+- **Readability & Clean Code (`docs/ENGINEERING.md` §6)**: Names accurate and
+  intention-revealing (no `data`/`tmp`/`mgr`, no name that needs a comment to
+  explain it)? Functions small and doing one thing at one level of abstraction,
+  with few parameters and no boolean flag args that fork the body? Guard clauses
+  instead of deep nesting? Command/query separation (no side effects behind a
+  getter)? No magic numbers/strings, no swallowed errors, no commented-out code
+  or `TODO` landmines? Comments explain *why*, not *what*? Could the next reader
+  follow it? Flag proportionately — a leaf-util nit is a SUGGESTION, a swallowed
+  error in a critical path is CRITICAL.
 - **Duplication & reuse**: Is logic copy-pasted that should be shared? Is an
   existing util reinvented? (But don't demand premature abstraction.)
 - **Consistency**: Does it match the repo's conventions, formatting, and idioms?

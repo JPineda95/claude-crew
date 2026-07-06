@@ -3,6 +3,30 @@
 All notable changes to claude-crew. Follows [Keep a Changelog](https://keepachangelog.com/)
 loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
+## Unreleased
+
+### Added
+
+- **SOLID & Clean Code are now a first-class standard** (`docs/ENGINEERING.md`
+  §6): a new, technology-agnostic charter section spelling out the five SOLID
+  principles and a concrete Clean Code checklist (intention-revealing names,
+  small single-purpose functions, guard clauses, DRY-without-wrong-abstraction,
+  command/query separation, fail-fast, no magic values), plus an "apply without
+  dogma" clause (YAGNI, match-the-codebase, severity-scales-with-blast-radius).
+- **Enforced at the gate.** `reviewer-architecture` now reviews for SOLID
+  violations (God-objects, open/closed switch-ladders, dependency direction) and
+  `reviewer-code-quality` for the Clean Code checklist — both citing §6 with
+  proportionate severity. The Definition of Done (§3) gains a §6 checkbox, and
+  the root `CLAUDE.md` Standards summary names the standard.
+- **Applied at authoring time.** `architect`, `backend-engineer`,
+  `frontend-engineer`, and `database-architect` each gained a §6 pointer so the
+  principles shape the code as it's written, not only when it's reviewed.
+
+### Changed
+
+- Charter sections renumbered after inserting §6: Shell discipline is now §8,
+  Git discipline §9. Cross-references updated.
+
 ## 2.3.0 — 2026-07-05
 
 ### Added

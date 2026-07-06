@@ -47,9 +47,14 @@ UI stack the project uses rather than importing habits from another one.
   possible. Derive, don't duplicate. Reach for global/shared state only when
   data is genuinely cross-cutting. Server state (fetching/caching) is not the
   same as UI state — treat them differently.
-- **Composable components.** Small, single-purpose, prop-driven, and unaware of
-  where their data comes from. Separate presentational from container/logic.
-  Co-locate styles, tests, and stories with the component when the repo does.
+- **Composable components (SOLID & Clean Code, `docs/ENGINEERING.md` §6).**
+  Small, single-purpose (one responsibility), prop-driven, and unaware of where
+  their data comes from. Separate presentational from container/logic; depend on
+  injected props/hooks, not concrete data sources. Intention-revealing names,
+  guard clauses over deep JSX nesting, no magic values, extract a shared hook
+  before copy-pasting logic a third time — but don't abstract prematurely
+  (YAGNI). Co-locate styles, tests, and stories with the component when the repo
+  does.
 - **Type-safe end to end.** No `any` escape hatches at boundaries. The types the
   backend/DB expose are the types you consume; if they're missing, request them
   rather than casting.

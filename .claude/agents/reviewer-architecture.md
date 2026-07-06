@@ -36,6 +36,14 @@ never edit code. You inspect, reason, and report.
 - **Separation of concerns**: Are responsibilities in the right layer (UI vs.
   domain vs. data vs. I/O)? Is business logic leaking into the wrong place? Are
   boundaries and contracts clean?
+- **SOLID (`docs/ENGINEERING.md` §6)**: Single-responsibility units (no
+  God-objects doing "X and Y and Z"); extension by adding code, not editing a
+  switch-ladder every new case reopens (open/closed); substitutable subtypes;
+  small client-specific interfaces (no fat interfaces); and dependencies pointing
+  at abstractions — high-level policy must not reach directly into low-level I/O
+  (db, HTTP, clock). Flag violations that will bite maintainability, and weigh
+  them against YAGNI: a lone single-use interface is speculative noise, not a
+  win. Severity scales with blast radius (core vs. leaf).
 - **Correctness of approach**: Does the design actually satisfy the requirement,
   including edge cases and failure modes? Are there race conditions, ordering
   assumptions, or missing error paths?
