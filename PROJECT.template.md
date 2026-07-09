@@ -29,7 +29,8 @@
 - **Dev server:** `…`
 - **Validation gate (run before every commit):** `…` *(e.g. `npm run check`, or
   `test && lint && typecheck && build` — this is what "the validation gate" means
-  throughout `docs/`)*
+  throughout `docs/`; mirrored in `.claude/crew.env` as `CLAUDE_VALIDATE_CMD` —
+  the hooks read only the env var, not this file, so keep both in sync)*
 - **Test:** `…`
 - **Lint / format:** `…`
 - **Build / typecheck:** `…`

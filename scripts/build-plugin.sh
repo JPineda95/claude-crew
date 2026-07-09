@@ -38,6 +38,10 @@ cp "${SRC}/docs/"*.md "${OUT}/docs/"
 cp "${SRC}/CLAUDE.md" "${OUT}/CLAUDE.md"
 cp "${SRC}/PROJECT.template.md" "${OUT}/PROJECT.template.md"
 
+# templates/crew.env — the gate config template, so the plugin form can seed it too.
+mkdir -p "${OUT}/templates"
+cp "${SRC}/templates/crew.env" "${OUT}/templates/crew.env"
+
 # Hooks as plugin config: the pre-PR gate (blocks `gh pr create` until the
 # validation gate is green — same guardrail the clone-first layout gets from
 # .claude/settings.json) and the Stop-hook validation gate.

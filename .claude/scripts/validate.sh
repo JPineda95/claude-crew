@@ -6,20 +6,20 @@
 # By default it is NON-BLOCKING and SELF-DISABLING until you configure it, so a
 # fresh clone of the boilerplate never breaks. Turn it on in one of two ways:
 #
-#   1. Set VALIDATE_CMD below to your project's gate, e.g.:
-#        VALIDATE_CMD="npm run check"        # or: pnpm test && pnpm lint && pnpm build
-#        VALIDATE_CMD="pytest -q && ruff check . && mypy ."
-#        VALIDATE_CMD="go test ./... && go vet ./... && golangci-lint run"
-#
-#   2. Or export CLAUDE_VALIDATE_CMD in your environment / .claude/settings.local.json env.
+# Configure it by editing `.claude/crew.env` (seeded by install.sh/update.sh;
+# `/onboard` writes it for you), or by exporting CLAUDE_VALIDATE_CMD in your
+# environment / .claude/settings.local.json env — the env var always wins.
 #
 # To make a failing gate BLOCK the agent from stopping (recommended once green),
-# set BLOCK_ON_FAILURE=1. When blocking, a non-zero exit (code 2) feeds the error
-# back to Claude so it fixes the problem instead of ending the turn.
+# set BLOCK_ON_FAILURE=1 (also in .claude/crew.env). When blocking, a non-zero
+# exit (code 2) feeds the error back to Claude so it fixes the problem instead
+# of ending the turn.
 #
 set -uo pipefail
 
-VALIDATE_CMD="${CLAUDE_VALIDATE_CMD:-}"     # <-- set your gate here or via env
+[[ -f "${CLAUDE_PROJECT_DIR:-.}/.claude/crew.env" ]] && source "${CLAUDE_PROJECT_DIR:-.}/.claude/crew.env"
+
+VALIDATE_CMD="${CLAUDE_VALIDATE_CMD:-}"
 BLOCK_ON_FAILURE="${BLOCK_ON_FAILURE:-0}"
 
 # Nothing configured yet → do nothing, don't get in the way.

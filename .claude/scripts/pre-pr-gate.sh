@@ -8,6 +8,12 @@
 #   2. CLAUDE_E2E_SMOKE_CMD (optional e2e smoke set) is green when configured,
 #   3. the branch's diff doesn't change code while touching zero test files.
 #
+# CLAUDE_VALIDATE_CMD / CLAUDE_E2E_SMOKE_CMD / CLAUDE_INTEGRATION_BRANCH /
+# BLOCK_ON_FAILURE are read from the environment, or from `.claude/crew.env`
+# in the directory the gate runs in (RUN_DIR below) if not already exported —
+# crew.env is the project's single source of truth for these; set it there,
+# or via /onboard.
+#
 # Overrides — deliberately different trust levels:
 #   - PR_GATE_ALLOW_NO_TESTS=1 relaxes check 3 only. Honored from the hook's
 #     environment OR inline in the command itself (`PR_GATE_ALLOW_NO_TESTS=1
@@ -96,6 +102,12 @@ shell variables in cd targets. Retry with a literal absolute path."
   fi
 fi
 
+# Project gate config (CLAUDE_VALIDATE_CMD, CLAUDE_E2E_SMOKE_CMD,
+# CLAUDE_INTEGRATION_BRANCH, BLOCK_ON_FAILURE). Loaded before BASE resolution
+# below, which reads CLAUDE_INTEGRATION_BRANCH. A value already exported in
+# the calling environment wins (crew.env uses ':=' defaults).
+[[ -f "${RUN_DIR}/.claude/crew.env" ]] && source "${RUN_DIR}/.claude/crew.env"
+
 # Exact-name check: trusts CLAUDE_INTEGRATION_BRANCH verbatim. Unset, it
 # prefers `dev` when the repo has one — the crew never integrates on main
 # (CLAUDE.md guardrail 1) — falling back to `main`.
@@ -120,9 +132,9 @@ fi
 
 GATE_CMD="${CLAUDE_VALIDATE_CMD:-}"
 if [[ -z "${GATE_CMD}" ]]; then
-  fail "no validation gate is configured. Set CLAUDE_VALIDATE_CMD to 'lint + full
-test suite' (docs/TESTING.md §5, PROJECT.md §3–4), run it green, then retry.
-If this project has no test suite yet, run /tests to bootstrap one."
+  fail "no validation gate is configured. Set it in .claude/crew.env (or export
+CLAUDE_VALIDATE_CMD — docs/TESTING.md §5, PROJECT.md §3–4), run it green, then
+retry. If this project has no test suite yet, run /tests to bootstrap one."
 fi
 
 echo "▶ pre-PR gate (in ${RUN_DIR}): ${GATE_CMD}" >&2
