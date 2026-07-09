@@ -70,7 +70,9 @@ Intake → Design → Plan → Test-first → Build → Verify → Review → Fi
 ```
 
 - **Intake:** restate the request; resolve ambiguity that changes the outcome;
-  read `PROJECT.md`.
+  read `PROJECT.md`. Run `/status` first for a compact read-only snapshot
+  (branch, open crew PRs, commits awaiting `/deploy`, gate config) — good
+  practice at the start of any session, not just before building.
 - **Design & Plan:** `architect` produces a design brief + a task list with
   owners, dependencies, and a hot-file map (which files multiple tasks touch).
 - **Test-first:** `qa-engineer` writes failing tests before implementation
@@ -213,5 +215,9 @@ a third party that receives user data — and before any public launch.
 4. Tune agent `model` tiers and `.claude/settings.json` permissions/hooks to
    taste.
 5. Add any project-specific specialist agents alongside the crew.
+
+Later, pull crew updates from inside the project with **`/crew-update`** — it
+runs the self-updating sync and walks any `.crew-new` merge conflicts
+interactively.
 
 See `README.md` for the full setup guide.

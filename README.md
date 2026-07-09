@@ -78,13 +78,15 @@ machine-local state (settings, worktrees, memory files) — idempotent, safe on
 repeated runs.
 
 The updater also **ships with the crew**: from inside any installed project,
-run `.claude/scripts/crew-update.sh` — it finds the crew source via the
+run **`/crew-update`** (or the script directly,
+`.claude/scripts/crew-update.sh`) — it finds the crew source via the
 manifest (or clones the repo when no local checkout exists; `CREW_SOURCE`,
 `CREW_REPO`, `CREW_REF` override) and runs the same manifest-protected sync.
-No claude-crew checkout needs to be kept around. Both updaters refuse to sync
-if that would downgrade a project (e.g. one installed from a newer or
-dogfooded branch than the ref being synced) — pass `--allow-downgrade` to
-proceed anyway.
+The slash command additionally walks you through merging any `.crew-new`
+files interactively. No claude-crew checkout needs to be kept around. Both
+updaters refuse to sync if that would downgrade a project (e.g. one
+installed from a newer or dogfooded branch than the ref being synced) — pass
+`--allow-downgrade` to proceed anyway.
 
 ### Option C — install as a Claude Code plugin
 ```bash
@@ -157,7 +159,8 @@ charter: [docs/TICKETS.md](docs/TICKETS.md). No Notion? Nothing changes —
 ### Slash commands
 | Command | Does |
 |---|---|
-| `/onboard` | Interview you + scan the repo to generate a complete `PROJECT.md` |
+| `/onboard [thorough]` | Interview you + scan the repo to generate a complete `PROJECT.md` — one message, ≤2 turns by default; `thorough` walks it section by section |
+| `/status` | Read-only session opener: branch state, open crew PRs, commits awaiting `/deploy`, stale worktrees, gate config |
 | `/work [id \| desc]` | **The build command.** A ticket by id, every Dev Ready ticket in parallel, or a plain description (the classic full lifecycle) |
 | `/board [name]` | Create (or check/repair) the Notion section: summary page + kanban board. Optional |
 | `/feature <desc>` | Interview → file a **Story** ticket in the backlog — a human triages it, then `/work <id>` builds it |
@@ -172,6 +175,7 @@ charter: [docs/TICKETS.md](docs/TICKETS.md). No Notion? Nothing changes —
 | `/tests [focus]` | Bootstrap or backfill the test suite — audit gaps by risk, then unit/integration/Cypress e2e for the core flows |
 | `/ship [context]` | Commit the work, push the feature branch, and open a PR for review |
 | `/deploy [context]` | Merge the integration branch into the production branch and push — the human-authorized deploy step |
+| `/crew-update [ref]` | Pull crew updates via `crew-update.sh`, then interactively walk any `.crew-new` merge conflicts |
 
 **`/diagram` focus.** Run it bare to map the whole system, or pass a focus so a
 large repo stays legible and refreshes stay cheap. A focused run refreshes only
