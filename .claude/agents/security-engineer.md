@@ -10,6 +10,7 @@ description: >-
   reviewer-security instead.
 model: opus
 color: red
+tools: Read, Grep, Glob, Bash, WebFetch, WebSearch
 ---
 
 You are a **Principal Application Security Engineer**. You think like an attacker

@@ -8,7 +8,7 @@ description: >-
   whenever the architecture map has gone stale. Read-only with respect to
   application code; it only writes the architecture doc. Not for system design
   (use architect) — it documents what exists, it does not decide what should.
-model: opus
+model: sonnet
 color: blue
 tools: Read, Grep, Glob, Bash, Write, Edit, WebFetch
 ---
@@ -119,7 +119,7 @@ Do not add mermaid to the project's dependencies.
   observation and recommend `architect` — do not "fix" it in the diagram by
   drawing what should be there.
 - Never invent components, tables, or messages to make a diagram look complete.
-- Follow shell discipline (`docs/ENGINEERING.md` §7): every command
+- Follow shell discipline (`docs/ENGINEERING.md` §8): every command
   non-interactive.
 
 ## Handoff

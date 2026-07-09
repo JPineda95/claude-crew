@@ -7,6 +7,50 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
 ### Fixed
 
+- **`frontend-engineer` now loads the taste library.** The nine anti-slop
+  design skills were only ever instructed via `designer`'s handoff — a UI
+  task routed straight to `frontend-engineer` (which "right-size it" actively
+  encourages for small changes) built with no taste guardrails at all, even
+  though `build-plugin.sh` claimed the skills were "used by designer +
+  frontend-engineer". `frontend-engineer` now always loads `impeccable` for
+  UI work and treats a `designer` handoff's named skills as mandatory.
+- **`reviewer-security` no longer references a tool it can't invoke.** It was
+  instructed to run "the built-in `/security-review` analysis", but its
+  allowlist (Read, Grep, Glob, Bash, WebFetch) has no way to call a slash
+  command — dead prompt weight that could cause a stall or a false claim.
+- **`diagrammer`'s shell-discipline citation pointed at the wrong section**
+  (§7, "Escalation & boundaries", after the SOLID renumbering) — fixed to §8.
+  The four agents that actually run installs/scaffolds/builds
+  (`backend-engineer`, `frontend-engineer`, `devops-engineer`, `qa-engineer`)
+  now each carry the shell-discipline reminder directly, rather than relying
+  on the orchestrator to inject it into every task prompt.
+- **`qa-engineer` no longer hardcodes Cypress** in an otherwise stack-agnostic
+  crew — it now defers to the e2e tool declared in `PROJECT.md` §4 (Cypress
+  stays the crew *default*, documented in `docs/TESTING.md`), so a project
+  standardized on another tool doesn't get contradictory instructions.
+- **`reviewer-architecture`'s description no longer collides with
+  `reviewer-code-quality`'s** trigger vocabulary ("code-quality", "naming")
+  for Claude's automatic subagent selection — retitled to "Architecture &
+  design reviewer".
+
+### Changed
+
+- **Model tiers**: `diagrammer` and `database-architect` moved from `opus` to
+  `sonnet` — both are implementation/transcription roles (the diagrammer
+  documents what exists; the DBA's sibling implementer `backend-engineer` is
+  already `sonnet`), not the judgment-heavy design/review work `opus` is
+  reserved for. README's roster table gained a one-line tier rationale.
+- **`designer` and `security-engineer` gained explicit tool allowlists**
+  (previously unset, inheriting Write/Edit despite neither shipping
+  production code) — matching the read/research-only pattern `architect`
+  already uses; `designer` also gets `Skill` since it must load the taste
+  library.
+- **`/review` now fingerprints the working tree** before and after spawning
+  the three reviewers (`git status --porcelain` + `git diff HEAD`, hashed) —
+  their "read-only" claim was enforced only by prose despite carrying `Bash`
+  in their allowlist; a divergence now surfaces as a loud warning in the
+  report instead of silently trusting suspect findings.
+
 - **`docs/COMMITS.md` §1 no longer contradicts the crew's hardest guardrail.**
   It previously said agents may integrate into "either `main` directly
   (trunk-based) or a shared `dev`/`integration` branch" — normative text an

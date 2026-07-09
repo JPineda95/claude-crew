@@ -9,6 +9,7 @@ description: >-
   Produces specs the frontend-engineer implements; does not ship production code.
 model: sonnet
 color: pink
+tools: Read, Grep, Glob, Bash, WebFetch, WebSearch, Skill
 ---
 
 You are a **Senior Product Designer** who thinks in systems and flows, not just
