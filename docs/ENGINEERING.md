@@ -48,6 +48,9 @@ If the stack is ambiguous and the choice is consequential, ask — do not guess.
 A change is done only when **all** of these hold:
 
 - [ ] It does what the task asked, and nothing it wasn't asked to do.
+- [ ] It honors the design principles in §6 (SOLID & Clean Code), proportionate
+      to its scope — no new God-objects, dead abstractions, swallowed errors,
+      magic values, or duplication the diff could have avoided.
 - [ ] Tests exist for the new behavior — written first when feasible (TDD,
       `docs/TESTING.md`) — and the **full test suite passes**.
 - [ ] A changed core flow has its e2e spec updated (`docs/TESTING.md` §4).
@@ -93,7 +96,76 @@ report it as a recommendation; let the orchestrator decide.
 - **Accessibility** — interactive UI meets WCAG 2.2 AA (keyboard, contrast,
   labels, focus). See `designer` and `frontend-engineer`.
 
-## 6. Escalation & boundaries
+## 6. Design principles: SOLID & Clean Code
+
+Correctness and readability (§1, §5) are the floor. This section is the shared
+standard for *how the code is shaped* — every agent applies it, every reviewer
+cites it by name, and the Definition of Done (§3) requires it. It is
+technology-agnostic: the same rules govern a React component, a domain service,
+a SQL migration, or a shell script.
+
+### SOLID
+
+- **Single Responsibility** — a module, class, or function has one reason to
+  change. If you can only describe what it does using "and", split it. A
+  function does one thing, at one level of abstraction.
+- **Open/Closed** — extend behavior by adding code, not by editing stable code
+  in place. A `switch`/`if-else` ladder that every new case must reopen is the
+  classic violation; prefer polymorphism, a strategy map, or a new
+  implementation of an interface.
+- **Liskov Substitution** — a subtype must work anywhere its base type does,
+  with no surprises: no overrides that throw "not supported", silently narrow
+  accepted inputs, or weaken a guarantee callers rely on.
+- **Interface Segregation** — keep interfaces small and client-specific. Don't
+  force a caller to depend on methods it never uses; split fat interfaces into
+  role-based ones.
+- **Dependency Inversion** — depend on abstractions, not concretions. High-level
+  policy must not import low-level I/O (db, HTTP, clock, filesystem) directly;
+  inject it behind an interface so the core stays pure, swappable, and testable
+  (this is the same seam §5 calls testability and the `architect` calls "push
+  I/O to the edges").
+
+### Clean Code
+
+- **Names reveal intent.** No cryptic abbreviations, no `data`/`tmp`/`mgr`, no
+  type encodings in names. A name is wrong if it needs a comment to say what it
+  holds.
+- **Small functions, few parameters.** Short, focused, one level of abstraction.
+  Prefer ≤3 parameters; bundle more into a named value object. No boolean flag
+  argument that forks the body — split it into two functions.
+- **Guard clauses over deep nesting.** Return early; keep the happy path
+  unindented. Nesting past ~3 levels is a smell to refactor, not to comment.
+- **No duplication (DRY) — but no wrong abstraction.** Extract genuinely shared
+  logic; do **not** merge two things that only look alike today. Duplication is
+  cheaper than the wrong abstraction.
+- **Command/Query separation.** A function either *does* something or *answers*
+  something — not both. No surprising side effects behind a getter.
+- **Fail fast, never swallow.** Validate at the boundary; raise or return
+  meaningful errors; never catch-and-ignore to make a symptom disappear.
+- **No magic values.** Name every constant; no unexplained number or string
+  sitting in a condition or calculation.
+- **Comments explain *why*, not *what*** (§5). Delete commented-out code and
+  redundant narration — they rot and mislead.
+
+### Applying it without dogma
+
+These principles serve correctness and changeability; they are not a checklist to
+maximize. Apply judgment:
+
+- **YAGNI beats speculative abstraction** (`architect`). Introduce an interface,
+  a layer, or a pattern when there is a *real, present* reason — a second
+  implementation exists, a boundary is truly crossed, a test needs a seam — not
+  to pre-satisfy a principle. A lone single-use interface with one
+  implementation is usually noise.
+- **Match the codebase first** (§1.4). A locally consistent pattern beats a "more
+  SOLID" one imported in isolation. Refactor toward these principles
+  incrementally and in scope (§1.5) — don't rewrite a working module to score
+  points.
+- **Severity scales with blast radius.** A God-object in the domain core is a
+  CRITICAL; an over-long function in a leaf utility is a SUGGESTION. Reviewers
+  weight findings accordingly.
+
+## 7. Escalation & boundaries
 
 - Stay inside your role. A frontend agent does not redesign the database; it
   files a request for `database-architect`. Cross-cutting decisions go to
@@ -102,7 +174,7 @@ report it as a recommendation; let the orchestrator decide.
   API change, new dependency, new infra cost), stop and surface it.
 - If two agents need the same files, follow `docs/WORKTREES.md` — do not race.
 
-## 7. Shell discipline (you run unattended)
+## 8. Shell discipline (you run unattended)
 
 Agents run headless — nobody is at the keyboard to answer a prompt. A command
 that waits for input sits silent until a watchdog kills the whole agent and the
@@ -124,7 +196,7 @@ task fails. Rules:
 - **Prefer output that shows life.** For foreground work, a command that prints
   progress is diagnosable; one that is silent for minutes is not.
 
-## 8. Git discipline (summary — full rules in docs)
+## 9. Git discipline (summary — full rules in docs)
 
 - One task → one branch. See `docs/WORKTREES.md`.
 - **NEVER commit to `main`** (or the production/default branch) — only a

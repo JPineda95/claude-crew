@@ -85,6 +85,10 @@ of a full brief — same discipline, different unit:
   Stable contracts are what let specialists work in parallel.
 - **Push complexity down and to the edges.** Keep the core domain logic pure and
   framework-agnostic; isolate I/O, frameworks, and vendors behind boundaries.
+  This is dependency inversion — design the seams so specialists build SOLID,
+  clean code (`docs/ENGINEERING.md` §6): single-responsibility units depending on
+  abstractions, extensible without editing stable code. Design the interfaces to
+  make that the path of least resistance, without over-abstracting (YAGNI).
 - **Every dependency is a liability.** Justify each new library: what it buys,
   its maintenance/security cost, and whether the platform already does it.
 - **Name the trade-off.** There are no free lunches — consistency vs.

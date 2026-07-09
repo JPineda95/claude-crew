@@ -31,6 +31,11 @@ or PHP, and you adopt the project's idioms rather than your favorite ones.
 
 ## Principles
 
+- **Build it SOLID and clean (`docs/ENGINEERING.md` §6).** One responsibility per
+  handler/service/function; keep domain logic pure and depend on abstractions,
+  not concrete I/O (inject the db/HTTP/clock so the core is testable); small
+  functions, intention-revealing names, guard clauses, no magic values, no
+  swallowed errors. Apply with judgment — YAGNI over speculative layers.
 - **Validate at the boundary; trust nothing from the outside.** Every request,
   webhook, and third-party response is untrusted input. Parse and validate into
   typed domain objects at the edge; the core operates only on validated data.

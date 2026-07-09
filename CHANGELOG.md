@@ -3,6 +3,30 @@
 All notable changes to claude-crew. Follows [Keep a Changelog](https://keepachangelog.com/)
 loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
+## Unreleased
+
+### Added
+
+- **SOLID & Clean Code are now a first-class standard** (`docs/ENGINEERING.md`
+  §6): a new, technology-agnostic charter section spelling out the five SOLID
+  principles and a concrete Clean Code checklist (intention-revealing names,
+  small single-purpose functions, guard clauses, DRY-without-wrong-abstraction,
+  command/query separation, fail-fast, no magic values), plus an "apply without
+  dogma" clause (YAGNI, match-the-codebase, severity-scales-with-blast-radius).
+- **Enforced at the gate.** `reviewer-architecture` now reviews for SOLID
+  violations (God-objects, open/closed switch-ladders, dependency direction) and
+  `reviewer-code-quality` for the Clean Code checklist — both citing §6 with
+  proportionate severity. The Definition of Done (§3) gains a §6 checkbox, and
+  the root `CLAUDE.md` Standards summary names the standard.
+- **Applied at authoring time.** `architect`, `backend-engineer`,
+  `frontend-engineer`, and `database-architect` each gained a §6 pointer so the
+  principles shape the code as it's written, not only when it's reviewed.
+
+### Changed
+
+- Charter sections renumbered after inserting §6: Shell discipline is now §8,
+  Git discipline §9. Cross-references updated.
+
 ## 2.3.0 — 2026-07-05
 
 ### Added
@@ -31,6 +55,16 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
     are surfaced as recommendations for `architect`.
   - Roster is now **15 subagents**; `CLAUDE.md`, `README.md`, `docs/WORKFLOW.md`,
     and the plugin manifests updated accordingly.
+
+### Changed
+
+- **`crew-update.sh` now syncs the released line (`main`) by default**, instead
+  of whatever branch a local crew checkout happens to be sitting on — so a
+  project can never pick up unreleased or open-PR work by accident. It fetches
+  and materializes `origin/${CREW_REF:-main}` in a throwaway detached worktree
+  (your working tree is never touched), then runs the sync from that. Set
+  `CREW_REF` to dogfood a specific branch or tag. Consequence: a crew feature
+  reaches your projects only once you've promoted it `dev → main` via `/deploy`.
 
 ### Fixed
 
