@@ -7,6 +7,19 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
 ### Added
 
+- **`.claude/crew.env` — a single, committed source of truth for the gate.**
+  Previously the README/install.sh told new users to "set your validation
+  gate in `.claude/scripts/validate.sh`", but the pre-PR hook read only the
+  `CLAUDE_VALIDATE_CMD` environment variable — so following that instruction
+  left every first PR blocked with "no validation gate is configured", and
+  editing validate.sh permanently marked it customized (`.crew-new` noise on
+  every future update). `.claude/crew.env` fixes both: `install.sh`/`update.sh`
+  seed it once (never touched again afterward, like `PROJECT.md`), `/onboard`
+  writes the confirmed gate command into it, and both hooks
+  (`validate.sh`, `pre-pr-gate.sh`) source it. A value already exported in the
+  session/`.claude/settings.local.json` environment still wins, so existing
+  installs (e.g. kani) keep working unchanged. README, `PROJECT.template.md`,
+  and `docs/TESTING.md` §5/§8 updated to point at it as the single route.
 - **Downgrade guard in the updater.** `scripts/update.sh` (and the
   self-updating `.claude/scripts/crew-update.sh`) now refuse to sync when the
   project's installed content is not an ancestor of the ref being synced —

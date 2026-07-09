@@ -63,6 +63,16 @@ else
   echo "  · kept existing PROJECT.md"
 fi
 
+# .claude/crew.env — the gate's single source of truth (CLAUDE_VALIDATE_CMD
+# etc). Seeded once if absent; update.sh NEVER manages it afterward (like
+# PROJECT.md), so it stays out of the manifest too.
+if [[ ! -f "${DEST}/.claude/crew.env" ]]; then
+  cp "${SRC}/templates/crew.env" "${DEST}/.claude/crew.env"
+  echo "  · created .claude/crew.env — set your validation gate there (or run /onboard)"
+else
+  echo "  · kept existing .claude/crew.env"
+fi
+
 # Example configs (non-destructive).
 cp "${SRC}/.mcp.json.example" "${DEST}/.mcp.json.example"
 cp "${SRC}/.worktreeinclude.example" "${DEST}/.worktreeinclude.example"
@@ -93,6 +103,6 @@ echo
 echo "Done. Next:"
 echo "  1. Fill in ${DEST}/PROJECT.md (stack, commands, integration branch, rules)."
 echo "  2. Install the MCP servers/plugins you need (see docs/TOOLING.md)."
-echo "  3. Set your validation gate in .claude/scripts/validate.sh (or CLAUDE_VALIDATE_CMD)."
+echo "  3. Set your validation gate in .claude/crew.env (or run /onboard)."
 echo "  4. Later, pull crew updates from inside the project: .claude/scripts/crew-update.sh"
 echo "     (it finds this checkout via the manifest, or clones the repo if it's gone)"

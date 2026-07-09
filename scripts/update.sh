@@ -167,23 +167,31 @@ if [[ -f "${MANIFEST}" ]]; then
   done < "${MANIFEST}"
 fi
 
-# 3. Example configs (safe to update like payload).
+# 3. .claude/crew.env — the gate's single source of truth. Seeded once if
+#    absent; NEVER touched again afterward (like PROJECT.md), so local edits
+#    always survive a sync. Stays out of the manifest.
+if [[ ! -f "${DEST}/.claude/crew.env" && -f "${SRC}/templates/crew.env" ]]; then
+  cp "${SRC}/templates/crew.env" "${DEST}/.claude/crew.env"
+  echo "  + .claude/crew.env (seeded — set your validation gate there or run /onboard)"
+fi
+
+# 4. Example configs (safe to update like payload).
 three_way ".mcp.json.example"
 three_way ".worktreeinclude.example"
 
-# 4. Guarded files — same three-way logic, friendlier merge-copy names.
+# 5. Guarded files — same three-way logic, friendlier merge-copy names.
 three_way "CLAUDE.md" "CLAUDE.crew.md"
 three_way ".claude/settings.json" ".claude/settings.crew.json"
 [[ -f "${SRC}/skills-lock.json" ]] && three_way "skills-lock.json"
 
-# 5. PROJECT.template.md is never installed — but if it changed upstream, the
+# 6. PROJECT.template.md is never installed — but if it changed upstream, the
 #    project's PROJECT.md may be missing new sections.
 TPL_OLD="$(old_hash "PROJECT.template.md")"
 if [[ -n "${TPL_OLD}" && "${TPL_OLD}" != "$(hash_of "${SRC}/PROJECT.template.md")" ]]; then
   echo "  ✎ PROJECT.template.md changed upstream — run /onboard (update mode) so PROJECT.md gains the new sections"
 fi
 
-# 6. Refresh the manifest to the state just shipped.
+# 7. Refresh the manifest to the state just shipped.
 COMMIT="$(git -C "${SRC}" rev-parse --short HEAD 2>/dev/null || echo unknown)"
 # CREW_SYNCED_REF is set by crew-update.sh, which materializes SRC as a
 # detached worktree of the ref it resolved — HEAD there is always detached,

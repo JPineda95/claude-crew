@@ -88,10 +88,11 @@ change immediately (no `.crew-new` protection); on non-Notion projects
 
 **After any option:** run **`/onboard`** — it scans the repo, interviews you
 section by section, and writes a complete `PROJECT.md` (or fill in
-[`PROJECT.md`](PROJECT.template.md) by hand). Then install the MCP
-servers/plugins you need from [`docs/TOOLING.md`](docs/TOOLING.md), and set your
-validation gate in `.claude/scripts/validate.sh` (or the `CLAUDE_VALIDATE_CMD`
-env var).
+[`PROJECT.md`](PROJECT.template.md) by hand); it also writes your validation
+gate command into `.claude/crew.env`. Then install the MCP servers/plugins you
+need from [`docs/TOOLING.md`](docs/TOOLING.md). No `/onboard` yet? Edit
+`.claude/crew.env` directly — it's the single file the gate hooks
+(`.claude/scripts/validate.sh`, `.claude/scripts/pre-pr-gate.sh`) read.
 
 ---
 

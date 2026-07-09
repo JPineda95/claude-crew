@@ -106,7 +106,35 @@ exist), say so and resolve it now — don't record either version silently.
    the user it's git-ignored by the boilerplate's `.gitignore` by default, and
    ask whether they want that (shared teams usually commit it; solo repos with
    private details often don't).
-4. Close with the two-line status: which sections carry `TODO`s, and the
+4. Write the confirmed validation gate into `.claude/crew.env` — the file the
+   gate hooks actually read (`.claude/scripts/validate.sh`,
+   `.claude/scripts/pre-pr-gate.sh`). If `.claude/crew.env` already exists
+   (install.sh/update.sh seed it), edit its `CLAUDE_VALIDATE_CMD` line in
+   place; if it's somehow missing, create it with this exact content — this
+   repo has no `templates/` directory to copy from, so write it verbatim,
+   substituting the confirmed commands for the empty defaults:
+   ```bash
+   # claude-crew project knobs — commit this file with your repo.
+   # install.sh (and update.sh) seed it once if absent; NEITHER ever manages it
+   # again afterward (like PROJECT.md) — your edits always survive a sync.
+   #
+   # ':=' means: if a value is already exported in the calling shell/session
+   # environment, that value wins and this default is never applied.
+   #
+   # This is the SINGLE source of truth the crew's hooks read
+   # (.claude/scripts/validate.sh, .claude/scripts/pre-pr-gate.sh) — set your
+   # real values here, or run /onboard to have it done for you.
+
+   : "${CLAUDE_VALIDATE_CMD:=<confirmed validation gate command>}"
+   : "${CLAUDE_E2E_SMOKE_CMD:=<confirmed e2e smoke command, or leave empty>}"
+   : "${CLAUDE_INTEGRATION_BRANCH:=<PROJECT.md §5 integration branch>}"
+   : "${BLOCK_ON_FAILURE:=}"           # 1 = Stop-hook gate blocks the agent on red
+
+   export CLAUDE_VALIDATE_CMD CLAUDE_E2E_SMOKE_CMD CLAUDE_INTEGRATION_BRANCH BLOCK_ON_FAILURE
+   ```
+   Leave `BLOCK_ON_FAILURE` empty by default (non-blocking until the user opts
+   in) unless they ask for it on.
+5. Close with the two-line status: which sections carry `TODO`s, and the
    recommended next step (usually installing tooling from `docs/TOOLING.md`;
    then `/tests` if the project has no suite yet — the pre-PR hook blocks PRs
    until the gate exists; then `/board` if the team wants the kanban; then
