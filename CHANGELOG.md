@@ -7,6 +7,39 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
 ### Fixed
 
+- **`allowed-tools` now cover the commands' own preambles.** `ship.md`,
+  `deploy.md`, `review.md`, `diagram.md`, and `.claude/settings.json` declared
+  exact-match `Bash(git status)` while their `!`-context preambles ran
+  compound commands (`git status --short && echo "---" && ...`) — not
+  pre-approved by their own frontmatter under default permission mode. Fixed
+  to `Bash(git status:*)` everywhere, and split each compound preamble into
+  one command per `!` line (dropping the `echo "---"` separators — each part
+  is now independently wildcard-covered).
+- **`/feature`'s picker description no longer carries dead v2 migration
+  history** ("(v2: the build lifecycle moved to /work...)") — a stranger
+  installing today never saw v1, so a third of what they see in the command
+  picker was noise. Rewritten to present tense; README's matching note
+  updated too.
+- **Frontmatter quoting normalized** across all 15 command files — `description`
+  and `argument-hint` are now consistently double-quoted everywhere (was
+  arbitrary: e.g. `epic.md` quoted `description` but not `argument-hint`,
+  `bug.md` the reverse).
+
+### Changed
+
+- **`/onboard` defaults to express mode.** The interview previously walked
+  the template one section per turn unconditionally — up to 12 round-trips
+  even when the silent scan already answered most of it, the top of the
+  funnel for a stranger evaluating the boilerplate. It now presents the
+  complete pre-filled draft in one message plus a single batched question set
+  covering only what a scan can't answer (purpose, core flows, ship mode,
+  compliance basics, the validation gate) — target ≤2 turns. The full
+  section-by-section walk is still available via `/onboard thorough`, for a
+  messy or greenfield repo where batching would guess too much. Also: a
+  `PROJECT.md` that's still the unfilled template (all-italics guidance, no
+  real values — what Option A's `cp PROJECT.template.md PROJECT.md` leaves
+  behind) is now treated as a first run, not update mode.
+
 - **`frontend-engineer` now loads the taste library.** The nine anti-slop
   design skills were only ever instructed via `designer`'s handoff — a UI
   task routed straight to `frontend-engineer` (which "right-size it" actively

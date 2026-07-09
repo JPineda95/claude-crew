@@ -1,5 +1,5 @@
 ---
-description: Interview and file a Bug ticket — repro steps, expected vs actual, and regression acceptance criteria.
+description: "Interview and file a Bug ticket — repro steps, expected vs actual, and regression acceptance criteria."
 argument-hint: "<what's broken>"
 ---
 

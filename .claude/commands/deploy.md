@@ -1,7 +1,7 @@
 ---
-description: Promote the integration branch into the production branch (e.g. merge dev into main) and push. Running this command is the explicit human authorization to deploy.
+description: "Promote the integration branch into the production branch (e.g. merge dev into main) and push. Running this command is the explicit human authorization to deploy."
 argument-hint: "[optional release context]"
-allowed-tools: Bash(git status), Bash(git fetch:*), Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(git checkout:*), Bash(git switch:*), Bash(git pull:*), Bash(git merge:*), Bash(git push:*), Bash(git remote:*), Bash(gh pr create:*), Bash(gh pr view:*), Bash(gh pr list:*)
+allowed-tools: Bash(git status:*), Bash(git fetch:*), Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(git checkout:*), Bash(git switch:*), Bash(git pull:*), Bash(git merge:*), Bash(git push:*), Bash(git remote:*), Bash(gh pr create:*), Bash(gh pr view:*), Bash(gh pr list:*)
 ---
 
 Promote the integration branch into the production branch per
@@ -11,7 +11,11 @@ this promotion and nothing else. Extra context: $ARGUMENTS
 
 Current state:
 
-!`git fetch origin --quiet; git status --short --branch && echo "---" && git log --oneline -10`
+!`git fetch origin --quiet`
+
+!`git status --short --branch`
+
+!`git log --oneline -10`
 
 Steps:
 

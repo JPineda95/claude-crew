@@ -1,5 +1,5 @@
 ---
-description: Audit data-protection compliance and generate/refresh the required artifacts (data map, privacy policy, ToS, cookie banner spec).
+description: "Audit data-protection compliance and generate/refresh the required artifacts (data map, privacy policy, ToS, cookie banner spec)."
 argument-hint: "[optional: feature, area, or artifact to focus on]"
 ---
 

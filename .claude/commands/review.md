@@ -1,14 +1,18 @@
 ---
-description: Run the three code reviewers in parallel on the current diff.
+description: "Run the three code reviewers in parallel on the current diff."
 argument-hint: "[optional: base branch, defaults to the integration branch]"
-allowed-tools: Bash(git diff:*), Bash(git log:*), Bash(git status), Bash(git branch:*), Bash(shasum:*)
+allowed-tools: Bash(git diff:*), Bash(git log:*), Bash(git status:*), Bash(git branch:*), Bash(shasum:*)
 ---
 
 Review the current changes through the crew's review gate.
 
 Current state of the working tree:
 
-!`git status --short; echo "---"; git diff HEAD --stat; echo "---"; git log --oneline -10`
+!`git status --short`
+
+!`git diff HEAD --stat`
+
+!`git log --oneline -10`
 
 Determine the **review base**: `$ARGUMENTS` if given, otherwise the integration
 branch declared in `PROJECT.md` (fall back to the repo's default branch). The

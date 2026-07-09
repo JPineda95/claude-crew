@@ -1,5 +1,5 @@
 ---
-description: Interview and file a Spike ticket — a timeboxed question to answer before committing to build.
+description: "Interview and file a Spike ticket — a timeboxed question to answer before committing to build."
 argument-hint: "<what to investigate>"
 ---
 

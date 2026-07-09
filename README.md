@@ -160,7 +160,7 @@ charter: [docs/TICKETS.md](docs/TICKETS.md). No Notion? Nothing changes —
 | `/onboard` | Interview you + scan the repo to generate a complete `PROJECT.md` |
 | `/work [id \| desc]` | **The build command.** A ticket by id, every Dev Ready ticket in parallel, or a plain description (the classic full lifecycle) |
 | `/board [name]` | Create (or check/repair) the Notion section: summary page + kanban board. Optional |
-| `/feature <desc>` | Interview → file a **Story** ticket in the backlog *(v2: no longer builds — see `/work`)* |
+| `/feature <desc>` | Interview → file a **Story** ticket in the backlog — a human triages it, then `/work <id>` builds it |
 | `/bug <desc>` | Interview → file a **Bug** ticket (repro, expected vs actual, regression criteria) |
 | `/spike <desc>` | Interview → file a **Spike** ticket (timeboxed question; findings land on the card) |
 | `/epic <desc>` | Interview → architect breakdown → file an **Epic** + linked child Stories |

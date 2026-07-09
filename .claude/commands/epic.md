@@ -1,6 +1,6 @@
 ---
 description: "Interview, break an initiative into child Stories, and file the Epic + children in the backlog."
-argument-hint: <the initiative>
+argument-hint: "<the initiative>"
 ---
 
 File an Epic and its child Stories on the board, per `docs/TICKETS.md`. This
