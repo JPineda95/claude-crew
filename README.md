@@ -70,7 +70,10 @@ The updater also **ships with the crew**: from inside any installed project,
 run `.claude/scripts/crew-update.sh` — it finds the crew source via the
 manifest (or clones the repo when no local checkout exists; `CREW_SOURCE`,
 `CREW_REPO`, `CREW_REF` override) and runs the same manifest-protected sync.
-No claude-crew checkout needs to be kept around.
+No claude-crew checkout needs to be kept around. Both updaters refuse to sync
+if that would downgrade a project (e.g. one installed from a newer or
+dogfooded branch than the ref being synced) — pass `--allow-downgrade` to
+proceed anyway.
 
 ### Option C — install as a Claude Code plugin
 ```bash

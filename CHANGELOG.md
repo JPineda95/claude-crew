@@ -7,6 +7,15 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
 ### Added
 
+- **Downgrade guard in the updater.** `scripts/update.sh` (and the
+  self-updating `.claude/scripts/crew-update.sh`) now refuse to sync when the
+  project's installed content is not an ancestor of the ref being synced —
+  e.g. a project installed from a newer or dogfooded branch would otherwise be
+  silently reverted by a routine sync against an older `main`. Both the
+  manifest (`install.sh`/`update.sh`) and the guard's error message record and
+  surface the source ref (`# ref:`); pre-2.4 manifests report "unknown"
+  instead of guessing. Pass `--allow-downgrade` (either script, any position)
+  to bypass deliberately.
 - **SOLID & Clean Code are now a first-class standard** (`docs/ENGINEERING.md`
   §6): a new, technology-agnostic charter section spelling out the five SOLID
   principles and a concrete Clean Code checklist (intention-revealing names,
