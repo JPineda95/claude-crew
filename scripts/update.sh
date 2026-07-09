@@ -20,10 +20,23 @@
 # conservatively: nothing is deleted, and every differing file gets a
 # .crew-new instead of an in-place update.
 #
+# Before copying anything, a downgrade guard checks that the manifest's
+# recorded commit is an ancestor of the ref being synced — if the project was
+# installed from a newer/dogfooded ref than what's being synced now, syncing
+# would silently revert it. Pass --allow-downgrade (any position) to bypass.
+#
 set -euo pipefail
 
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DEST="${1:-}"
+
+ALLOW_DOWNGRADE=0
+DEST=""
+for arg in "$@"; do
+  case "${arg}" in
+    --allow-downgrade) ALLOW_DOWNGRADE=1 ;;
+    *) [[ -z "${DEST}" ]] && DEST="${arg}" ;;
+  esac
+done
 MANIFEST_REL=".claude/crew-manifest"
 
 if [[ -z "${DEST}" ]]; then
@@ -102,6 +115,33 @@ else
 fi
 echo
 
+# Downgrade guard: refuse to sync if the installed commit is not an ancestor
+# of the ref we're syncing from (SRC) — that would silently revert the
+# project to older content (e.g. it was installed/updated from a newer or
+# dogfooded ref than what's being synced now).
+if [[ -f "${MANIFEST}" ]]; then
+  GUARD_COMMIT="$(awk -F': ' '/^# commit: /{print $2; exit}' "${MANIFEST}")"
+  GUARD_REF="$(awk -F': ' '/^# ref: /{print $2; exit}' "${MANIFEST}")"
+  [[ -z "${GUARD_REF}" ]] && GUARD_REF="unknown (pre-2.4 manifest)"
+  if [[ -n "${GUARD_COMMIT}" && "${GUARD_COMMIT}" != "unknown" ]] \
+    && git -C "${SRC}" cat-file -e "${GUARD_COMMIT}^{commit}" >/dev/null 2>&1; then
+    if ! git -C "${SRC}" merge-base --is-ancestor "${GUARD_COMMIT}" HEAD >/dev/null 2>&1; then
+      if [[ "${ALLOW_DOWNGRADE}" -eq 1 ]]; then
+        echo "⚠ installed crew content (${GUARD_COMMIT}, ref ${GUARD_REF}) is not an ancestor of the ref being synced — proceeding anyway (--allow-downgrade)." >&2
+      else
+        {
+          echo "error: installed crew content (${GUARD_COMMIT}, ref ${GUARD_REF}) is not an ancestor of"
+          echo "the ref you are syncing — this would DOWNGRADE the project."
+          echo "Via crew-update.sh: re-run with CREW_REF=${GUARD_REF}. Running update.sh directly:"
+          echo "check out a ref that contains ${GUARD_COMMIT} in the source first. Or pass --allow-downgrade."
+        } >&2
+        exit 1
+      fi
+    fi
+  fi
+  # (else: sha unresolvable in SRC — e.g. a shallow clone — fail open with no check)
+fi
+
 # 1. The .claude/ + docs payload.
 while IFS= read -r rel; do
   three_way "${rel}"
@@ -145,12 +185,21 @@ fi
 
 # 6. Refresh the manifest to the state just shipped.
 COMMIT="$(git -C "${SRC}" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+# CREW_SYNCED_REF is set by crew-update.sh, which materializes SRC as a
+# detached worktree of the ref it resolved — HEAD there is always detached,
+# so the actual ref name has to be passed down rather than read back out.
+REF="${CREW_SYNCED_REF:-}"
+if [[ -z "${REF}" ]]; then
+  REF="$(git -C "${SRC}" rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
+  [[ "${REF}" == "HEAD" ]] && REF="unknown"
+fi
 {
   echo "# claude-crew manifest — written by install.sh/update.sh; do not edit by hand."
   echo "# source: ${SRC}"
   REMOTE="$(git -C "${SRC}" remote get-url origin 2>/dev/null || true)"
   [[ -n "${REMOTE}" ]] && echo "# remote: ${REMOTE}"
   echo "# commit: ${COMMIT}"
+  echo "# ref: ${REF}"
   echo "# date: $(date +%Y-%m-%d)"
   (cd "${SRC}" && find ${PAYLOAD_DIRS} -type f ! -name '.DS_Store' | LC_ALL=C sort) | while IFS= read -r rel; do
     echo "$(hash_of "${SRC}/${rel}")  ${rel}"

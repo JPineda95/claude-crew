@@ -72,11 +72,14 @@ cp "${SRC}/.worktreeinclude.example" "${DEST}/.worktreeinclude.example"
 # customized ones. Commit it with the rest of .claude/.
 COMMIT="$(git -C "${SRC}" rev-parse --short HEAD 2>/dev/null || echo unknown)"
 REMOTE="$(git -C "${SRC}" remote get-url origin 2>/dev/null || true)"
+REF="$(git -C "${SRC}" rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
+[[ "${REF}" == "HEAD" ]] && REF="unknown"
 {
   echo "# claude-crew manifest — written by install.sh/update.sh; do not edit by hand."
   echo "# source: ${SRC}"
   [[ -n "${REMOTE}" ]] && echo "# remote: ${REMOTE}"
   echo "# commit: ${COMMIT}"
+  echo "# ref: ${REF}"
   echo "# date: $(date +%Y-%m-%d)"
   (cd "${SRC}" && find .claude/agents .claude/commands .claude/scripts .claude/skills docs -type f ! -name '.DS_Store' | LC_ALL=C sort) | while IFS= read -r rel; do
     echo "$(shasum -a 256 "${SRC}/${rel}" | awk '{print $1}')  ${rel}"
