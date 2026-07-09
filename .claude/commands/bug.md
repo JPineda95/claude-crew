@@ -8,23 +8,9 @@ card, not a fix. **Bug:** $ARGUMENTS
 
 Phases:
 
-1. **Mode check** — read `PROJECT.md` §12 before anything else
-   (`docs/TICKETS.md` §9):
-   - `Ticketing: notion` **and** the Notion MCP tools respond (match tools by
-     name suffix — the server prefix varies per install; never hardcode it) →
-     run phases 2–5.
-   - `Ticketing: none` (or §12 deleted) → silently switch to the classic
-     fallback, with zero mention of ticketing or Notion in your output: offer
-     to fix it right now via the ticketless `/work` lifecycle on $ARGUMENTS,
-     then stop here.
-   - §12 absent (never configured) → explain once, in ≤3 lines: `/bug` now
-     files a Bug card on the project board; `/board` sets that board up;
-     `Ticketing: none` in `PROJECT.md` §12 silences this note. Offer to fix
-     the bug right now via the ticketless `/work` lifecycle instead, and
-     suggest recording the choice in §12 so this explanation never repeats.
-   - §12 says `notion` but the tools are missing or unreachable → say so
-     briefly, point to `docs/TOOLING.md`, and offer the `/work` fallback for
-     this run.
+1. **Mode check** — resolve ticketing mode per `docs/TICKETS.md` §9. This
+   command's classic fallback: fix it right now via the ticketless `/work`
+   lifecycle on $ARGUMENTS.
 2. **Evidence pass, then draft.** Before asking the user anything: scan the
    code, recent commits (`git log`), and any error text in $ARGUMENTS to
    pre-fill draft repro steps, the suspect area (→ Technical Details), and

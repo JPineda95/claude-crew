@@ -5,6 +5,38 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
 ## Unreleased
 
+### Fixed
+
+- **`docs/COMMITS.md` §1 no longer contradicts the crew's hardest guardrail.**
+  It previously said agents may integrate into "either `main` directly
+  (trunk-based) or a shared `dev`/`integration` branch" — normative text an
+  agent is told to read before committing, directly contradicting CLAUDE.md
+  guardrail 1 ("NEVER commit to `main`"), `docs/ENGINEERING.md` §9, and
+  `docs/WORKFLOW.md` §8. Rewritten to state the one-integration-branch model
+  unambiguously.
+- **`docs/TESTING.md` §8's hermeticity citation now resolves.** It cited "§2 —
+  mocks, no live services" for a rule §2 never stated (its integration row
+  said "Real seams", readable as a real database). §2 now states the rule
+  directly.
+
+### Changed
+
+- **Deduplicated normative text that had already drifted once.** The open-PR
+  policy existed verbatim in `docs/WORKFLOW.md` §8, `CLAUDE.md`, `work.md`,
+  and README — even though §8 already declared itself normative and
+  superseding. All four now point at §8 with a one-line summary instead of
+  a copy. `docs/WORKFLOW.md`'s roster table dropped its `Model` column
+  (agent frontmatter is the source of truth; README's overview table is
+  kept, sourced from the same frontmatter). `docs/TICKETS.md` §9 gained a
+  canonical ticketing-mode-resolution ladder; `/feature`, `/bug`, `/epic`,
+  and `/spike` each shrank their ~16-line "Mode check" step to a pointer at
+  it plus their one command-specific fallback.
+- **`CLAUDE.md`'s "read first" obligation is no longer uniformly
+  every-session.** `PROJECT.md` still is; `docs/ENGINEERING.md` is now "before
+  the first task that changes code" — the Guardrails section already covers
+  the always-on rules, so a one-line question doesn't need the full charter
+  loaded first.
+
 ### Added
 
 - **`install.sh` now delegates to `update.sh` on an existing install** instead

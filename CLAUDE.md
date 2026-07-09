@@ -11,13 +11,16 @@ project lives in **`PROJECT.md`** at the repo root. Read it first.
 
 ---
 
-## Read first, every session
+## Read first
 
 1. **`PROJECT.md`** — the stack, conventions, integration branch, validation
-   command, and constraints for *this* project. If it doesn't exist yet, run
-   `/onboard` (or offer to) before doing substantial work.
+   command, and constraints for *this* project. Read it every session. If it
+   doesn't exist yet, run `/onboard` (or offer to) before doing substantial
+   work.
 2. **`docs/ENGINEERING.md`** — the shared engineering charter (principles, stack
-   detection, Definition of Done, handoff format). Non-negotiable.
+   detection, Definition of Done, handoff format). Non-negotiable — but only
+   needed before the first task that changes code (the Guardrails below cover
+   the always-on rules; a one-line question needs neither).
 3. Detect the actual stack from the code (charter §2). Trust the repo over any
    assumption. Never code a library's API from memory — use Context7
    (`docs/TOOLING.md`).
@@ -85,15 +88,9 @@ Intake → Design → Plan → Test-first → Build → Verify → Review → Fi
 - **Ship:** only when reviewers approve and the gate is green — then commit on
   the feature branch, push it, and open a PR with a complete description
   (`docs/WORKFLOW.md` §8). The human reviews and merges; never merge your own
-  PR. **Open-PR policy (ticketed work):** at most one open crew PR per ticket
-  (the ticket id is the key), and never more open crew ticket-PRs than **Max
-  parallel tickets** (`PROJECT.md` §12, default 3). Crew PRs are identified by
-  their head-branch pattern `<type>/<PREFIX>-<n>-*` via
-  `gh pr list --json headRefName`. Do not start new ticket work while any open
-  crew PR has unaddressed human change requests. Ticketless work keeps the
-  classic rule: one open crew PR at a time. Ticketless crew PRs are recognized
-  by the `Crew review` section in their body
-  (`gh pr list --json headRefName,body`).
+  PR. Enforce the open-PR policy in `docs/WORKFLOW.md` §8 (normative) before
+  starting new work: one open crew PR per ticket, capped by Max parallel
+  tickets; ticketless work = one open crew PR at a time.
 - **Tickets (optional, `docs/TICKETS.md`):** cards are filed in Backlog; a
   human moves them to Dev Ready (the triage gate); `/work` moves them
   In Progress → Code Review; a merge sweep and `/deploy` advance merged work;
