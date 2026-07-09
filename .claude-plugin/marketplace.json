@@ -7,7 +7,7 @@
       "name": "claude-crew",
       "description": "AI engineering crew: 15 expert subagents + orchestration workflow, an on-demand Mermaid architecture map (/diagram), git/worktree/commit protocol, and quality gates. Technology-agnostic.",
       "source": "./dist/claude-crew",
-      "version": "1.1.0"
+      "version": "2.3.0"
     }
   ]
 }

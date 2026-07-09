@@ -5,6 +5,34 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
 ## Unreleased
 
+### Fixed
+
+- **Plugin installs (Option C) no longer silently degrade.** Every
+  agent/command referenced `docs/...` and `PROJECT.template.md` at
+  project-root-relative paths that don't exist in a plugin-only install, and
+  Claude Code has no mechanism to auto-load a plugin's `CLAUDE.md` as the
+  orchestrator — so a plugin user previously got agents whose first
+  instruction targeted a nonexistent file and no orchestrator persona at
+  all, with nothing in the README saying so. `scripts/build-plugin.sh` now
+  rewrites those eight doc references (and `PROJECT.template.md`) in the
+  copied agents/commands to `${CLAUDE_PLUGIN_ROOT}/...`, and a new
+  **`/crew-init`** command (plugin-only) copies `CLAUDE.md`, `docs/`, and
+  `PROJECT.template.md` out of the plugin into the project root. README
+  Option C now says plainly what the plugin form does and doesn't give you,
+  and that `/plugin marketplace add` from GitHub won't work until `dist/` is
+  built locally (it's generated, not committed).
+- **`.claude-plugin/marketplace.json`'s plugin-entry version was stale**
+  (1.1.0 while `plugin.json` said 2.3.0 — a two-minor drift nobody had
+  caught). Fixed, and `build-plugin.sh` now syncs it on every build (only
+  the `plugins[].version` field — never the unrelated top-level marketplace
+  schema `"version": "1"`) and fails the build if `plugin.json`'s version
+  has no matching `CHANGELOG.md` heading.
+- **`/crew-update` excluded from the plugin bundle.** Its whole mechanism is
+  the clone/copy distribution's manifest-based sync
+  (`.claude/crew-manifest`, `.claude/scripts/crew-update.sh`) — neither
+  exists in a plugin-only install, which updates via `/plugin update`
+  instead. Shipping it there would have been another silent no-op.
+
 ### Added
 
 - **`/status`** — a strictly read-only session opener: branch state vs the
