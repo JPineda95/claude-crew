@@ -5,6 +5,22 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
 ## Unreleased
 
+### Added
+
+- **`/status`** — a strictly read-only session opener: branch state vs the
+  integration branch, open crew PRs against the open-PR policy cap, commits
+  awaiting `/deploy`, stale worktrees, whether the validation gate is
+  configured, board status (when ticketing is on), and any unfinished
+  `/crew-update` merges. Never writes, commits, or runs the gate — only
+  looks and reports. Recommended as the session opener in CLAUDE.md.
+- **`/crew-update`** — wraps `.claude/scripts/crew-update.sh` (previously
+  undiscoverable from inside a session; no consuming project ever ran it) and
+  interactively walks any `.crew-new` merge conflicts the sync drops:
+  distinguishes add/add collisions (mergeable — proposes a union merge
+  keeping both sides) from true edit/edit conflicts (escalates, never
+  guesses which side wins), gets explicit approval before writing, and
+  flags the CI same-PR sync rule when the gate scripts changed.
+
 ### Fixed
 
 - **`allowed-tools` now cover the commands' own preambles.** `ship.md`,
