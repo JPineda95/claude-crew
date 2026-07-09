@@ -1,7 +1,7 @@
 ---
-description: Commit the current work, push the feature branch, and open a PR for human review.
+description: "Commit the current work, push the feature branch, and open a PR for human review."
 argument-hint: "[optional context or issue reference]"
-allowed-tools: Bash(git status), Bash(git diff:*), Bash(git log:*), Bash(git branch:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(gh pr create:*), Bash(gh pr view:*), Bash(gh pr list:*)
+allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git branch:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(gh pr create:*), Bash(gh pr view:*), Bash(gh pr list:*)
 ---
 
 Ship the current work per `docs/COMMITS.md` and `docs/WORKFLOW.md` §8. Extra
@@ -9,7 +9,9 @@ context: $ARGUMENTS
 
 Working tree:
 
-!`git status --short && echo "---" && git diff --stat`
+!`git status --short`
+
+!`git diff --stat`
 
 Steps:
 

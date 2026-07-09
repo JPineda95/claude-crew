@@ -1,11 +1,14 @@
 ---
-description: Interview the user and generate a complete PROJECT.md from PROJECT.template.md — every section filled, nothing invented.
-argument-hint: "[optional: anything you already want to tell the crew about the project]"
+description: "Interview the user and generate a complete PROJECT.md from PROJECT.template.md — every section filled, nothing invented."
+argument-hint: "[thorough for the full section-by-section interview | optional: anything you already want to tell the crew about the project]"
 ---
 
-Create (or update) `PROJECT.md` for this repository by interviewing the user,
-section by section, until **every section of `PROJECT.template.md` is filled**.
-Context the user already provided: $ARGUMENTS
+Create (or update) `PROJECT.md` for this repository until **every section of
+`PROJECT.template.md` is filled**. If `$ARGUMENTS` starts with the word
+`thorough`, run in **thorough mode** (Step 2, section-by-section) and treat
+the remainder as context. Otherwise run in **express mode** (the default —
+Step 2, one message) and treat all of `$ARGUMENTS` as context the user
+already provided.
 
 ## Ground rules (follow all of them)
 
@@ -15,10 +18,11 @@ Context the user already provided: $ARGUMENTS
    chose. Never leave template italics or silently skip a section.
 3. **Propose, don't quiz.** For everything you detected, present it as a default
    to confirm ("I detected X — correct?") so the user mostly says yes/no.
-4. **Batch questions per section** (3–6 at a time), in template order. Use the
-   AskUserQuestion tool when available (with your detected value as the
-   recommended option); otherwise a numbered list. One section per turn — don't
-   dump 40 questions at once.
+4. **Default to express: one message, ≤2 turns.** See Step 2. Batch only what
+   the scan genuinely can't answer; state confident detections as fact rather
+   than asking. Fall back to `/onboard thorough` (3–6 questions per section,
+   via AskUserQuestion when available, one section per turn) for a messy or
+   greenfield repo where batching would guess too much.
 5. **Never invent.** Commands come from the repo or the user — not from memory
    of similar projects. Unknown stays `TODO`, not a guess.
 6. **Env var names only, never values.** If the user pastes a secret, don't
@@ -46,13 +50,48 @@ Detect and note, with evidence:
 - **Tooling**: `.mcp.json`, installed plugins, existing `.claude/` config —
   including whether a Notion MCP is connected and whether `PROJECT.md` §12
   already records a ticket board.
-- An existing `PROJECT.md` → switch to **update mode**: diff it against reality
-  and the template, and only interview for what's missing, stale, or new.
+- An existing `PROJECT.md` **with real content** → switch to **update mode**:
+  diff it against reality and the template, and only interview for what's
+  missing, stale, or new.
+- An existing `PROJECT.md` that's still the **unfilled template** (guidance
+  italics throughout, no real values — e.g. README Option A's
+  `cp PROJECT.template.md PROJECT.md`) → treat this as a **first run**
+  (express mode below), not an update. Overwrite it; there's nothing to diff
+  against.
 
-## Step 2 — Interview, section by section
+## Step 2 — Interview
 
-Walk the template in order. Per section, confirm detections + ask what can't be
-detected:
+**Express mode (default).** After Step 1's silent scan, in a single message:
+
+1. Present the **complete pre-filled `PROJECT.md` draft** — every section
+   written as final content using your detected values (not a question list).
+2. Immediately follow it with **one batched question set** (AskUserQuestion
+   tool when available) covering only what the scan genuinely can't answer:
+   - **Project purpose & #1 priority** — one paragraph: what it does, for
+     whom, current stage, and what matters most right now (template §1).
+   - **Core flows** — confirm or edit your candidate list of 5–10 journeys
+     (template §4).
+   - **Ship mode** — `pr` (default) or `ask` (template §5).
+   - **Markets / compliance basics** — jurisdictions and personal-data
+     categories, only if plausibly relevant; skip the question entirely for a
+     project with no user data (template §10).
+   - **Validation gate** — confirm the command you detected is safe to run
+     unprompted, or correct it (template §3).
+
+   Everything else in the draft is either your detected value stated as fact
+   (no question) or an explicit `TODO(owner)` where genuinely unknown — never
+   a silent guess. Cover the same ground as the thorough-mode list below,
+   just compressed into this one message instead of walked turn by turn.
+3. Fold the user's answers into the draft, then proceed straight to Step 3
+   for the final review-and-write pass (which shows the completed draft for
+   a last look before writing). Two turns total: the draft-plus-questions
+   message, then Step 3's confirmation.
+
+**Thorough mode (`/onboard thorough`)** — walk the template section by
+section instead, for a messy or greenfield repo where batching would guess
+too much. Per section, confirm detections + ask what can't be detected; batch
+3–6 questions per section (AskUserQuestion tool when available); one section
+per turn:
 
 1. **What this project is** — one paragraph: what it does, for whom, current
    stage (prototype/MVP/production), and the current #1 priority.

@@ -1,6 +1,6 @@
 ---
-description: "Interview and file a Story ticket in the backlog. (v2: the build lifecycle moved to /work — `/work <description>` is the classic ticketless behavior.)"
-argument-hint: <what to build>
+description: "Interview and file a Story ticket in the backlog — a human triages it, then /work <id> builds it."
+argument-hint: "<what to build>"
 ---
 
 File a **Story** card on the project board per `docs/TICKETS.md`. This command

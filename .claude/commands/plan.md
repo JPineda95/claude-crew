@@ -1,6 +1,6 @@
 ---
-description: Have the architect design and plan a change without implementing it.
-argument-hint: <what to plan>
+description: "Have the architect design and plan a change without implementing it."
+argument-hint: "<what to plan>"
 ---
 
 Spawn the `architect` agent to produce a Technical Design Brief for the following,

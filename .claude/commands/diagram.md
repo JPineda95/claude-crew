@@ -1,7 +1,7 @@
 ---
-description: Map the architecture — refresh docs/ARCHITECTURE.md with Mermaid diagrams (system graph, core-flow sequences, data-model ERD).
+description: "Map the architecture — refresh docs/ARCHITECTURE.md with Mermaid diagrams (system graph, core-flow sequences, data-model ERD)."
 argument-hint: "[optional focus — path:<dir> · flow:<name> · system · data; omit to map the whole system]"
-allowed-tools: Bash(git rev-parse:*), Bash(git status), Bash(git log:*)
+allowed-tools: Bash(git rev-parse:*), Bash(git status:*), Bash(git log:*)
 ---
 
 Produce or refresh the architecture map for: **$ARGUMENTS** — if no target was
