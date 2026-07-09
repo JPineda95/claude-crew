@@ -23,6 +23,22 @@ if [[ ! -d "${DEST}" ]]; then
   exit 1
 fi
 
+# Re-running install.sh over an existing install would silently overwrite
+# every customized agent/command/script (cp -R clobbers same-named files) —
+# delegate to update.sh instead, which protects customizations with the
+# three-way manifest sync.
+if [[ -f "${DEST}/.claude/crew-manifest" ]]; then
+  echo "already installed (found ${DEST}/.claude/crew-manifest) — running scripts/update.sh instead"
+  exec "${SRC}/scripts/update.sh" "${DEST}"
+fi
+if [[ -d "${DEST}/.claude/agents" ]]; then
+  echo "error: ${DEST} looks like a crew install without a manifest (a pre-manifest or" >&2
+  echo "clone-based install) — use scripts/update.sh instead (it runs in conservative" >&2
+  echo "legacy mode for installs like this: nothing deleted, differing files get a" >&2
+  echo ".crew-new copy)." >&2
+  exit 1
+fi
+
 sha256() {  # portable sha256: shasum (macOS/BSD) or sha256sum (most Linux)
   if command -v shasum >/dev/null 2>&1; then
     shasum -a 256 "$1" | awk '{print $1}'
@@ -89,6 +105,27 @@ fi
 # Example configs (non-destructive).
 cp "${SRC}/.mcp.json.example" "${DEST}/.mcp.json.example"
 cp "${SRC}/.worktreeinclude.example" "${DEST}/.worktreeinclude.example"
+
+# .gitignore — seed a managed block covering Claude Code / crew local state,
+# so machine-local files don't get committed by accident (this happened for
+# real: a Claude Code auto-memory file ended up tracked in a consuming repo).
+# Idempotent: skipped if the marker is already present.
+GITIGNORE="${DEST}/.gitignore"
+if [[ ! -f "${GITIGNORE}" ]] || ! grep -q '^# --- claude-crew (managed block) ---$' "${GITIGNORE}"; then
+  {
+    echo ""
+    echo "# --- claude-crew (managed block) ---"
+    echo ".claude/settings.local.json"
+    echo ".claude/launch.json"
+    echo ".claude/projects/"
+    echo ".claude/agent-memory-local/"
+    echo ".agent-locks/"
+    echo ".worktrees/"
+    echo ".claude/skills/**/__pycache__/"
+    echo "# --- end claude-crew ---"
+  } >> "${GITIGNORE}"
+  echo "  · added a managed block to .gitignore (Claude Code local state, crew worktrees)"
+fi
 
 # Manifest — records what was shipped (file hashes + source commit) so that
 # scripts/update.sh can later update untouched files in place and protect

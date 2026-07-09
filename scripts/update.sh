@@ -186,6 +186,25 @@ if [[ ! -f "${DEST}/.claude/crew.env" && -f "${SRC}/templates/crew.env" ]]; then
   echo "  + .claude/crew.env (seeded — set your validation gate there or run /onboard)"
 fi
 
+# 3.5. .gitignore — seed the same managed block install.sh does, idempotently
+#      (installs that predate this feature never got it). Skipped if present.
+GITIGNORE="${DEST}/.gitignore"
+if [[ ! -f "${GITIGNORE}" ]] || ! grep -q '^# --- claude-crew (managed block) ---$' "${GITIGNORE}"; then
+  {
+    echo ""
+    echo "# --- claude-crew (managed block) ---"
+    echo ".claude/settings.local.json"
+    echo ".claude/launch.json"
+    echo ".claude/projects/"
+    echo ".claude/agent-memory-local/"
+    echo ".agent-locks/"
+    echo ".worktrees/"
+    echo ".claude/skills/**/__pycache__/"
+    echo "# --- end claude-crew ---"
+  } >> "${GITIGNORE}"
+  echo "  + .gitignore — added a managed block (Claude Code local state, crew worktrees)"
+fi
+
 # 4. Example configs (safe to update like payload).
 three_way ".mcp.json.example"
 three_way ".worktreeinclude.example"

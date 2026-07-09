@@ -7,6 +7,18 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
 ### Added
 
+- **`install.sh` now delegates to `update.sh` on an existing install** instead
+  of silently clobbering customized agents/commands/scripts (it used to
+  `cp -R` unconditionally, overwriting same-named files with no warning — an
+  easy mistake since both scripts take the same argument). A manifest-less
+  `.claude/agents` (a pre-manifest or clone-based install) aborts with a
+  pointer at `update.sh`'s conservative legacy mode instead of guessing.
+- **Both installers seed a managed `.gitignore` block** for Claude Code /
+  crew machine-local state (`settings.local.json`, `.claude/projects/`,
+  worktrees, agent memory, vendored-skill `__pycache__`) — idempotent, and
+  now also backfilled by `update.sh` for installs that predate this. A real
+  consuming repo had leaked a Claude Code auto-memory file into git before
+  this existed.
 - **Force-push guard in the pre-PR hook.** `.claude/scripts/pre-pr-gate.sh` now
   unconditionally blocks a bare `git push --force`/`-f` on any Bash call — not
   just PR creation, since this hook fires on every one — citing CLAUDE.md
