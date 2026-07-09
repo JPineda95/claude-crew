@@ -26,6 +26,10 @@
 | Integration | Some | Real seams: DB queries, API handlers, auth flows | ms–s |
 | E2E (core flows) | Few (≈5–10 specs) | The user journeys that must never break | s–min |
 
+Integration tests exercise real seams against local/containerized or
+in-memory services — never live external services; that is what lets the CI
+gate run without credentials (§8).
+
 Test **behavior, not implementation** — assert on observable outputs and
 effects so tests survive refactors. Craft details (determinism, structure,
 what to probe) live in the `qa-engineer` spec.

@@ -11,22 +11,9 @@ card past Backlog.
 
 Proceed:
 
-1. **Mode check** — read `PROJECT.md` §12 first.
-   - **`Ticketing: notion`** and the Notion MCP tools respond (match tools by
-     name *suffix*, never a hardcoded prefix — `docs/TICKETS.md` §9) → run the
-     flow below.
-   - **`Ticketing: none`** (or §12 deleted) → silently run the classic
-     fallback: suggest `/plan` (architect design brief + execution plan, no
-     cards) and offer to run it now on $ARGUMENTS. No mention of ticketing or
-     boards — ever.
-   - **§12 absent / never configured** → explain once, in ≤3 lines: this
-     command files an Epic + child Stories on a Notion board; `/board` sets
-     the board up; `Ticketing: none` in `PROJECT.md` §12 silences this notice.
-     Offer to proceed with the classic fallback right now, and suggest
-     recording the choice. Never repeat this once `none` is recorded.
-   - **§12 says `notion` but the tools are missing or unreachable** → say so
-     briefly, point to `docs/TOOLING.md`, and offer the classic fallback for
-     this run. A Notion failure never blocks the work (`docs/TICKETS.md` §9).
+1. **Mode check** — resolve ticketing mode per `docs/TICKETS.md` §9. This
+   command's classic fallback: `/plan` (architect design brief + execution
+   plan, no cards) on $ARGUMENTS.
 2. **Interview the initiative** — draft-first: scan the repo and `PROJECT.md`,
    pre-fill everything you can, and present detected values as defaults to
    confirm. Batch 3–6 questions (AskUserQuestion tool when available), covering:

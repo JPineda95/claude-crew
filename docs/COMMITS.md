@@ -15,11 +15,15 @@
 - **Short-lived branches.** A task branch lives hours-to-days, not weeks. Long
   divergence is the single biggest source of painful merges. Integrate early and
   often.
-- **One integration target.** Agents integrate into ONE branch — either `main`
-  directly (trunk-based) or a shared `dev`/`integration` branch that periodically
-  advances to `main`. Declare which in `PROJECT.md`.
-- **Trunk-based by default:** branch from the trunk, work small, merge back fast.
-  It keeps the integration surface tiny.
+- **One integration branch, never the production branch.** Agents integrate
+  into `<integration-branch>` (default `dev`, declared in `PROJECT.md` §5) —
+  the crew never commits directly to `main` (or whatever the production/
+  default branch is; CLAUDE.md guardrail 1). If the repo has no separate
+  integration branch yet, the crew creates `dev` off it on first run, pushes
+  it, and records it in `PROJECT.md` §5.
+- **Work small against the integration branch, merge back fast.** Branch from
+  it, keep changes small, and reintegrate often — it keeps the integration
+  surface tiny.
 - **Stacked branches for dependent work:** when task B builds on unmerged task A,
   branch B off A (`git worktree add -b B <path> A`) and rebase the stack
   bottom-up as A evolves. Keep stacks shallow (2–3 deep).

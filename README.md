@@ -126,14 +126,10 @@ Intake → Design → Plan → Test-first → Build → Verify → Review → Fi
   doesn't have one), and a human-run `/deploy` is the only path into
   production.
 
-**Open-PR policy (ticketed work):** at most one open crew PR per ticket (the
-ticket id is the key), and never more open crew ticket-PRs than **Max parallel
-tickets** (`PROJECT.md` §12, default 3). Crew PRs are identified by their
-head-branch pattern `<type>/<PREFIX>-<n>-*` via `gh pr list --json headRefName`.
-Do not start new ticket work while any open crew PR has unaddressed human
-change requests. Ticketless work keeps the classic rule: one open crew PR at a
-time. Ticketless crew PRs are recognized by the `Crew review` section in
-their body (`gh pr list --json headRefName,body`).
+**Open-PR policy:** one open crew PR per ticket (capped by **Max parallel
+tickets**, `PROJECT.md` §12, default 3); ticketless work keeps one open crew
+PR at a time. Full policy and detection rules: `docs/WORKFLOW.md` §8
+(normative).
 
 Process is **right-sized**: a typo is a one-line edit, not a committee. The full
 lifecycle is for changes that span layers or carry real risk.
