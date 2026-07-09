@@ -7,6 +7,30 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
 ### Added
 
+- **Force-push guard in the pre-PR hook.** `.claude/scripts/pre-pr-gate.sh` now
+  unconditionally blocks a bare `git push --force`/`-f` on any Bash call — not
+  just PR creation, since this hook fires on every one — citing CLAUDE.md
+  guardrail 2. `--force-with-lease` stays allowed. `.claude/settings.json`'s
+  deny rules were deliberately left as exact-match strings rather than given
+  `:*` wildcards: those match as string prefixes, so `git push --force:*`
+  would also deny the sanctioned `--force-with-lease` and `rm -rf /:*` would
+  deny routine `rm -rf /tmp/...` cleanup — the hook is the real enforcement
+  point here.
+
+### Fixed
+
+- **Pre-PR gate no longer false-positives on the phrase "gh pr create"
+  appearing in a quoted string** (e.g. `git commit -m "before gh pr create"`)
+  — it now requires an actual invocation (a command segment whose first word
+  is literally `gh`), splitting the command on `&&`/`||`/`;`/`|` first.
+  Demonstrated live during development: a diagnostic command that merely
+  mentioned the phrase was previously blocked.
+- **Pre-PR gate fails open (with a warning) instead of misparsing the raw
+  hook JSON as the command** when neither `jq` nor `python3` is available —
+  previously this silently mis-triggered both checks on worktree PRs.
+- **`install.sh`/`update.sh` no longer die mid-copy** on systems with
+  `sha256sum` but no `shasum` (most non-macOS Linux) — both now check upfront
+  (before any file is copied) and use whichever is available.
 - **`.claude/crew.env` — a single, committed source of truth for the gate.**
   Previously the README/install.sh told new users to "set your validation
   gate in `.claude/scripts/validate.sh`", but the pre-PR hook read only the

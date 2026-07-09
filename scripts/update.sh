@@ -55,9 +55,20 @@ fi
 DEST="$(cd "${DEST}" && pwd)"
 MANIFEST="${DEST}/${MANIFEST_REL}"
 
+command -v git >/dev/null 2>&1 \
+  || { echo "error: 'git' is required but not found in PATH." >&2; exit 1; }
+command -v shasum >/dev/null 2>&1 || command -v sha256sum >/dev/null 2>&1 \
+  || { echo "error: neither 'shasum' nor 'sha256sum' found in PATH — needed to compare file hashes." >&2; exit 1; }
+
 PAYLOAD_DIRS=".claude/agents .claude/commands .claude/scripts .claude/skills docs"
 
-hash_of() { shasum -a 256 "$1" | awk '{print $1}'; }
+hash_of() {  # portable sha256: shasum (macOS/BSD) or sha256sum (most Linux)
+  if command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$1" | awk '{print $1}'
+  else
+    sha256sum "$1" | awk '{print $1}'
+  fi
+}
 
 old_hash() {  # rel-path → hash recorded at last install/update ("" if none)
   [[ -f "${MANIFEST}" ]] || return 0

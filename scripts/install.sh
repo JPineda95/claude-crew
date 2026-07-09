@@ -23,6 +23,19 @@ if [[ ! -d "${DEST}" ]]; then
   exit 1
 fi
 
+sha256() {  # portable sha256: shasum (macOS/BSD) or sha256sum (most Linux)
+  if command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$1" | awk '{print $1}'
+  else
+    sha256sum "$1" | awk '{print $1}'
+  fi
+}
+
+command -v git >/dev/null 2>&1 \
+  || { echo "error: 'git' is required but not found in PATH." >&2; exit 1; }
+command -v shasum >/dev/null 2>&1 || command -v sha256sum >/dev/null 2>&1 \
+  || { echo "error: neither 'shasum' nor 'sha256sum' found in PATH — needed to write the manifest." >&2; exit 1; }
+
 echo "Installing the crew into: ${DEST}"
 
 mkdir -p "${DEST}/.claude" "${DEST}/docs"
@@ -92,7 +105,7 @@ REF="$(git -C "${SRC}" rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
   echo "# ref: ${REF}"
   echo "# date: $(date +%Y-%m-%d)"
   (cd "${SRC}" && find .claude/agents .claude/commands .claude/scripts .claude/skills docs -type f ! -name '.DS_Store' | LC_ALL=C sort) | while IFS= read -r rel; do
-    echo "$(shasum -a 256 "${SRC}/${rel}" | awk '{print $1}')  ${rel}"
+    echo "$(sha256 "${SRC}/${rel}")  ${rel}"
   done
   for rel in CLAUDE.md .claude/settings.json skills-lock.json PROJECT.template.md .mcp.json.example .worktreeinclude.example; do
     [[ -f "${SRC}/${rel}" ]] && echo "$(shasum -a 256 "${SRC}/${rel}" | awk '{print $1}')  ${rel}"
