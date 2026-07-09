@@ -64,7 +64,12 @@ target (non-destructively), and seeds `PROJECT.md` from the template.
 `update.sh` uses the recorded manifest to update untouched files in place while
 protecting anything you customized — your version stays, the new one lands
 next to it as `<file>.crew-new` (`settings.json` → `settings.crew.json`) for a
-manual merge. `PROJECT.md` is never touched.
+manual merge. `PROJECT.md` is never touched. Re-running `install.sh` on an
+already-installed project (detected via the manifest) automatically delegates
+to `update.sh` instead of re-copying and clobbering your customizations. Both
+scripts also seed a managed `.gitignore` block for Claude Code's own
+machine-local state (settings, worktrees, memory files) — idempotent, safe on
+repeated runs.
 
 The updater also **ships with the crew**: from inside any installed project,
 run `.claude/scripts/crew-update.sh` — it finds the crew source via the
