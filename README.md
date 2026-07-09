@@ -21,7 +21,7 @@ Ready ticket in parallel ([docs/TICKETS.md](docs/TICKETS.md)).
 |---|---|---|
 | **architect** | Principal engineer / tech lead — design, decomposition, ADRs | opus |
 | **designer** | Product & UI/UX design — flows, wireframes, design systems, anti-slop taste library | sonnet |
-| **database-architect** | Data modeling, migrations, indexing, access policies (DBA) | opus |
+| **database-architect** | Data modeling, migrations, indexing, access policies (DBA) | sonnet |
 | **backend-engineer** | APIs, business logic, auth, jobs, integrations | sonnet |
 | **frontend-engineer** | UI, client state, accessibility, performance | sonnet |
 | **qa-engineer** | Test strategy & tests (TDD), verification | sonnet |
@@ -30,10 +30,16 @@ Ready ticket in parallel ([docs/TICKETS.md](docs/TICKETS.md)).
 | **copywriter** | UI microcopy, errors, emails, marketing copy | sonnet |
 | **seo-aeo-specialist** | Technical SEO + Answer/Generative Engine Optimization | sonnet |
 | **data-compliance-officer** | Data map, privacy policy, ToS, cookies/consent, data-subject rights | opus |
-| **diagrammer** | Reverse-engineers the code into a Mermaid architecture map — component graph, core-flow sequences, ERD | opus |
+| **diagrammer** | Reverse-engineers the code into a Mermaid architecture map — component graph, core-flow sequences, ERD | sonnet |
 | **reviewer-architecture** | Pre-merge gate: structure & maintainability | opus |
 | **reviewer-code-quality** | Pre-merge gate: correctness, tests, readability | sonnet |
 | **reviewer-security** | Pre-merge gate: OWASP-style vulnerabilities | opus |
+
+Tier rationale: **opus** for judgment-heavy design/review work (system
+architecture, security, compliance); **sonnet** for implementation and
+transcription (writing code, schema, tests, config, or documenting what
+already exists). This table mirrors each agent's own frontmatter — tune per
+your budget by editing the agent file, not this table.
 
 The **orchestrator** is the root [`CLAUDE.md`](CLAUDE.md) — a tech-lead persona in
 the main thread that delegates to specialists and threads their work together.

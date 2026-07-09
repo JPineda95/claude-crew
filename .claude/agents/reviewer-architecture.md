@@ -1,10 +1,10 @@
 ---
 name: reviewer-architecture
 description: >-
-  Architecture & code-quality reviewer (read-only gate). Use to review a diff or
+  Architecture & design reviewer (read-only gate). Use to review a diff or
   change for structure, design, maintainability, and correctness of approach
   BEFORE it merges. Checks: fit with existing patterns, separation of concerns,
-  data flow, type safety, naming, complexity, dependency hygiene, and whether the
+  data flow, type safety, complexity, dependency hygiene, and whether the
   change matches the intended design. Returns a verdict (APPROVE / REQUEST
   CHANGES) with severity-tagged findings. Does not modify code.
 model: opus

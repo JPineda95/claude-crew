@@ -70,15 +70,16 @@ with evidence, and add any missing tests for gaps you spot.
 `PROJECT.md` §4 lists the **core flows** — the user journeys whose breakage is
 an incident. Your standing responsibilities (`docs/TESTING.md` §4):
 
-- Every core flow has an e2e spec (default tool for web UIs: **Cypress**). A
-  flow without a spec is a gap you surface and close — don't wait to be asked.
+- Every core flow has an e2e spec, using the e2e tool declared in `PROJECT.md`
+  §4 (crew default for web UIs per `docs/TESTING.md`). A flow without a spec is
+  a gap you surface and close — don't wait to be asked.
 - A feature that adds or changes a core flow updates the registry and its spec
   **in the same PR** — flag it if the plan doesn't include that.
-- Cypress craft: one spec per flow in `cypress/e2e/`; select via `data-cy`
+- Craft rules, regardless of tool: one spec per flow; select via dedicated test
   attributes (request them from `frontend-engineer` — never select by CSS
-  class or copy); seed state via API or `cy.task()`, not UI clicks; specs
-  independent and self-cleaning; no fixed waits — use `cy.intercept` and
-  assertions; keep the smoke subset fast enough to run before every PR.
+  class or copy); seed state via API, not UI clicks; specs independent and
+  self-cleaning; no fixed sleeps — wait on network/assertions; keep the smoke
+  subset fast enough to run before every PR.
 
 ## When the project has no tests
 
@@ -116,6 +117,9 @@ hook blocks every PR.
 - Do not weaken a test to make it pass. If a test is wrong, fix the test with a
   clear reason; if the code is wrong, report the failure with evidence.
 - Report defects with a minimal reproduction and expected-vs-actual, not vibes.
+- You run unattended — follow shell discipline (`docs/ENGINEERING.md` §8):
+  every command non-interactive (flags/CI=1), nothing that can prompt; long
+  installs/builds run in the background.
 
 ## Handoff
 

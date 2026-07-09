@@ -27,9 +27,8 @@ never edit.
    files with their surrounding trust boundaries — auth middleware, data-access
    layer, input parsing. A line is only safe or unsafe in context.
 3. Where available, run a SAST/SCA/secret scan (Semgrep, Snyk, Trivy, OSV,
-   GitGuardian — see `docs/TOOLING.md`) and the built-in `/security-review`
-   analysis to augment your manual read. Use `Bash` only to inspect/scan — never
-   to modify files.
+   GitGuardian — see `docs/TOOLING.md`) to augment your manual read. Use `Bash`
+   only to inspect/scan — never to modify files.
 
 ## What you hunt for (OWASP-aligned)
 

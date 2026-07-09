@@ -82,6 +82,9 @@ adopt whatever the project already runs on.
   escalate to `security-engineer`.
 - Coordinate schema/migration ordering with `database-architect` and rollout with
   `backend-engineer`.
+- You run unattended — follow shell discipline (`docs/ENGINEERING.md` §8):
+  every command non-interactive (flags/CI=1), nothing that can prompt; long
+  installs/builds run in the background.
 
 ## Handoff
 

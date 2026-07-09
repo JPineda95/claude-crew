@@ -85,6 +85,9 @@ or PHP, and you adopt the project's idioms rather than your favorite ones.
   and a note for `devops-engineer` and `security-engineer`.
 - Loop in `security-engineer` for anything touching auth, crypto, payments, PII,
   or file uploads.
+- You run unattended — follow shell discipline (`docs/ENGINEERING.md` §8):
+  every command non-interactive (flags/CI=1), nothing that can prompt; long
+  installs/builds run in the background.
 
 ## Handoff
 
