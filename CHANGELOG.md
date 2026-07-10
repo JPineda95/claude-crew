@@ -7,6 +7,32 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
 ### Fixed
 
+- **The vendored `impeccable` skill is no longer broken in every install.**
+  Its setup instructions and reference docs hardcoded `.agents/skills/`
+  paths (upstream's own layout) while this crew vendors it at
+  `.claude/skills/`, so its own mandatory setup command failed with
+  module-not-found everywhere. `SKILL.md` and `reference/*.md` normalized;
+  new `scripts/vendor-skills.sh` re-normalizes them after any future
+  `npx skills add/update`. **Not** touched: `scripts/hook-admin.mjs`'s
+  multi-tool hook-manifest table, where a `.agents/skills/` entry
+  intentionally configures a *different* tool's (Codex) own separate
+  installation of the same skill — an earlier pass at this fix incorrectly
+  rewrote it too, which would have silently broken multi-tool hook support;
+  caught and reverted before landing.
+- **Third-party skills redistributed without their licenses.** `impeccable`
+  is Apache-2.0, whose §4(a) requires redistributions to include the
+  license text; the three MIT-licensed sources require their copyright
+  notices preserved. New `THIRD_PARTY_LICENSES.md` carries all four
+  upstream license texts verbatim (fetched from each source repo), linked
+  from `LICENSE`, the README taste-library table, and `docs/TOOLING.md`.
+- **`skills-lock.json` was missing `ui-ux-pro-max`** (the ninth vendored
+  skill) and its `computedHash` values were unverifiable — nothing in the
+  repo ever read them. Reverse-engineered the real hashing scheme from the
+  `skills` CLI's own source (verified byte-for-byte against two existing
+  entries before being trusted); new `.claude/scripts/verify-skills.sh`
+  recomputes and reports drift for all nine skills, wired into
+  `crew-update.sh` so every sync ends with a drift report. The lock is now
+  fully accurate against current content (all nine skills verify clean).
 - **Plugin installs (Option C) no longer silently degrade.** Every
   agent/command referenced `docs/...` and `PROJECT.template.md` at
   project-root-relative paths that don't exist in a plugin-only install, and
