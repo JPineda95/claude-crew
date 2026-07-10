@@ -264,3 +264,40 @@ claude mcp add snyk    -- snyk mcp -t stdio
 > After adding MCP servers, restart Claude Code (or `/reload-plugins` for
 > plugins) and run `/mcp` to authenticate any OAuth-based remote servers. Scope
 > secrets via env vars — never hardcode keys in `.mcp.json` that you commit.
+
+`.mcp.json.example` ships with only `context7` — every key in that file is a
+live server Claude Code will try to launch (a `"//name"` key is NOT a
+comment, it's still an entry). Rename/paste whichever of these you need
+straight into your `.mcp.json`'s `mcpServers` object:
+
+```jsonc
+"playwright": {
+  "command": "npx",
+  "args": ["@playwright/mcp@latest"]
+},
+
+"supabase": {
+  "type": "http",
+  "url": "https://mcp.supabase.com/mcp?read_only=true&project_ref=${SUPABASE_PROJECT_REF}"
+},
+
+"github": {
+  "type": "http",
+  "url": "https://api.githubcopilot.com/mcp"
+},
+
+"sentry": {
+  "type": "http",
+  "url": "https://mcp.sentry.dev/mcp"
+},
+
+"notion": {
+  "type": "http",
+  "url": "https://mcp.notion.com/mcp"
+},
+
+"semgrep": {
+  "command": "uvx",
+  "args": ["semgrep-mcp"]
+}
+```

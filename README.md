@@ -49,14 +49,20 @@ Subagents don't spawn subagents; all fan-out is orchestrated from the top.
 
 ## Quickstart
 
+**Prerequisites:** `git`; a GitHub repo with a remote (the ship phase opens
+PRs via `gh`); [`gh`](https://cli.github.com/) installed and authenticated
+(`gh auth status`); `python3` or `jq` (the hooks parse JSON with whichever is
+available).
+
 ### Option A — start a new project from the crew
 ```bash
-git clone https://github.com/JPineda95/claude-crew my-app
-cd my-app
-rm -rf .git && git init            # make it your project's repo
-cp PROJECT.template.md PROJECT.md  # then fill it in (stack, commands, rules)
+git clone https://github.com/JPineda95/claude-crew
+claude-crew/scripts/new-project.sh my-app
 ```
-Open the folder in Claude Code and start with `/work <what to build>`.
+Creates `my-app`, git-inits it, and installs the crew into it (manifest,
+`.claude/crew.env`, `.gitignore` block — everything Option B gets) without
+carrying over claude-crew's own README/CHANGELOG/LICENSE/`.claude-plugin/`.
+Prints the next steps (create a GitHub remote, open in Claude Code).
 
 ### Option B — add the crew to an existing project
 ```bash
@@ -114,13 +120,18 @@ wholesale via `/plugin update` instead (no `.crew-new` protection); plugin
 users get the v2 `/feature` change immediately, and on non-Notion projects
 `/feature` simply offers the classic build via `/work`.
 
-**After any option:** run **`/onboard`** — it scans the repo, interviews you
-section by section, and writes a complete `PROJECT.md` (or fill in
-[`PROJECT.md`](PROJECT.template.md) by hand); it also writes your validation
-gate command into `.claude/crew.env`. Then install the MCP servers/plugins you
-need from [`docs/TOOLING.md`](docs/TOOLING.md). No `/onboard` yet? Edit
-`.claude/crew.env` directly — it's the single file the gate hooks
-(`.claude/scripts/validate.sh`, `.claude/scripts/pre-pr-gate.sh`) read.
+**First session, any option:**
+1. Install the crew (Option A, B, or C above).
+2. Run **`/onboard`** — it scans the repo, interviews you (one message, ≤2
+   turns by default; or fill in [`PROJECT.md`](PROJECT.template.md) by hand),
+   and writes a complete `PROJECT.md`. It also writes your validation gate
+   command into `.claude/crew.env` — the single file the gate hooks
+   (`.claude/scripts/validate.sh`, `.claude/scripts/pre-pr-gate.sh`) read; no
+   `/onboard` yet? Edit `.claude/crew.env` directly.
+3. No test suite yet? Run **`/tests`** first — PR creation is blocked by the
+   pre-PR gate until a validation gate command actually exists and passes.
+4. Run **`/work <what to build>`**. Install any MCP servers/plugins a task
+   needs from [`docs/TOOLING.md`](docs/TOOLING.md) as they come up.
 
 ---
 
@@ -277,6 +288,7 @@ claude-crew/
 ├── .claude-plugin/            # plugin.json + marketplace.json (Option C)
 ├── docs/                      # ENGINEERING, WORKFLOW, TESTING, WORKTREES, COMMITS, TICKETS, TOOLING
 ├── scripts/
+│   ├── new-project.sh         # start a brand-new project from the crew (Option A)
 │   ├── install.sh             # copy the crew into an existing project
 │   ├── update.sh              # pull crew updates into an installed project
 │   └── build-plugin.sh        # assemble the plugin form into dist/
@@ -306,7 +318,8 @@ claude-crew/
 1. **Technology-agnostic.** Agents detect the stack from the repo and fetch
    current docs (Context7); they never hardcode a framework.
 2. **One source of project truth.** `PROJECT.md` is the only file you edit per
-   project; the crew adapts around it.
+   project; the crew adapts around it. It's tracked by default — use a
+   git-ignored `PROJECT.local.md` sibling for anything private.
 3. **Verify, then claim.** Nothing is "done" until the gate is green and it's been
    run — reported honestly, with evidence.
 4. **Human holds the wheel on irreversible actions.** Commits, pushes, deploys,
