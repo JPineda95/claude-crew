@@ -146,3 +146,9 @@ if [[ -n "${SRC_REPO}" && -f "${MANIFEST}" ]]; then
     rm -f "${tmp}"
   fi
 fi
+
+# Report any vendored-skill drift now that the sync (which may have touched
+# .claude/skills/) is done. Informational only — never blocks.
+if [[ -f "${PROJECT}/.claude/scripts/verify-skills.sh" ]]; then
+  bash "${PROJECT}/.claude/scripts/verify-skills.sh" || true
+fi

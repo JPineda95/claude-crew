@@ -29,7 +29,7 @@
       "source": "pbakaus/impeccable",
       "sourceType": "github",
       "skillPath": ".agents/skills/impeccable/SKILL.md",
-      "computedHash": "1e310d65fb286f8bd22c193f48e4aef8dc6c8b9caa6816eecca582b8faa5a096"
+      "computedHash": "21419cf98d2816b899c2e23a096d1554e8506f069393afda42091c77b17ecda6"
     },
     "minimalist-ui": {
       "source": "Leonxlnx/taste-skill",
@@ -48,6 +48,12 @@
       "sourceType": "github",
       "skillPath": "skills/review-animations/SKILL.md",
       "computedHash": "ca04aaa0a815f05e0910ded8fedbfbdfe0acdec8f52dfbb88277890070d134d4"
+    },
+    "ui-ux-pro-max": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/ui-ux-pro-max/SKILL.md",
+      "computedHash": "87e1b2943063c0f5bc610d477cc10e12c52eba4e1f12995acbd6f471e0d79d67"
     }
   }
 }

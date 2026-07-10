@@ -86,7 +86,9 @@ The slash command additionally walks you through merging any `.crew-new`
 files interactively. No claude-crew checkout needs to be kept around. Both
 updaters refuse to sync if that would downgrade a project (e.g. one
 installed from a newer or dogfooded branch than the ref being synced) — pass
-`--allow-downgrade` to proceed anyway.
+`--allow-downgrade` to proceed anyway. Every sync ends with a
+`.claude/scripts/verify-skills.sh` report — informational, flags any
+vendored-skill drift against `skills-lock.json` without blocking the update.
 
 ### Option C — install as a Claude Code plugin
 Requires a **local clone and build first** — `dist/` is generated, not
@@ -221,6 +223,15 @@ implementation:
 | `design-taste-frontend`, `high-end-visual-design`, `minimalist-ui`, `redesign-existing-projects` | Brief inference, premium visual standards, editorial minimalism, audit-first redesigns | [tasteskill.dev](https://www.tasteskill.dev/) |
 | `emil-design-eng`, `review-animations`, `animation-vocabulary` | Emil Kowalski's UI-polish philosophy, a hard craft bar for motion, precise animation naming | [emilkowal.ski](https://emilkowal.ski/) |
 | `ui-ux-pro-max` | Reference database: 67 styles, 96 palettes, 57 font pairings | [nextlevelbuilder.io](https://ui-ux-pro-max-skill.nextlevelbuilder.io/) |
+
+Vendored under their own licenses (Apache-2.0, MIT) — see
+[`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md). **`impeccable`** in
+particular ships more than design vocabulary: it includes a local live-edit
+server (`scripts/live*.mjs`) and can register PostToolUse/Stop hooks into
+`.claude/settings.local.json` and other tools' hook configs
+(`scripts/hook-admin.mjs`) — review its updates like any dependency bump, not
+just a docs refresh. `.claude/scripts/verify-skills.sh` hashes every vendored
+skill against `skills-lock.json` so a silent payload change is detectable.
 
 Update commands for each source live in [`docs/TOOLING.md`](docs/TOOLING.md).
 
