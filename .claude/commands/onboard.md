@@ -141,10 +141,10 @@ exist), say so and resolve it now — don't record either version silently.
 1. Assemble the full `PROJECT.md` following the template's structure, guidance
    italics removed, every section filled (content, `none`, or agreed `TODO`).
 2. Show the complete draft and ask for corrections.
-3. On approval, write `PROJECT.md` to the repo root. Do **not** commit — remind
-   the user it's git-ignored by the boilerplate's `.gitignore` by default, and
-   ask whether they want that (shared teams usually commit it; solo repos with
-   private details often don't).
+3. On approval, write `PROJECT.md` to the repo root. It's tracked by default
+   (the boilerplate's `.gitignore` no longer excludes it) — remind the user to
+   commit it, and mention `PROJECT.local.md` as a git-ignored sibling for any
+   private, per-person notes they'd rather not share.
 4. Write the confirmed validation gate into `.claude/crew.env` — the file the
    gate hooks actually read (`.claude/scripts/validate.sh`,
    `.claude/scripts/pre-pr-gate.sh`). If `.claude/crew.env` already exists

@@ -7,6 +7,18 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
 ### Added
 
+- **New `scripts/new-project.sh <dir>`** (Quickstart Option A): creates the
+  directory, `git init`s it, and runs `scripts/install.sh` into it — so a
+  brand-new project gets a manifest, `.claude/crew.env`, and the
+  `.gitignore` block from the start, without carrying over claude-crew's own
+  `README.md`/`CHANGELOG.md`/`LICENSE`/`.claude-plugin/` (install.sh never
+  copied those; the old Option A's `git clone` + `rm -rf .git` did). Prints
+  the next steps (create a GitHub remote, run `/onboard`).
+- README **Prerequisites** block (git, a GitHub remote, authenticated `gh`,
+  python3/jq) and a single numbered first-session sequence (install →
+  `/onboard` → `/tests` if there's no suite yet, since the pre-PR gate
+  blocks PR creation until a validation gate exists → `/work`) replacing
+  three option-specific "after any option" paragraphs.
 - **This repo now has CI.** New `scripts/check.sh` — the crew's own gate:
   `bash -n` on every script, `shellcheck -S warning`, and
   `scripts/build-plugin.sh` (which asserts `plugin.json` and
@@ -281,6 +293,19 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
 - Charter sections renumbered after inserting §6: Shell discipline is now §8,
   Git discipline §9. Cross-references updated.
+- **`PROJECT.md` is now tracked by default.** `.gitignore` used to exclude it
+  — a strange default for "the single source of project truth" — which meant
+  a fresh `/onboard` draft looked committed but silently never was unless the
+  user caught it. Flipped: `PROJECT.md` is no longer git-ignored;
+  `PROJECT.local.md` is, for anyone who wants private per-person notes
+  instead. `/onboard`, `install.sh`'s seeded-file message, and the README
+  design-principles note updated to match.
+- **`.mcp.json.example` reduced to `context7` only.** Its `"//name"`-prefixed
+  entries (playwright, supabase, github, sentry, notion, semgrep) looked
+  commented-out but aren't — Claude Code treats `//name` as a literal key and
+  tries to launch all six servers, most requiring credentials the example
+  obviously doesn't have. The other six are now a copy-paste snippet in
+  `docs/TOOLING.md`'s MCP menu instead.
 
 ## 2.3.0 — 2026-07-05
 

@@ -88,6 +88,7 @@ fi
 if [[ ! -f "${DEST}/PROJECT.md" ]]; then
   cp "${SRC}/PROJECT.template.md" "${DEST}/PROJECT.md"
   echo "  · created PROJECT.md from the template — FILL IT IN before running the crew"
+  echo "    (it's tracked by default — commit it; use PROJECT.local.md for private notes)"
 else
   echo "  · kept existing PROJECT.md"
 fi
