@@ -3,7 +3,7 @@
 All notable changes to claude-crew. Follows [Keep a Changelog](https://keepachangelog.com/)
 loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
-## Unreleased
+## 2.4.0 — 2026-07-10
 
 ### Added
 
