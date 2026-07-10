@@ -89,14 +89,27 @@ installed from a newer or dogfooded branch than the ref being synced) — pass
 `--allow-downgrade` to proceed anyway.
 
 ### Option C — install as a Claude Code plugin
+Requires a **local clone and build first** — `dist/` is generated, not
+committed, so `/plugin marketplace add JPineda95/claude-crew` from GitHub
+won't work yet:
 ```bash
-scripts/build-plugin.sh                          # assembles dist/claude-crew
+git clone https://github.com/JPineda95/claude-crew
+cd claude-crew && scripts/build-plugin.sh    # assembles dist/claude-crew
 # then, inside any project:
 /plugin marketplace add /absolute/path/to/claude-crew
 /plugin install claude-crew@claude-crew
 ```
-Plugin updates replace commands wholesale — plugin users get the v2 `/feature`
-change immediately (no `.crew-new` protection); on non-Notion projects
+This ships **commands, agents, hooks, and skills only** — a Claude Code
+plugin has no mechanism to auto-load a project's `CLAUDE.md` as session
+context, so the orchestrator persona and the `docs/` charter it delegates to
+aren't active yet. Run **`/crew-init`** right after installing: it copies
+`CLAUDE.md`, `docs/`, and `PROJECT.template.md` out of the plugin and into
+your project root (non-destructively — an existing `CLAUDE.md` is kept,
+with the plugin's saved alongside as `CLAUDE.crew.md` to merge by hand).
+`/crew-update` isn't available in this form (its sync mechanism is specific
+to Option B's clone/copy install) — plugin updates replace commands
+wholesale via `/plugin update` instead (no `.crew-new` protection); plugin
+users get the v2 `/feature` change immediately, and on non-Notion projects
 `/feature` simply offers the classic build via `/work`.
 
 **After any option:** run **`/onboard`** — it scans the repo, interviews you
