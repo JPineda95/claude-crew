@@ -1,0 +1,75 @@
+name: gate
+on:
+  pull_request:
+    branches: [dev, main]
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: |
+          if ! command -v shellcheck >/dev/null 2>&1; then
+            sudo apt-get update -y
+            sudo apt-get install -y shellcheck
+          fi
+          shellcheck --version
+
+      - name: scripts/check.sh (syntax, shellcheck, build, version consistency)
+        run: bash scripts/check.sh
+
+      - name: Smoke test — install.sh / update.sh idempotence
+        run: |
+          set -euo pipefail
+          WORK="$(mktemp -d)"
+          TARGET="${WORK}/target"
+          mkdir -p "${TARGET}"
+          git -C "${TARGET}" init -q
+          git -C "${TARGET}" -c user.email=ci@example.com -c user.name=CI commit -q --allow-empty -m init
+          git -C "${TARGET}" switch -q -c feat/smoke
+
+          bash scripts/install.sh "${TARGET}"
+          test -f "${TARGET}/.claude/crew-manifest" || { echo "manifest missing after install.sh"; exit 1; }
+
+          bash scripts/update.sh "${TARGET}"
+
+          NEW_COUNT="$(find "${TARGET}" -name '*.crew-new' | wc -l | tr -d ' ')"
+          if [[ "${NEW_COUNT}" != "0" ]]; then
+            echo "expected 0 .crew-new files after syncing the same content, found ${NEW_COUNT}:"
+            find "${TARGET}" -name '*.crew-new'
+            exit 1
+          fi
+          echo "install/update idempotence: OK"
+
+      - name: Downgrade-guard test (PR 1's protection, scripted)
+        run: |
+          set -euo pipefail
+          WORK="$(mktemp -d)"
+          SOURCE="${WORK}/source"
+          TARGET="${WORK}/target"
+
+          # A local clone of this checkout, with one extra commit on a scratch
+          # branch to simulate "installed from a newer/dogfooded ref".
+          git clone -q "${GITHUB_WORKSPACE}" "${SOURCE}"
+          git -C "${SOURCE}" checkout -q "${GITHUB_SHA}"
+          git -C "${SOURCE}" switch -q -c scratch-newer
+          echo "dummy" >> "${SOURCE}/CHANGELOG.md"
+          git -C "${SOURCE}" -c user.email=ci@example.com -c user.name=CI commit -q -am "dummy: simulate newer upstream"
+
+          mkdir -p "${TARGET}"
+          bash "${SOURCE}/scripts/install.sh" "${TARGET}"   # installs from scratch-newer (the "newer" state)
+
+          # Back to the PR's actual commit (pre-dummy) — the target's manifest
+          # commit is NOT an ancestor of this, so syncing must be refused.
+          git -C "${SOURCE}" checkout -q "${GITHUB_SHA}"
+
+          if bash "${SOURCE}/scripts/update.sh" "${TARGET}"; then
+            echo "expected the downgrade guard to abort (non-zero exit), but update.sh succeeded"
+            exit 1
+          fi
+          echo "downgrade guard correctly aborted"
+
+          bash "${SOURCE}/scripts/update.sh" "${TARGET}" --allow-downgrade
+          echo "--allow-downgrade override: OK"

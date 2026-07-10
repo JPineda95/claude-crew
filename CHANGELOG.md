@@ -5,6 +5,24 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
 ## Unreleased
 
+### Added
+
+- **This repo now has CI.** New `scripts/check.sh` — the crew's own gate:
+  `bash -n` on every script, `shellcheck -S warning`, and
+  `scripts/build-plugin.sh` (which asserts `plugin.json` and
+  `marketplace.json`'s versions agree and have a matching `CHANGELOG.md`
+  heading). New `.github/workflows/gate.yml` re-runs it on every PR to
+  `dev`/`main`, plus two scripted smoke tests: `install.sh`/`update.sh`
+  idempotence (installing twice produces zero `.crew-new` files) and the
+  downgrade guard (PR 1's protection — syncing from an older ref than
+  what's installed must be refused unless `--allow-downgrade` is passed).
+  Previously two crew-update.sh bugs shipped and the marketplace/plugin
+  version drift went unnoticed for two minor versions — nothing re-checked
+  this repo's own scripts before this.
+- New **`CONTRIBUTING.md`**: the gate command, commit/PR conventions, and
+  the release flow (CHANGELOG cut → version bump both manifests → merge →
+  human promotes `dev`→`main` → tag → release).
+
 ### Fixed
 
 - **The vendored `impeccable` skill is no longer broken in every install.**
