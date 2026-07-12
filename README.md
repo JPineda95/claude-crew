@@ -13,6 +13,22 @@ through a design → test → build → review → ship workflow. Optionally, pu
 `/spike` `/epic`, triage them on the board, and let `/work` build every Dev
 Ready ticket in parallel ([docs/TICKETS.md](docs/TICKETS.md)).
 
+## Contents
+
+- [The crew](#the-crew)
+- [Quickstart](#quickstart)
+  - [Option A — start a new project from the crew](#option-a--start-a-new-project-from-the-crew)
+  - [Option B — add the crew to an existing project](#option-b--add-the-crew-to-an-existing-project)
+  - [Option C — install as a Claude Code plugin](#option-c--install-as-a-claude-code-plugin)
+- [How it works](#how-it-works)
+  - [The ticket board (optional)](#the-ticket-board-optional)
+  - [Slash commands](#slash-commands)
+- [The taste library (anti-slop design)](#the-taste-library-anti-slop-design)
+- [The protocols](#the-protocols)
+- [Repository layout](#repository-layout)
+- [Customizing](#customizing)
+- [Design principles](#design-principles)
+
 ---
 
 ## The crew
