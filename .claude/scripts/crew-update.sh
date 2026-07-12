@@ -20,11 +20,22 @@
 # (and any in-progress / open-PR work on it) is never synced into a project.
 #
 # Usage, from anywhere inside the project:
-#   .claude/scripts/crew-update.sh
+#   .claude/scripts/crew-update.sh [--allow-downgrade]
+#
+# --allow-downgrade forwards to update.sh's downgrade guard, which otherwise
+# refuses to sync when the installed content is not an ancestor of REF (e.g.
+# this project was installed from a newer/dogfooded branch).
 #
 set -euo pipefail
 
 DEFAULT_REPO="https://github.com/JPineda95/claude-crew"
+
+ALLOW_DOWNGRADE=0
+for arg in "$@"; do
+  case "${arg}" in
+    --allow-downgrade) ALLOW_DOWNGRADE=1 ;;
+  esac
+done
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT="$(cd "${here}/../.." && pwd)"
@@ -114,7 +125,14 @@ fi
 looks_like_crew "${SRC}" \
   || { echo "error: resolved crew source ${SRC} doesn't look like a claude-crew repo" >&2; exit 1; }
 
-bash "${SRC}/scripts/update.sh" "${PROJECT}"
+# CREW_SYNCED_REF tells update.sh's manifest writer the real ref name — SRC
+# may be a detached worktree (HEAD is unreadable as a ref there otherwise).
+export CREW_SYNCED_REF="${REF}"
+if [[ "${ALLOW_DOWNGRADE}" -eq 1 ]]; then
+  bash "${SRC}/scripts/update.sh" "${PROJECT}" --allow-downgrade
+else
+  bash "${SRC}/scripts/update.sh" "${PROJECT}"
+fi
 
 # update.sh records "# source: <the crew source it ran from>". When we
 # materialized a ref in a throwaway worktree, that path is about to be deleted —
@@ -127,4 +145,10 @@ if [[ -n "${SRC_REPO}" && -f "${MANIFEST}" ]]; then
   else
     rm -f "${tmp}"
   fi
+fi
+
+# Report any vendored-skill drift now that the sync (which may have touched
+# .claude/skills/) is done. Informational only — never blocks.
+if [[ -f "${PROJECT}/.claude/scripts/verify-skills.sh" ]]; then
+  bash "${PROJECT}/.claude/scripts/verify-skills.sh" || true
 fi

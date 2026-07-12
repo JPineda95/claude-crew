@@ -1,5 +1,5 @@
 ---
-description: Threat-model and security-review a change or area of the codebase.
+description: "Threat-model and security-review a change or area of the codebase."
 argument-hint: "[feature, path, or diff to assess]"
 ---
 

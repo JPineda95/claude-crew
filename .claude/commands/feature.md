@@ -1,6 +1,6 @@
 ---
-description: "Interview and file a Story ticket in the backlog. (v2: the build lifecycle moved to /work — `/work <description>` is the classic ticketless behavior.)"
-argument-hint: <what to build>
+description: "Interview and file a Story ticket in the backlog — a human triages it, then /work <id> builds it."
+argument-hint: "<what to build>"
 ---
 
 File a **Story** card on the project board per `docs/TICKETS.md`. This command
@@ -11,22 +11,9 @@ after a human triages the card to Dev Ready.
 
 Proceed:
 
-1. **Mode check** — read `PROJECT.md` §12 before anything else:
-   - **`Ticketing: notion` and the Notion MCP tools respond** (match tools by
-     name *suffix* per `docs/TICKETS.md` §9 — never a hardcoded server prefix)
-     → run the ticket flow below.
-   - **`Ticketing: none`** (or §12 deleted) → silently run the classic
-     fallback: state "running the classic lifecycle — see `/work`", then follow
-     `.claude/commands/work.md`'s ticketless mode as if invoked as
-     `/work $ARGUMENTS`. Zero Notion mentions, ever.
-   - **§12 absent / never configured** → one short explanation (≤3 lines):
-     `/feature` now files a ticket; `/board` sets up the board; recording
-     `Ticketing: none` in `PROJECT.md` §12 silences this. Offer to run the
-     classic fallback right now, and suggest recording the choice. Once `none`
-     is recorded, never mention this again.
-   - **§12 says `notion` but the tools are missing or unreachable** → say so
-     briefly, point to `docs/TOOLING.md`, and offer the classic fallback for
-     this run.
+1. **Mode check** — resolve ticketing mode per `docs/TICKETS.md` §9. This
+   command's classic fallback: follow `.claude/commands/work.md`'s ticketless
+   mode as if invoked as `/work $ARGUMENTS`.
 2. **Draft first** — seed the card from $ARGUMENTS. Scan the repo and
    `PROJECT.md` and pre-fill everything you can: likely affected areas/files,
    related core flows (`PROJECT.md` §4), a suggested Priority. Then interview

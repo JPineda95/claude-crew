@@ -1,26 +1,14 @@
 ---
-description: Interview and file a Spike ticket — a timeboxed question to answer before committing to build.
+description: "Interview and file a Spike ticket — a timeboxed question to answer before committing to build."
 argument-hint: "<what to investigate>"
 ---
 
 File a **Spike** ticket — a timeboxed investigation that ends in answers, not
 features — per `docs/TICKETS.md`. Topic: $ARGUMENTS
 
-1. **Mode check.** Read `PROJECT.md` §12 before anything else:
-   - **`Ticketing: notion`** and the Notion MCP tools respond (match tools by
-     name suffix per `docs/TICKETS.md` §9 — never by hardcoded prefix) →
-     continue with step 2.
-   - **`Ticketing: none`** (or §12 deleted) → silently run the classic
-     fallback: suggest `/plan` — an architect investigation without a card —
-     and offer to run it now on $ARGUMENTS. Zero Notion mentions.
-   - **§12 absent** (never configured) → explain once, in ≤3 lines: `/spike`
-     files a Spike card on a Notion board; `/board` sets the board up;
-     `Ticketing: none` in `PROJECT.md` §12 silences this. Offer the classic
-     fallback right now, and suggest recording the choice so this note never
-     repeats.
-   - **§12 says `notion` but the tools are missing/unreachable** → say so
-     briefly, point to `docs/TOOLING.md`, and offer the classic fallback for
-     this run.
+1. **Mode check.** Resolve ticketing mode per `docs/TICKETS.md` §9. This
+   command's classic fallback: `/plan` — an architect investigation without a
+   card — on $ARGUMENTS.
 
 2. **Draft first.** From $ARGUMENTS and a quick repo scan, pre-fill everything
    you can before asking anything:

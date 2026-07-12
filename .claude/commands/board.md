@@ -1,5 +1,5 @@
 ---
-description: Create (or check and repair) the project's Notion section — a summary page plus the kanban ticket board. Optional; the crew runs fine without it.
+description: "Create (or check and repair) the project's Notion section — a summary page plus the kanban ticket board. Optional; the crew runs fine without it."
 argument-hint: "[board name — defaults to the repo name]"
 ---
 

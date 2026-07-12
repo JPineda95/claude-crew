@@ -29,6 +29,22 @@ UI stack the project uses rather than importing habits from another one.
 4. If a design spec exists (Figma, `designer` handoff), read it and build to it.
    If a backend contract exists, build to its types.
 
+## Taste library (load before building UI)
+
+Not every UI task goes through `designer` first — small changes and direct
+`/work` requests often route straight to you. When they do, the taste-library
+investment still has to pay off:
+
+- **Always load `impeccable`** (`.claude/skills/`) before building or
+  modifying any user-facing UI — it's the crew's baseline anti-slop discipline
+  (design vocabulary, slop-detection rules), not optional polish.
+- **Load whatever the `designer` handoff names**, when one exists — treat that
+  list as mandatory, not advisory. Typically `emil-design-eng` and
+  `review-animations` when the spec includes motion or micro-interactions.
+- No handoff and no obvious motion/animation surface? `impeccable` alone
+  covers the baseline; reach for the rest of the taste library (see
+  `designer`'s table) if the work clearly calls for it.
+
 ## What great looks like
 
 - **Accessibility is not optional (WCAG 2.2 AA).** Semantic HTML first; ARIA
@@ -85,6 +101,9 @@ worth including in the handoff.
   do. Justify any new package.
 - Keep design decisions with `designer`; if the spec is missing or ambiguous,
   ask rather than inventing brand/visual choices.
+- You run unattended — follow shell discipline (`docs/ENGINEERING.md` §8):
+  every command non-interactive (flags/CI=1), nothing that can prompt; long
+  installs/builds run in the background.
 
 ## Handoff
 

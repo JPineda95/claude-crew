@@ -26,6 +26,10 @@
 | Integration | Some | Real seams: DB queries, API handlers, auth flows | ms–s |
 | E2E (core flows) | Few (≈5–10 specs) | The user journeys that must never break | s–min |
 
+Integration tests exercise real seams against local/containerized or
+in-memory services — never live external services; that is what lets the CI
+gate run without credentials (§8).
+
 Test **behavior, not implementation** — assert on observable outputs and
 effects so tests survive refactors. Craft details (determinism, structure,
 what to probe) live in the `qa-engineer` spec.
@@ -93,8 +97,11 @@ the core flows are covered at the integration layer instead.
 | End of any coding turn | The validation gate | `.claude/scripts/validate.sh` (Stop hook) |
 | Every PR, server-side | The same validation gate, re-run by the host | CI workflow + required branch-protection check (§8) |
 
-Configure once per project (in `.claude/settings.local.json` under `env`, or
-exported in the environment):
+Configure once per project in **`.claude/crew.env`** — the single source of
+truth these hooks read (committed with the repo; seeded once by
+`install.sh`/`update.sh`, written by `/onboard`). A value already exported in
+your environment — e.g. a per-machine override in
+`.claude/settings.local.json` under `env` — wins over crew.env's default:
 
 - `CLAUDE_VALIDATE_CMD` — lint + full test suite (+ typecheck/build), e.g.
   `npm run lint && npm run test`.
@@ -151,7 +158,9 @@ Rules:
 - **One source of truth.** The workflow runs the same commands as
   `CLAUDE_VALIDATE_CMD` (plus `CLAUDE_E2E_SMOKE_CMD` once configured), one
   step per command. A PR that changes the gate commands MUST update the
-  workflow in the same PR — drift between the local gate and CI is a bug.
+  workflow, `.claude/crew.env` (where the hooks actually read them from), and
+  `PROJECT.md` §3–4's prose description of them **all in the same PR** —
+  drift between any of these is a bug.
 - **Trigger:** every PR targeting the integration branch AND the production
   branch (so `/deploy` promotions get re-checked too).
 - **Binding, not advisory:** protect the integration branch and require the

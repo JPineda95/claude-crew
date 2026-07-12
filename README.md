@@ -21,7 +21,7 @@ Ready ticket in parallel ([docs/TICKETS.md](docs/TICKETS.md)).
 |---|---|---|
 | **architect** | Principal engineer / tech lead — design, decomposition, ADRs | opus |
 | **designer** | Product & UI/UX design — flows, wireframes, design systems, anti-slop taste library | sonnet |
-| **database-architect** | Data modeling, migrations, indexing, access policies (DBA) | opus |
+| **database-architect** | Data modeling, migrations, indexing, access policies (DBA) | sonnet |
 | **backend-engineer** | APIs, business logic, auth, jobs, integrations | sonnet |
 | **frontend-engineer** | UI, client state, accessibility, performance | sonnet |
 | **qa-engineer** | Test strategy & tests (TDD), verification | sonnet |
@@ -30,10 +30,16 @@ Ready ticket in parallel ([docs/TICKETS.md](docs/TICKETS.md)).
 | **copywriter** | UI microcopy, errors, emails, marketing copy | sonnet |
 | **seo-aeo-specialist** | Technical SEO + Answer/Generative Engine Optimization | sonnet |
 | **data-compliance-officer** | Data map, privacy policy, ToS, cookies/consent, data-subject rights | opus |
-| **diagrammer** | Reverse-engineers the code into a Mermaid architecture map — component graph, core-flow sequences, ERD | opus |
+| **diagrammer** | Reverse-engineers the code into a Mermaid architecture map — component graph, core-flow sequences, ERD | sonnet |
 | **reviewer-architecture** | Pre-merge gate: structure & maintainability | opus |
 | **reviewer-code-quality** | Pre-merge gate: correctness, tests, readability | sonnet |
 | **reviewer-security** | Pre-merge gate: OWASP-style vulnerabilities | opus |
+
+Tier rationale: **opus** for judgment-heavy design/review work (system
+architecture, security, compliance); **sonnet** for implementation and
+transcription (writing code, schema, tests, config, or documenting what
+already exists). This table mirrors each agent's own frontmatter — tune per
+your budget by editing the agent file, not this table.
 
 The **orchestrator** is the root [`CLAUDE.md`](CLAUDE.md) — a tech-lead persona in
 the main thread that delegates to specialists and threads their work together.
@@ -43,14 +49,20 @@ Subagents don't spawn subagents; all fan-out is orchestrated from the top.
 
 ## Quickstart
 
+**Prerequisites:** `git`; a GitHub repo with a remote (the ship phase opens
+PRs via `gh`); [`gh`](https://cli.github.com/) installed and authenticated
+(`gh auth status`); `python3` or `jq` (the hooks parse JSON with whichever is
+available).
+
 ### Option A — start a new project from the crew
 ```bash
-git clone https://github.com/JPineda95/claude-crew my-app
-cd my-app
-rm -rf .git && git init            # make it your project's repo
-cp PROJECT.template.md PROJECT.md  # then fill it in (stack, commands, rules)
+git clone https://github.com/JPineda95/claude-crew
+claude-crew/scripts/new-project.sh my-app
 ```
-Open the folder in Claude Code and start with `/work <what to build>`.
+Creates `my-app`, git-inits it, and installs the crew into it (manifest,
+`.claude/crew.env`, `.gitignore` block — everything Option B gets) without
+carrying over claude-crew's own README/CHANGELOG/LICENSE/`.claude-plugin/`.
+Prints the next steps (create a GitHub remote, open in Claude Code).
 
 ### Option B — add the crew to an existing project
 ```bash
@@ -64,31 +76,62 @@ target (non-destructively), and seeds `PROJECT.md` from the template.
 `update.sh` uses the recorded manifest to update untouched files in place while
 protecting anything you customized — your version stays, the new one lands
 next to it as `<file>.crew-new` (`settings.json` → `settings.crew.json`) for a
-manual merge. `PROJECT.md` is never touched.
+manual merge. `PROJECT.md` is never touched. Re-running `install.sh` on an
+already-installed project (detected via the manifest) automatically delegates
+to `update.sh` instead of re-copying and clobbering your customizations. Both
+scripts also seed a managed `.gitignore` block for Claude Code's own
+machine-local state (settings, worktrees, memory files) — idempotent, safe on
+repeated runs.
 
 The updater also **ships with the crew**: from inside any installed project,
-run `.claude/scripts/crew-update.sh` — it finds the crew source via the
+run **`/crew-update`** (or the script directly,
+`.claude/scripts/crew-update.sh`) — it finds the crew source via the
 manifest (or clones the repo when no local checkout exists; `CREW_SOURCE`,
 `CREW_REPO`, `CREW_REF` override) and runs the same manifest-protected sync.
-No claude-crew checkout needs to be kept around.
+The slash command additionally walks you through merging any `.crew-new`
+files interactively. No claude-crew checkout needs to be kept around. Both
+updaters refuse to sync if that would downgrade a project (e.g. one
+installed from a newer or dogfooded branch than the ref being synced) — pass
+`--allow-downgrade` to proceed anyway. Every sync ends with a
+`.claude/scripts/verify-skills.sh` report — informational, flags any
+vendored-skill drift against `skills-lock.json` without blocking the update.
 
 ### Option C — install as a Claude Code plugin
+Requires a **local clone and build first** — `dist/` is generated, not
+committed, so `/plugin marketplace add JPineda95/claude-crew` from GitHub
+won't work yet:
 ```bash
-scripts/build-plugin.sh                          # assembles dist/claude-crew
+git clone https://github.com/JPineda95/claude-crew
+cd claude-crew && scripts/build-plugin.sh    # assembles dist/claude-crew
 # then, inside any project:
 /plugin marketplace add /absolute/path/to/claude-crew
 /plugin install claude-crew@claude-crew
 ```
-Plugin updates replace commands wholesale — plugin users get the v2 `/feature`
-change immediately (no `.crew-new` protection); on non-Notion projects
+This ships **commands, agents, hooks, and skills only** — a Claude Code
+plugin has no mechanism to auto-load a project's `CLAUDE.md` as session
+context, so the orchestrator persona and the `docs/` charter it delegates to
+aren't active yet. Run **`/crew-init`** right after installing: it copies
+`CLAUDE.md`, `docs/`, and `PROJECT.template.md` out of the plugin and into
+your project root (non-destructively — an existing `CLAUDE.md` is kept,
+with the plugin's saved alongside as `CLAUDE.crew.md` to merge by hand).
+`/crew-update` isn't available in this form (its sync mechanism is specific
+to Option B's clone/copy install) — plugin updates replace commands
+wholesale via `/plugin update` instead (no `.crew-new` protection); plugin
+users get the v2 `/feature` change immediately, and on non-Notion projects
 `/feature` simply offers the classic build via `/work`.
 
-**After any option:** run **`/onboard`** — it scans the repo, interviews you
-section by section, and writes a complete `PROJECT.md` (or fill in
-[`PROJECT.md`](PROJECT.template.md) by hand). Then install the MCP
-servers/plugins you need from [`docs/TOOLING.md`](docs/TOOLING.md), and set your
-validation gate in `.claude/scripts/validate.sh` (or the `CLAUDE_VALIDATE_CMD`
-env var).
+**First session, any option:**
+1. Install the crew (Option A, B, or C above).
+2. Run **`/onboard`** — it scans the repo, interviews you (one message, ≤2
+   turns by default; or fill in [`PROJECT.md`](PROJECT.template.md) by hand),
+   and writes a complete `PROJECT.md`. It also writes your validation gate
+   command into `.claude/crew.env` — the single file the gate hooks
+   (`.claude/scripts/validate.sh`, `.claude/scripts/pre-pr-gate.sh`) read; no
+   `/onboard` yet? Edit `.claude/crew.env` directly.
+3. No test suite yet? Run **`/tests`** first — PR creation is blocked by the
+   pre-PR gate until a validation gate command actually exists and passes.
+4. Run **`/work <what to build>`**. Install any MCP servers/plugins a task
+   needs from [`docs/TOOLING.md`](docs/TOOLING.md) as they come up.
 
 ---
 
@@ -117,14 +160,10 @@ Intake → Design → Plan → Test-first → Build → Verify → Review → Fi
   doesn't have one), and a human-run `/deploy` is the only path into
   production.
 
-**Open-PR policy (ticketed work):** at most one open crew PR per ticket (the
-ticket id is the key), and never more open crew ticket-PRs than **Max parallel
-tickets** (`PROJECT.md` §12, default 3). Crew PRs are identified by their
-head-branch pattern `<type>/<PREFIX>-<n>-*` via `gh pr list --json headRefName`.
-Do not start new ticket work while any open crew PR has unaddressed human
-change requests. Ticketless work keeps the classic rule: one open crew PR at a
-time. Ticketless crew PRs are recognized by the `Crew review` section in
-their body (`gh pr list --json headRefName,body`).
+**Open-PR policy:** one open crew PR per ticket (capped by **Max parallel
+tickets**, `PROJECT.md` §12, default 3); ticketless work keeps one open crew
+PR at a time. Full policy and detection rules: `docs/WORKFLOW.md` §8
+(normative).
 
 Process is **right-sized**: a typo is a one-line edit, not a committee. The full
 lifecycle is for changes that span layers or carry real risk.
@@ -146,10 +185,11 @@ charter: [docs/TICKETS.md](docs/TICKETS.md). No Notion? Nothing changes —
 ### Slash commands
 | Command | Does |
 |---|---|
-| `/onboard` | Interview you + scan the repo to generate a complete `PROJECT.md` |
+| `/onboard [thorough]` | Interview you + scan the repo to generate a complete `PROJECT.md` — one message, ≤2 turns by default; `thorough` walks it section by section |
+| `/status` | Read-only session opener: branch state, open crew PRs, commits awaiting `/deploy`, stale worktrees, gate config |
 | `/work [id \| desc]` | **The build command.** A ticket by id, every Dev Ready ticket in parallel, or a plain description (the classic full lifecycle) |
 | `/board [name]` | Create (or check/repair) the Notion section: summary page + kanban board. Optional |
-| `/feature <desc>` | Interview → file a **Story** ticket in the backlog *(v2: no longer builds — see `/work`)* |
+| `/feature <desc>` | Interview → file a **Story** ticket in the backlog — a human triages it, then `/work <id>` builds it |
 | `/bug <desc>` | Interview → file a **Bug** ticket (repro, expected vs actual, regression criteria) |
 | `/spike <desc>` | Interview → file a **Spike** ticket (timeboxed question; findings land on the card) |
 | `/epic <desc>` | Interview → architect breakdown → file an **Epic** + linked child Stories |
@@ -161,6 +201,7 @@ charter: [docs/TICKETS.md](docs/TICKETS.md). No Notion? Nothing changes —
 | `/tests [focus]` | Bootstrap or backfill the test suite — audit gaps by risk, then unit/integration/Cypress e2e for the core flows |
 | `/ship [context]` | Commit the work, push the feature branch, and open a PR for review |
 | `/deploy [context]` | Merge the integration branch into the production branch and push — the human-authorized deploy step |
+| `/crew-update [ref]` | Pull crew updates via `crew-update.sh`, then interactively walk any `.crew-new` merge conflicts |
 
 **`/diagram` focus.** Run it bare to map the whole system, or pass a focus so a
 large repo stays legible and refreshes stay cheap. A focused run refreshes only
@@ -193,6 +234,15 @@ implementation:
 | `design-taste-frontend`, `high-end-visual-design`, `minimalist-ui`, `redesign-existing-projects` | Brief inference, premium visual standards, editorial minimalism, audit-first redesigns | [tasteskill.dev](https://www.tasteskill.dev/) |
 | `emil-design-eng`, `review-animations`, `animation-vocabulary` | Emil Kowalski's UI-polish philosophy, a hard craft bar for motion, precise animation naming | [emilkowal.ski](https://emilkowal.ski/) |
 | `ui-ux-pro-max` | Reference database: 67 styles, 96 palettes, 57 font pairings | [nextlevelbuilder.io](https://ui-ux-pro-max-skill.nextlevelbuilder.io/) |
+
+Vendored under their own licenses (Apache-2.0, MIT) — see
+[`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md). **`impeccable`** in
+particular ships more than design vocabulary: it includes a local live-edit
+server (`scripts/live*.mjs`) and can register PostToolUse/Stop hooks into
+`.claude/settings.local.json` and other tools' hook configs
+(`scripts/hook-admin.mjs`) — review its updates like any dependency bump, not
+just a docs refresh. `.claude/scripts/verify-skills.sh` hashes every vendored
+skill against `skills-lock.json` so a silent payload change is detectable.
 
 Update commands for each source live in [`docs/TOOLING.md`](docs/TOOLING.md).
 
@@ -238,6 +288,7 @@ claude-crew/
 ├── .claude-plugin/            # plugin.json + marketplace.json (Option C)
 ├── docs/                      # ENGINEERING, WORKFLOW, TESTING, WORKTREES, COMMITS, TICKETS, TOOLING
 ├── scripts/
+│   ├── new-project.sh         # start a brand-new project from the crew (Option A)
 │   ├── install.sh             # copy the crew into an existing project
 │   ├── update.sh              # pull crew updates into an installed project
 │   └── build-plugin.sh        # assemble the plugin form into dist/
@@ -267,7 +318,8 @@ claude-crew/
 1. **Technology-agnostic.** Agents detect the stack from the repo and fetch
    current docs (Context7); they never hardcode a framework.
 2. **One source of project truth.** `PROJECT.md` is the only file you edit per
-   project; the crew adapts around it.
+   project; the crew adapts around it. It's tracked by default — use a
+   git-ignored `PROJECT.local.md` sibling for anything private.
 3. **Verify, then claim.** Nothing is "done" until the gate is green and it's been
    run — reported honestly, with evidence.
 4. **Human holds the wheel on irreversible actions.** Commits, pushes, deploys,

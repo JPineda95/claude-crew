@@ -7,7 +7,7 @@ description: >-
   building features that need new or changed data structures, and whenever a
   query is slow or a data invariant must be enforced. Owns the schema; other
   agents request changes rather than making them.
-model: opus
+model: sonnet
 color: orange
 ---
 

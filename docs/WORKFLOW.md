@@ -8,23 +8,27 @@
 
 ## The roster at a glance
 
-| Agent | Role | Model | Spin up when… |
-|---|---|---|---|
-| `architect` | Principal / tech lead | opus | A non-trivial feature/refactor needs design & decomposition first |
-| `designer` | Product & UI/UX design | sonnet | A feature needs a flow, screen, or design-system decision |
-| `database-architect` | Data modeling / DBA | opus | Schema, migrations, indexing, RLS, or query performance |
-| `backend-engineer` | Server / APIs / logic | sonnet | Endpoints, business logic, auth, jobs, integrations |
-| `frontend-engineer` | UI implementation | sonnet | Components, pages, client state, what the user sees |
-| `qa-engineer` | Test strategy / SDET | sonnet | Before impl (write failing tests) and after (verify) |
-| `security-engineer` | AppSec (design/harden) | opus | Anything touching auth, money, PII, uploads, external input |
-| `devops-engineer` | Platform / CI/CD / SRE | sonnet | Build, deploy, infra, config, observability |
-| `copywriter` | UX writing / copy | sonnet | UI text, errors, emails, marketing/landing copy |
-| `seo-aeo-specialist` | SEO / AEO | sonnet | Public, indexable pages; discoverability; structured data |
-| `data-compliance-officer` | Data protection / privacy | opus | New personal-data collection, cookies/tracking, third-party processors, launch prep |
-| `diagrammer` | Architecture cartographer | opus | After building — (re)draw `docs/ARCHITECTURE.md`: component graph, core-flow sequences, ERD |
-| `reviewer-architecture` | Design review gate | opus | Before merge — structure, patterns, maintainability |
-| `reviewer-code-quality` | Correctness review gate | sonnet | Before merge — bugs, tests, readability |
-| `reviewer-security` | Security review gate | opus | Before merge — esp. security-relevant diffs |
+| Agent | Role | Spin up when… |
+|---|---|---|
+| `architect` | Principal / tech lead | A non-trivial feature/refactor needs design & decomposition first |
+| `designer` | Product & UI/UX design | A feature needs a flow, screen, or design-system decision |
+| `database-architect` | Data modeling / DBA | Schema, migrations, indexing, RLS, or query performance |
+| `backend-engineer` | Server / APIs / logic | Endpoints, business logic, auth, jobs, integrations |
+| `frontend-engineer` | UI implementation | Components, pages, client state, what the user sees |
+| `qa-engineer` | Test strategy / SDET | Before impl (write failing tests) and after (verify) |
+| `security-engineer` | AppSec (design/harden) | Anything touching auth, money, PII, uploads, external input |
+| `devops-engineer` | Platform / CI/CD / SRE | Build, deploy, infra, config, observability |
+| `copywriter` | UX writing / copy | UI text, errors, emails, marketing/landing copy |
+| `seo-aeo-specialist` | SEO / AEO | Public, indexable pages; discoverability; structured data |
+| `data-compliance-officer` | Data protection / privacy | New personal-data collection, cookies/tracking, third-party processors, launch prep |
+| `diagrammer` | Architecture cartographer | After building — (re)draw `docs/ARCHITECTURE.md`: component graph, core-flow sequences, ERD |
+| `reviewer-architecture` | Design review gate | Before merge — structure, patterns, maintainability |
+| `reviewer-code-quality` | Correctness review gate | Before merge — bugs, tests, readability |
+| `reviewer-security` | Security review gate | Before merge — esp. security-relevant diffs |
+
+Model tiers live in each agent's frontmatter — that is the source of truth
+(README's roster table mirrors it for a quick overview; tune tiers per your
+budget by editing the agent file, not this table).
 
 ## The default lifecycle
 

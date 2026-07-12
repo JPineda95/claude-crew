@@ -20,10 +20,23 @@
 # conservatively: nothing is deleted, and every differing file gets a
 # .crew-new instead of an in-place update.
 #
+# Before copying anything, a downgrade guard checks that the manifest's
+# recorded commit is an ancestor of the ref being synced — if the project was
+# installed from a newer/dogfooded ref than what's being synced now, syncing
+# would silently revert it. Pass --allow-downgrade (any position) to bypass.
+#
 set -euo pipefail
 
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DEST="${1:-}"
+
+ALLOW_DOWNGRADE=0
+DEST=""
+for arg in "$@"; do
+  case "${arg}" in
+    --allow-downgrade) ALLOW_DOWNGRADE=1 ;;
+    *) [[ -z "${DEST}" ]] && DEST="${arg}" ;;
+  esac
+done
 MANIFEST_REL=".claude/crew-manifest"
 
 if [[ -z "${DEST}" ]]; then
@@ -42,9 +55,20 @@ fi
 DEST="$(cd "${DEST}" && pwd)"
 MANIFEST="${DEST}/${MANIFEST_REL}"
 
+command -v git >/dev/null 2>&1 \
+  || { echo "error: 'git' is required but not found in PATH." >&2; exit 1; }
+command -v shasum >/dev/null 2>&1 || command -v sha256sum >/dev/null 2>&1 \
+  || { echo "error: neither 'shasum' nor 'sha256sum' found in PATH — needed to compare file hashes." >&2; exit 1; }
+
 PAYLOAD_DIRS=".claude/agents .claude/commands .claude/scripts .claude/skills docs"
 
-hash_of() { shasum -a 256 "$1" | awk '{print $1}'; }
+hash_of() {  # portable sha256: shasum (macOS/BSD) or sha256sum (most Linux)
+  if command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$1" | awk '{print $1}'
+  else
+    sha256sum "$1" | awk '{print $1}'
+  fi
+}
 
 old_hash() {  # rel-path → hash recorded at last install/update ("" if none)
   [[ -f "${MANIFEST}" ]] || return 0
@@ -102,6 +126,33 @@ else
 fi
 echo
 
+# Downgrade guard: refuse to sync if the installed commit is not an ancestor
+# of the ref we're syncing from (SRC) — that would silently revert the
+# project to older content (e.g. it was installed/updated from a newer or
+# dogfooded ref than what's being synced now).
+if [[ -f "${MANIFEST}" ]]; then
+  GUARD_COMMIT="$(awk -F': ' '/^# commit: /{print $2; exit}' "${MANIFEST}")"
+  GUARD_REF="$(awk -F': ' '/^# ref: /{print $2; exit}' "${MANIFEST}")"
+  [[ -z "${GUARD_REF}" ]] && GUARD_REF="unknown (pre-2.4 manifest)"
+  if [[ -n "${GUARD_COMMIT}" && "${GUARD_COMMIT}" != "unknown" ]] \
+    && git -C "${SRC}" cat-file -e "${GUARD_COMMIT}^{commit}" >/dev/null 2>&1; then
+    if ! git -C "${SRC}" merge-base --is-ancestor "${GUARD_COMMIT}" HEAD >/dev/null 2>&1; then
+      if [[ "${ALLOW_DOWNGRADE}" -eq 1 ]]; then
+        echo "⚠ installed crew content (${GUARD_COMMIT}, ref ${GUARD_REF}) is not an ancestor of the ref being synced — proceeding anyway (--allow-downgrade)." >&2
+      else
+        {
+          echo "error: installed crew content (${GUARD_COMMIT}, ref ${GUARD_REF}) is not an ancestor of"
+          echo "the ref you are syncing — this would DOWNGRADE the project."
+          echo "Via crew-update.sh: re-run with CREW_REF=${GUARD_REF}. Running update.sh directly:"
+          echo "check out a ref that contains ${GUARD_COMMIT} in the source first. Or pass --allow-downgrade."
+        } >&2
+        exit 1
+      fi
+    fi
+  fi
+  # (else: sha unresolvable in SRC — e.g. a shallow clone — fail open with no check)
+fi
+
 # 1. The .claude/ + docs payload.
 while IFS= read -r rel; do
   three_way "${rel}"
@@ -127,30 +178,66 @@ if [[ -f "${MANIFEST}" ]]; then
   done < "${MANIFEST}"
 fi
 
-# 3. Example configs (safe to update like payload).
+# 3. .claude/crew.env — the gate's single source of truth. Seeded once if
+#    absent; NEVER touched again afterward (like PROJECT.md), so local edits
+#    always survive a sync. Stays out of the manifest.
+if [[ ! -f "${DEST}/.claude/crew.env" && -f "${SRC}/templates/crew.env" ]]; then
+  cp "${SRC}/templates/crew.env" "${DEST}/.claude/crew.env"
+  echo "  + .claude/crew.env (seeded — set your validation gate there or run /onboard)"
+fi
+
+# 3.5. .gitignore — seed the same managed block install.sh does, idempotently
+#      (installs that predate this feature never got it). Skipped if present.
+GITIGNORE="${DEST}/.gitignore"
+if [[ ! -f "${GITIGNORE}" ]] || ! grep -q '^# --- claude-crew (managed block) ---$' "${GITIGNORE}"; then
+  {
+    echo ""
+    echo "# --- claude-crew (managed block) ---"
+    echo ".claude/settings.local.json"
+    echo ".claude/launch.json"
+    echo ".claude/projects/"
+    echo ".claude/agent-memory-local/"
+    echo ".agent-locks/"
+    echo ".worktrees/"
+    echo ".claude/skills/**/__pycache__/"
+    echo "# --- end claude-crew ---"
+  } >> "${GITIGNORE}"
+  echo "  + .gitignore — added a managed block (Claude Code local state, crew worktrees)"
+fi
+
+# 4. Example configs (safe to update like payload).
 three_way ".mcp.json.example"
 three_way ".worktreeinclude.example"
 
-# 4. Guarded files — same three-way logic, friendlier merge-copy names.
+# 5. Guarded files — same three-way logic, friendlier merge-copy names.
 three_way "CLAUDE.md" "CLAUDE.crew.md"
 three_way ".claude/settings.json" ".claude/settings.crew.json"
 [[ -f "${SRC}/skills-lock.json" ]] && three_way "skills-lock.json"
 
-# 5. PROJECT.template.md is never installed — but if it changed upstream, the
+# 6. PROJECT.template.md is never installed — but if it changed upstream, the
 #    project's PROJECT.md may be missing new sections.
 TPL_OLD="$(old_hash "PROJECT.template.md")"
 if [[ -n "${TPL_OLD}" && "${TPL_OLD}" != "$(hash_of "${SRC}/PROJECT.template.md")" ]]; then
   echo "  ✎ PROJECT.template.md changed upstream — run /onboard (update mode) so PROJECT.md gains the new sections"
 fi
 
-# 6. Refresh the manifest to the state just shipped.
+# 7. Refresh the manifest to the state just shipped.
 COMMIT="$(git -C "${SRC}" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+# CREW_SYNCED_REF is set by crew-update.sh, which materializes SRC as a
+# detached worktree of the ref it resolved — HEAD there is always detached,
+# so the actual ref name has to be passed down rather than read back out.
+REF="${CREW_SYNCED_REF:-}"
+if [[ -z "${REF}" ]]; then
+  REF="$(git -C "${SRC}" rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
+  [[ "${REF}" == "HEAD" ]] && REF="unknown"
+fi
 {
   echo "# claude-crew manifest — written by install.sh/update.sh; do not edit by hand."
   echo "# source: ${SRC}"
   REMOTE="$(git -C "${SRC}" remote get-url origin 2>/dev/null || true)"
   [[ -n "${REMOTE}" ]] && echo "# remote: ${REMOTE}"
   echo "# commit: ${COMMIT}"
+  echo "# ref: ${REF}"
   echo "# date: $(date +%Y-%m-%d)"
   (cd "${SRC}" && find ${PAYLOAD_DIRS} -type f ! -name '.DS_Store' | LC_ALL=C sort) | while IFS= read -r rel; do
     echo "$(hash_of "${SRC}/${rel}")  ${rel}"

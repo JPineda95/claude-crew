@@ -334,6 +334,30 @@ board-touching command runs. The **sweep** reconciles:
    a user step, not shipped config). The worktree ship command
    (`cd <worktree> && gh pr create …`) may need the same treatment — bare
    `gh pr create` rules don't match the `cd`-prefixed compound.
+6. **Resolving ticketing mode (ticket-creation commands: `/feature`, `/bug`,
+   `/spike`, `/epic`).** The two gates from rule 1, applied at the top of each
+   command, in order:
+   - **`Ticketing: notion` and the tools respond** → run the command's ticket
+     flow.
+   - **`Ticketing: none`** (or §12 deleted) → silently run the command's
+     classic fallback — zero mention of ticketing or Notion, ever.
+   - **§12 absent / never configured** → a one-time explanation, ≤3 lines:
+     what this command does, that `/board` sets the board up, and that
+     recording `Ticketing: none` in `PROJECT.md` §12 silences the note for
+     good. Offer the classic fallback for this run; once `none` is recorded,
+     never repeat the explanation.
+   - **§12 says `notion` but the tools are missing/unreachable** → say so
+     briefly, point to `docs/TOOLING.md`, and offer the classic fallback for
+     this run.
+
+   Each command's classic fallback:
+
+   | Command | Classic fallback |
+   |---|---|
+   | `/feature` | `.claude/commands/work.md`'s ticketless mode, as if invoked as `/work <input>` |
+   | `/bug` | The ticketless `/work` lifecycle on the bug description |
+   | `/epic` | `/plan` (architect design brief + execution plan, no cards) |
+   | `/spike` | `/plan` (an architect investigation without a card) |
 
 ## 10. Non-goals
 

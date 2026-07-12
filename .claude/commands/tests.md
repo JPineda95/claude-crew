@@ -1,5 +1,5 @@
 ---
-description: Bootstrap or backfill the test suite — audit the gaps by risk, then build unit/integration/e2e coverage for the core flows.
+description: "Bootstrap or backfill the test suite — audit the gaps by risk, then build unit/integration/e2e coverage for the core flows."
 argument-hint: "[optional focus: a module, a flow, or blank for a full audit]"
 ---
 

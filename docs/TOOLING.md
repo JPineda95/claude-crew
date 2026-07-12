@@ -48,14 +48,23 @@
 
 Anti-slop taste skills — bundled in `.claude/skills/` (also shipped in the plugin
 build). The designer agent is required to load these before visual work; sources
-for updating them:
+for updating them. Vendored under their own licenses — see
+[`THIRD_PARTY_LICENSES.md`](../THIRD_PARTY_LICENSES.md). **`impeccable`** ships
+more than a vocabulary: a local live-edit server (`scripts/live*.mjs`) and a
+hook installer (`scripts/hook-admin.mjs`) that can register PostToolUse/Stop
+hooks into `.claude/settings.local.json` and other tools' hook configs — treat
+its updates like a dependency bump, and run
+`scripts/vendor-skills.sh` afterward (it re-normalizes the `.agents/skills/` →
+`.claude/skills/` paths every `npx skills add/update` reintroduces). All nine
+vendored skills are hash-tracked in `skills-lock.json`; run
+`.claude/scripts/verify-skills.sh` to check for drift.
 
 | Skill(s) | Source | Update |
 |---|---|---|
-| `impeccable` | [impeccable.style](https://impeccable.style/) — design vocabulary, 45 slop-detection rules, 23 design commands | `npx skills add pbakaus/impeccable` |
+| `impeccable` | [impeccable.style](https://impeccable.style/) — design vocabulary, 45 slop-detection rules, 23 design commands | `npx skills add pbakaus/impeccable && scripts/vendor-skills.sh` |
 | `design-taste-frontend`, `high-end-visual-design`, `minimalist-ui`, `redesign-existing-projects` | [tasteskill.dev](https://www.tasteskill.dev/) — anti-slop framework, brief inference, audit-first redesigns | `npx skills add Leonxlnx/taste-skill --skill <name>` |
 | `emil-design-eng`, `review-animations`, `animation-vocabulary` | [emilkowal.ski](https://emilkowal.ski/) (Design Engineer at Linear, ex-Vercel; animations.dev, Sonner, Vaul) | `npx skills add emilkowalski/skills` |
-| `ui-ux-pro-max` | [ui-ux-pro-max-skill.nextlevelbuilder.io](https://ui-ux-pro-max-skill.nextlevelbuilder.io/) — 67 styles, 96 palettes, 57 font pairings | see site |
+| `ui-ux-pro-max` | [ui-ux-pro-max-skill.nextlevelbuilder.io](https://ui-ux-pro-max-skill.nextlevelbuilder.io/) — 67 styles, 96 palettes, 57 font pairings | `npx skills add nextlevelbuilder/ui-ux-pro-max-skill --skill ui-ux-pro-max` |
 
 ### qa-engineer
 | Tool | Why | Install |
@@ -255,3 +264,40 @@ claude mcp add snyk    -- snyk mcp -t stdio
 > After adding MCP servers, restart Claude Code (or `/reload-plugins` for
 > plugins) and run `/mcp` to authenticate any OAuth-based remote servers. Scope
 > secrets via env vars — never hardcode keys in `.mcp.json` that you commit.
+
+`.mcp.json.example` ships with only `context7` — every key in that file is a
+live server Claude Code will try to launch (a `"//name"` key is NOT a
+comment, it's still an entry). Rename/paste whichever of these you need
+straight into your `.mcp.json`'s `mcpServers` object:
+
+```jsonc
+"playwright": {
+  "command": "npx",
+  "args": ["@playwright/mcp@latest"]
+},
+
+"supabase": {
+  "type": "http",
+  "url": "https://mcp.supabase.com/mcp?read_only=true&project_ref=${SUPABASE_PROJECT_REF}"
+},
+
+"github": {
+  "type": "http",
+  "url": "https://api.githubcopilot.com/mcp"
+},
+
+"sentry": {
+  "type": "http",
+  "url": "https://mcp.sentry.dev/mcp"
+},
+
+"notion": {
+  "type": "http",
+  "url": "https://mcp.notion.com/mcp"
+},
+
+"semgrep": {
+  "command": "uvx",
+  "args": ["semgrep-mcp"]
+}
+```
