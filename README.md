@@ -107,12 +107,13 @@ cd claude-crew && scripts/build-plugin.sh    # assembles dist/claude-crew
 /plugin marketplace add /absolute/path/to/claude-crew
 /plugin install claude-crew@claude-crew
 ```
-This ships **commands, agents, hooks, and skills only** — a Claude Code
-plugin has no mechanism to auto-load a project's `CLAUDE.md` as session
-context, so the orchestrator persona and the `docs/` charter it delegates to
-aren't active yet. Run **`/crew-init`** right after installing: it copies
-`CLAUDE.md`, `docs/`, and `PROJECT.template.md` out of the plugin and into
-your project root (non-destructively — an existing `CLAUDE.md` is kept,
+This **activates commands, agents, hooks, and skills only** — `docs/`,
+`CLAUDE.md`, and `PROJECT.template.md` travel along inside the plugin bundle,
+but a Claude Code plugin has no mechanism to auto-load a project's `CLAUDE.md`
+as session context, so the orchestrator persona and the charter it delegates
+to aren't active yet. Run **`/crew-init`** right after installing: it copies
+`CLAUDE.md`, `docs/`, and `PROJECT.template.md` out of the plugin bundle and
+into your project root (non-destructively — an existing `CLAUDE.md` is kept,
 with the plugin's saved alongside as `CLAUDE.crew.md` to merge by hand).
 `/crew-update` isn't available in this form (its sync mechanism is specific
 to Option B's clone/copy install) — plugin updates replace commands
@@ -279,21 +280,30 @@ claude-crew/
 ├── CLAUDE.md                  # the orchestrator (engineering manager)
 ├── PROJECT.template.md        # copy → PROJECT.md, fill per project
 ├── README.md
+├── CONTRIBUTING.md            # this repo's own gate + release flow
+├── CHANGELOG.md
+├── LICENSE                    # MIT (crew) + THIRD_PARTY_LICENSES.md (vendored skills)
+├── THIRD_PARTY_LICENSES.md
+├── skills-lock.json           # hash-tracked vendored-skill versions (verify-skills.sh)
 ├── .claude/
-│   ├── agents/                # the 15 specialist subagents
-│   ├── commands/              # /onboard /work /board /feature /bug /spike /epic /plan /review /harden /comply /diagram /ship /tests /deploy
-│   ├── skills/                # the taste library — 9 anti-slop design skills
-│   ├── scripts/               # validate.sh (Stop gate) + pre-pr-gate.sh (blocks red PRs)
-│   └── settings.json          # permissions + quality-gate hooks
-├── .claude-plugin/            # plugin.json + marketplace.json (Option C)
-├── docs/                      # ENGINEERING, WORKFLOW, TESTING, WORKTREES, COMMITS, TICKETS, TOOLING
+│   ├── agents/                 # the 15 specialist subagents
+│   ├── commands/                # /onboard /status /work /board /feature /bug /spike /epic /plan /review /harden /comply /diagram /tests /ship /deploy /crew-update
+│   ├── skills/                  # the taste library — 9 anti-slop design skills
+│   ├── scripts/                 # validate.sh, pre-pr-gate.sh, crew-update.sh, verify-skills.sh
+│   └── settings.json            # permissions + quality-gate hooks
+├── .claude-plugin/             # plugin.json + marketplace.json (Option C)
+├── .github/workflows/gate.yml  # CI: re-runs scripts/check.sh + smoke/downgrade-guard tests
+├── docs/                       # ENGINEERING, WORKFLOW, TESTING, WORKTREES, COMMITS, TICKETS, TOOLING
+├── templates/crew.env          # gate-config template install.sh/update.sh seed into projects
 ├── scripts/
-│   ├── new-project.sh         # start a brand-new project from the crew (Option A)
-│   ├── install.sh             # copy the crew into an existing project
-│   ├── update.sh              # pull crew updates into an installed project
-│   └── build-plugin.sh        # assemble the plugin form into dist/
-├── .mcp.json.example          # copy → .mcp.json, keep only what you use
-└── .worktreeinclude.example   # git-ignored files to seed into new worktrees
+│   ├── new-project.sh          # start a brand-new project from the crew (Option A)
+│   ├── install.sh              # copy the crew into an existing project
+│   ├── update.sh               # pull crew updates into an installed project
+│   ├── vendor-skills.sh        # re-normalize vendored-skill paths after npx skills add/update
+│   ├── build-plugin.sh         # assemble the plugin form into dist/
+│   └── check.sh                # this repo's own gate (bash -n, shellcheck, build-plugin.sh)
+├── .mcp.json.example           # copy → .mcp.json, keep only what you use
+└── .worktreeinclude.example    # git-ignored files to seed into new worktrees
 ```
 
 ---
