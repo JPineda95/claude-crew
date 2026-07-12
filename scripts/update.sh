@@ -75,6 +75,25 @@ old_hash() {  # rel-path → hash recorded at last install/update ("" if none)
   awk -v p="$1" '$1 !~ /^#/ && $2 == p { print $1; exit }' "${MANIFEST}"
 }
 
+install_file() {  # $1 = source file, $2 = destination — atomically.
+  # NEVER `cp` straight onto ${2}: that rewrites the bytes of the existing
+  # inode in place. .claude/scripts/crew-update.sh is part of the payload and
+  # is usually the very script executing this sync, so an in-place cp swaps
+  # the content under bash's open fd — bash then resumes reading at its old
+  # byte offset inside the *new* file and executes garbage ("command not
+  # found" right after the summary line). Writing a temp file in the same
+  # directory and renaming it swaps only the directory entry, so any running
+  # process keeps its original inode and reads to a clean EOF.
+  local tmp
+  tmp="$(mktemp "${2}.crew-tmp.XXXXXX")" || return 1
+  cp "$1" "${tmp}" || { rm -f "${tmp}"; return 1; }
+  # Preserve the executable bit. `chmod --reference` is GNU-only, so fall back
+  # to a plain +x on BSD/macOS; `|| true` keeps a non-executable source (the
+  # common case — docs, agents) from tripping `set -e`.
+  chmod --reference="$1" "${tmp}" 2>/dev/null || { [[ -x "$1" ]] && chmod +x "${tmp}"; } || true
+  mv -f "${tmp}" "$2" || { rm -f "${tmp}"; return 1; }
+}
+
 UPDATED=0; ADDED=0; CUSTOM=0; DELETED=0; UPTODATE=0; KEPT=0
 CREW_NEW_FILES=""
 
@@ -85,7 +104,7 @@ three_way() {  # $1 = rel path, $2 = optional merge-copy name (default $1.crew-n
   oh="$(old_hash "${rel}")"
   if [[ ! -f "${df}" ]]; then
     mkdir -p "$(dirname "${df}")"
-    cp "${sf}" "${df}"
+    install_file "${sf}" "${df}"
     ADDED=$((ADDED + 1)); echo "  + ${rel}"
     return 0
   fi
@@ -94,14 +113,14 @@ three_way() {  # $1 = rel path, $2 = optional merge-copy name (default $1.crew-n
     UPTODATE=$((UPTODATE + 1)); return 0
   fi
   if [[ -n "${oh}" && "${dh}" == "${oh}" ]]; then
-    cp "${sf}" "${df}"
+    install_file "${sf}" "${df}"
     UPDATED=$((UPDATED + 1)); echo "  ↑ ${rel}"
   elif [[ -n "${oh}" && "${sh}" == "${oh}" ]]; then
     # Customized locally, but upstream hasn't changed since the last update —
     # nothing new to merge; stay quiet.
     UPTODATE=$((UPTODATE + 1))
   else
-    cp "${sf}" "${DEST}/${guard}"
+    install_file "${sf}" "${DEST}/${guard}"
     CUSTOM=$((CUSTOM + 1)); CREW_NEW_FILES="${CREW_NEW_FILES}  ${guard}\n"
     echo "  ✎ ${rel} — local changes kept; new version at ${guard}"
   fi
