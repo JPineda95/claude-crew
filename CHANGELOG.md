@@ -3,6 +3,25 @@
 All notable changes to claude-crew. Follows [Keep a Changelog](https://keepachangelog.com/)
 loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
 
+## Unreleased
+
+### Added
+
+- **The design layer (optional)** — `docs/DESIGNS.md`, a charter modeled on
+  the ticket board's: **Google Stitch** (free, MCP, server name must be
+  `stitch`) for generating/exploring screen variants and **Claude Design**
+  (claude.ai/design via Claude Code's built-in `DesignSync` tool) as the
+  reviewed home for the design system and approved screens. Root `DESIGN.md`
+  is the design source of truth (bootstrapped from the codebase by the
+  designer agent); the human picks the direction (the taste gate); a
+  design-tool failure never blocks an engineering step. **Figma is
+  deliberately excluded for now** — its MCP caps reads at 6/month on the free
+  Starter plan and write pricing is an unsettled beta. Wired into: `designer`
+  agent (Stitch + DesignSync tool grants, exploration workflow),
+  `PROJECT.template.md` §13 (`Designs:` config), `docs/TOOLING.md` (designer
+  section reworked, Figma demoted with the caveat), `docs/WORKFLOW.md` §1,
+  `CLAUDE.md`, and the README.
+
 ## 2.4.0 — 2026-07-10
 
 ### Added

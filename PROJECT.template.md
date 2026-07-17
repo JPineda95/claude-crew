@@ -127,3 +127,14 @@ full lifecycle either way.*
 - **Status property:** `Status`
 - **Max parallel tickets:** `3` *(batch `/work` wave cap — counts tickets, not
   agents; see `docs/WORKTREES.md` on the agent ceiling)*
+
+## 13. Designs (optional — design tools)
+*Governed by `docs/DESIGNS.md`. Leave `Designs: none` (or delete this section)
+to run without external design tools — the designer writes specs into the repo
+either way. `DESIGN.md` at the repo root stays the design source of truth
+regardless; the tools are a mirror.*
+
+- **Designs:** `none` *(`stitch`, `claude-design`, or `both`)*
+- **Stitch project:** *(project id from the Stitch MCP — one per app)*
+- **Claude Design project:** *(design-system project name/id from
+  `DesignSync` `list_projects`)*
