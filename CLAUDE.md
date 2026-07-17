@@ -98,6 +98,12 @@ Intake → Design → Plan → Test-first → Build → Verify → Review → Fi
   In Progress → Code Review; a merge sweep and `/deploy` advance merged work;
   In QA → Done is human. The board is a mirror — a Notion failure never blocks
   an engineering step.
+- **Designs (optional, `docs/DESIGNS.md`):** with a design layer configured
+  (`PROJECT.md` §13), `designer` explores screens in Google Stitch, the human
+  picks a direction (the taste gate), and approved screens + the component
+  library mirror to Claude Design via `DesignSync`. Root `DESIGN.md` is the
+  design source of truth — a design-tool failure never blocks an engineering
+  step. Figma is deliberately excluded for now (`docs/DESIGNS.md` §1).
 
 **Know what you built.** After a batch of work, run **`/diagram`** to have the
 `diagrammer` refresh **`docs/ARCHITECTURE.md`** — a Mermaid map (component graph,
@@ -211,7 +217,8 @@ a third party that receives user data — and before any public launch.
 2. Install the MCP servers / plugins the project needs from `docs/TOOLING.md`
    (skip the rest — don't bloat context).
 3. Optional: connect the Notion MCP and run `/board` for the kanban ticket
-   layer (`docs/TICKETS.md`).
+   layer (`docs/TICKETS.md`); connect the Stitch MCP and/or Claude Design for
+   the design layer (`docs/DESIGNS.md`).
 4. Tune agent `model` tiers and `.claude/settings.json` permissions/hooks to
    taste.
 5. Add any project-specific specialist agents alongside the crew.

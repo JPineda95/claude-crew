@@ -64,7 +64,9 @@ ambiguous in a way that changes the outcome, ask before building.
 
 Spin up `architect` for any feature that spans more than one file or introduces a
 new pattern. The architect pulls in, as the problem requires:
-- `designer` when there's a UI flow or visual decision,
+- `designer` when there's a UI flow or visual decision (with a design layer
+  configured — `PROJECT.md` §13, `docs/DESIGNS.md` — the designer explores
+  variants in Stitch and the human picks before the spec is written),
 - `database-architect` when data structures change,
 - `security-engineer` when the surface touches auth/money/PII/uploads/external
   input,

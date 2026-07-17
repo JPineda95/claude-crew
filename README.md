@@ -199,6 +199,19 @@ repo, `/board` also proposes a starter backlog from your `PROJECT.md`. Full
 charter: [docs/TICKETS.md](docs/TICKETS.md). No Notion? Nothing changes —
 `/work <description>` is the whole classic flow.
 
+### The design layer (optional)
+
+Give the crew a real design surface: **Google Stitch** (free, MCP) for
+generating and exploring screen variants, and **Claude Design**
+(claude.ai/design, included in Claude Pro/Max) as the reviewed home for the
+design system and approved screens, synced from the repo via Claude Code's
+built-in `DesignSync`. The `designer` agent explores 2–3 directions per
+surface, **you pick one** (the taste gate — the design analog of ticket
+triage), and the pick converges into a spec plus a root `DESIGN.md`, which
+stays the source of truth. Full charter: [docs/DESIGNS.md](docs/DESIGNS.md).
+No design tools? Nothing changes — the designer writes repo-only specs.
+(Figma is deliberately excluded for now — the charter's §1 has the why.)
+
 ### Slash commands
 | Command | Does |
 |---|---|
@@ -284,6 +297,10 @@ Update commands for each source live in [`docs/TOOLING.md`](docs/TOOLING.md).
 - **[docs/TICKETS.md](docs/TICKETS.md)** — the optional kanban charter: card
   anatomy, statuses & who moves what, Definition of Ready, the merge sweep, and
   the degradation contract (a Notion failure never blocks engineering).
+- **[docs/DESIGNS.md](docs/DESIGNS.md)** — the optional design-layer charter:
+  Stitch for exploration, Claude Design as the reviewed home, `DESIGN.md` as
+  the source of truth, the human taste gate, and the degradation contract (a
+  design-tool failure never blocks engineering).
 - **[docs/TOOLING.md](docs/TOOLING.md)** — the MCP servers, plugins, and skills to
   install per role, with verified install commands.
 
@@ -309,7 +326,7 @@ claude-crew/
 │   └── settings.json            # permissions + quality-gate hooks
 ├── .claude-plugin/             # plugin.json + marketplace.json (Option C)
 ├── .github/workflows/gate.yml  # CI: re-runs scripts/check.sh + smoke/downgrade-guard tests
-├── docs/                       # ENGINEERING, WORKFLOW, TESTING, WORKTREES, COMMITS, TICKETS, TOOLING
+├── docs/                       # ENGINEERING, WORKFLOW, TESTING, WORKTREES, COMMITS, TICKETS, DESIGNS, TOOLING
 ├── templates/crew.env          # gate-config template install.sh/update.sh seed into projects
 ├── scripts/
 │   ├── new-project.sh          # start a brand-new project from the crew (Option A)
