@@ -37,14 +37,21 @@
 | **Playwright MCP** | Drive a real browser via the a11y tree (no vision) to click through and verify UI. | `claude mcp add playwright -- npx @playwright/mcp@latest` |
 | **Storybook MCP** | Exposes component metadata/stories/props so agents reuse components. Needs Storybook 10.3+. | Add `@storybook/addon-mcp`; connect the dev-server `/mcp` endpoint ⚠︎ verify |
 
-### designer
+### designer — the design layer (optional, `docs/DESIGNS.md`)
 | Tool | Why | Install |
 |---|---|---|
-| **Figma MCP (official, remote)** | Pull design context, variables, and screenshots into code (design-to-code). | `claude mcp add --scope user --transport http figma https://mcp.figma.com/mcp` |
-| **Figma Dev Mode (local)** | Same, via the desktop app in Dev Mode. | `claude mcp add --transport http figma-desktop http://127.0.0.1:3845/mcp` (toggle "Enable desktop MCP server") |
-| **Figma-Context-MCP (Framelink)** | Community REST-API alternative; works without a Dev Mode seat. | `npx figma-developer-mcp --figma-api-key=<key> --stdio` (repo `GLips/Figma-Context-MCP`) |
+| **Stitch MCP (Google)** | Exploration half of the optional design layer: generate screens from text, edit, variants, design system built from the repo's `DESIGN.md`. Free (monthly quota). | `claude mcp add --scope user --transport http stitch https://stitch.googleapis.com/mcp --header "X-Goog-Api-Key: <key>"` — the name **must** be `stitch` (the designer agent's tool grants key on the `mcp__stitch__` prefix); key from your Stitch account settings ⚠︎ verify |
+| **Claude Design (built-in `DesignSync`)** | Home half of the layer: sync the component library and approved screens to a claude.ai/design design-system project the human reviews. Included in Claude Pro/Max. | Ships with Claude Code — no install; first call adds design scopes to the claude.ai login (`/design-login` for headless sessions) |
 | **shadcn Registry MCP** | Map designs to the actual component library. | see frontend-engineer |
 | **canva / cloudinary / adobe-for-creativity** | Asset & media workflows (official plugins). | `/plugin install <name>@claude-plugins-official` |
+
+> **Figma — deliberately out of the design layer for now** (`docs/DESIGNS.md`
+> §1): its MCP caps read tool calls at 6/month on the free Starter plan, and
+> write access is a beta with unsettled usage-based pricing. If a project has a
+> paid Figma seat and a human designer, the servers to evaluate are the
+> official remote (`claude mcp add --scope user --transport http figma
+> https://mcp.figma.com/mcp`) or the desktop Dev Mode server — but don't wire
+> the crew's workflow to them while the exclusion stands.
 
 Anti-slop taste skills — bundled in `.claude/skills/` (also shipped in the plugin
 build). The designer agent is required to load these before visual work; sources
@@ -243,7 +250,8 @@ claude mcp add --scope user context7 -- npx -y @upstash/context7-mcp
 claude mcp add playwright       -- npx @playwright/mcp@latest
 claude mcp add chrome-devtools  -- npx chrome-devtools-mcp@latest
 npx shadcn@latest mcp init --client claude
-claude mcp add --transport http figma https://mcp.figma.com/mcp
+# design layer (docs/DESIGNS.md) — name must be `stitch`
+claude mcp add --scope user --transport http stitch https://stitch.googleapis.com/mcp --header "X-Goog-Api-Key: <key>"
 
 # Backend / DBA (example: Supabase, read-only)
 claude mcp add supabase -- npx -y @supabase/mcp-server-supabase@latest --read-only
