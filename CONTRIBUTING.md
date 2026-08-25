@@ -6,7 +6,9 @@ This repo's own validation gate is **`scripts/check.sh`**: `bash -n` syntax
 check on every script, `shellcheck -S warning` (info-level style nits don't
 fail; install it locally with `brew install shellcheck` or
 `apt-get install shellcheck` to run the full check — it's skipped, not
-failed, when absent), `scripts/build-plugin.sh` (which also asserts
+failed, when absent), `scripts/test-stop-gate.sh` (behavior tests for the
+Stop-hook validation gate — that it stays quiet mid-task and never re-fires
+on an unchanged tree), `scripts/build-plugin.sh` (which also asserts
 `.claude-plugin/plugin.json`'s version matches `marketplace.json`'s and has a
 matching `CHANGELOG.md` heading), and reports the result.
 
