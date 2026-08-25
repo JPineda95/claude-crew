@@ -36,6 +36,14 @@ else
 fi
 
 echo
+echo "== scripts/test-stop-gate.sh (Stop-hook gate behavior) =="
+if bash scripts/test-stop-gate.sh; then
+  ok "Stop-hook gate behaves (no mid-task runs, no re-run loop)"
+else
+  fail "Stop-hook gate tests failed (see above)"
+fi
+
+echo
 echo "== scripts/build-plugin.sh (also syncs + checks plugin/marketplace/CHANGELOG version consistency) =="
 if bash scripts/build-plugin.sh >/tmp/claude-crew-build.log 2>&1; then
   ok "build-plugin.sh succeeded (includes the version-consistency check)"

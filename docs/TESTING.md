@@ -94,7 +94,7 @@ the core flows are covered at the integration layer instead.
 | During build | Tests affected by the change | Each specialist (charter DoD) |
 | Verify phase | Full suite + e2e smoke for touched core flows | `qa-engineer` |
 | **Before any PR** | **Lint + full suite (+ e2e smoke when configured)** | `.claude/scripts/pre-pr-gate.sh` — a PreToolUse hook that **blocks `gh pr create`** while red or unconfigured |
-| End of any coding turn | The validation gate | `.claude/scripts/validate.sh` (Stop hook) |
+| End of a coding turn that changed the tree | The validation gate | `.claude/scripts/validate.sh` (Stop hook) — stands down mid-task, see §5.1 |
 | Every PR, server-side | The same validation gate, re-run by the host | CI workflow + required branch-protection check (§8) |
 
 Configure once per project in **`.claude/crew.env`** — the single source of
@@ -125,6 +125,41 @@ refuses to run from a checkout sitting on the integration branch. Known
 limitation: the Stop-hook gate (`validate.sh`) checks only the session's main
 checkout — with all edits in ticket worktrees it no-ops; the pre-PR gate is the
 enforcement point that matters.
+
+### 5.1 Why the Stop-hook gate sometimes declines to run
+
+A Stop hook fires at **every** turn end, and the orchestrator ends turns
+mid-task on purpose — that is how a delegated subagent gets to keep working
+(CLAUDE.md, "Operating rhythm"). A gate that ran on every one of those would
+validate a half-written tree, fail for reasons nobody introduced, and — with
+`BLOCK_ON_FAILURE=1` — block the stop, forcing a turn that ends the same way
+and re-fires the whole gate. That loop is what these guards exist to prevent;
+`validate.sh` runs only when its verdict can mean something:
+
+| Guard | The gate stands down when… |
+|---|---|
+| `stop_hook_active` | this turn exists only because the gate blocked the previous one — one forced continuation is the signal, a second is a loop |
+| In-flight subagents | `gate-inflight.sh` (SubagentStart/SubagentStop hooks) has a live marker — the tree belongs to a subagent right now |
+| Tree fingerprint | this exact tree + gate command was already judged; the memoized verdict stands, and a red tree is never blocked on twice |
+| `CREW_GATE_SKIP=1` | set in the **human's** environment (agents can't set it from a command string), like `PR_GATE_SKIP` |
+
+Practical consequences:
+
+- A red gate blocks **at most once per distinct working-tree state**. Fix the
+  failure and the next turn re-runs it; end the turn without changing anything
+  and it stays quiet rather than looping.
+- Markers are swept after `CREW_GATE_INFLIGHT_TTL_MIN` (default 60), so a
+  subagent that dies without firing `SubagentStop` can't disable the gate
+  permanently.
+- Marker/memo state lives in the temp dir keyed by project directory, not in
+  the repo — nothing to `.gitignore`, nothing to clean up.
+- Without `jq` **or** `python3` the payload can't be parsed, so the first two
+  guards degrade to no-ops and only the fingerprint memo applies (still enough
+  to break the loop). Both are listed under the README's prerequisites.
+
+None of this loosens the ship gate: `pre-pr-gate.sh` re-runs the same command
+unconditionally before every `gh pr create`, and CI (§8) runs it again
+server-side.
 
 ## 6. Projects with no tests yet
 

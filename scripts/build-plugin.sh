@@ -140,7 +140,9 @@ MD
 
 # Hooks as plugin config: the pre-PR gate (blocks `gh pr create` until the
 # validation gate is green — same guardrail the clone-first layout gets from
-# .claude/settings.json) and the Stop-hook validation gate.
+# .claude/settings.json), the Stop-hook validation gate, and the
+# SubagentStart/SubagentStop bookkeeping that keeps the Stop gate from firing
+# on a tree a delegated subagent is still writing to.
 cat > "${OUT}/hooks/hooks.json" <<'JSON'
 {
   "hooks": {
@@ -153,6 +155,28 @@ cat > "${OUT}/hooks/hooks.json" <<'JSON'
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/pre-pr-gate.sh",
             "timeout": 900,
             "statusMessage": "Pre-PR gate: lint + tests (+ e2e smoke)…"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/gate-inflight.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/gate-inflight.sh",
+            "timeout": 10
           }
         ]
       }

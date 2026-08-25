@@ -322,7 +322,7 @@ claude-crew/
 │   ├── agents/                 # the 15 specialist subagents
 │   ├── commands/                # /onboard /status /work /board /feature /bug /spike /epic /plan /review /harden /comply /diagram /tests /ship /deploy /crew-update
 │   ├── skills/                  # the taste library — 9 anti-slop design skills
-│   ├── scripts/                 # validate.sh, pre-pr-gate.sh, crew-update.sh, verify-skills.sh
+│   ├── scripts/                 # validate.sh, gate-inflight.sh, pre-pr-gate.sh, crew-update.sh, verify-skills.sh
 │   └── settings.json            # permissions + quality-gate hooks
 ├── .claude-plugin/             # plugin.json + marketplace.json (Option C)
 ├── .github/workflows/gate.yml  # CI: re-runs scripts/check.sh + smoke/downgrade-guard tests
@@ -334,7 +334,8 @@ claude-crew/
 │   ├── update.sh               # pull crew updates into an installed project
 │   ├── vendor-skills.sh        # re-normalize vendored-skill paths after npx skills add/update
 │   ├── build-plugin.sh         # assemble the plugin form into dist/
-│   └── check.sh                # this repo's own gate (bash -n, shellcheck, build-plugin.sh)
+│   ├── test-stop-gate.sh       # behavior tests for the Stop-hook gate's guards
+│   └── check.sh                # this repo's own gate (bash -n, shellcheck, tests, build-plugin.sh)
 ├── .mcp.json.example           # copy → .mcp.json, keep only what you use
 └── .worktreeinclude.example    # git-ignored files to seed into new worktrees
 ```

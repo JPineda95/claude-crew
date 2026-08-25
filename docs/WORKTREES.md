@@ -206,8 +206,9 @@ Extra rules apply:
   dev DBs, CPU starvation → false reds). Open each PR **from its worktree**
   (`cd <worktree> && gh pr create`) so the pre-PR hook validates that checkout.
   Note: the Stop-hook gate (`validate.sh`) only sees the session's main
-  checkout and silently no-ops for worktree edits — the pre-PR hook is the
-  enforcement point (TESTING.md §5).
+  checkout and silently no-ops for worktree edits — and it stands down entirely
+  while any delegated subagent is still running (TESTING.md §5.1). The pre-PR
+  hook is the enforcement point (TESTING.md §5).
 - **Merges shift the ground.** When a ticket's PR merges while others are
   open, rebase the remaining ticket branches onto the new tip (COMMITS.md §2)
   and re-run their gates before their PRs open. The architect pre-flight's

@@ -22,6 +22,43 @@ loosely; versions follow SemVer via `.claude-plugin/plugin.json`.
   section reworked, Figma demoted with the caveat), `docs/WORKFLOW.md` §1,
   `CLAUDE.md`, and the README.
 
+### Fixed
+
+- **The Stop-hook validation gate no longer fires on mid-task turns (and can no
+  longer loop).** `validate.sh` ran the full gate at *every* turn end whenever
+  the tree was dirty — including the turns the orchestrator ends on purpose
+  while a delegated subagent keeps writing files. It validated a half-written
+  tree, failed for reasons nobody introduced, and with `BLOCK_ON_FAILURE=1` the
+  block forced a new turn that ended the same way, so the gate re-fired in a
+  loop (observed: five identical full test+lint+build runs in a row during one
+  `/work` fan-out). Four guards now decide whether the verdict can mean
+  anything (`docs/TESTING.md` §5.1):
+  - `stop_hook_active` from the hook payload — the gate never blocks two turns
+    in a row. The script previously never read its stdin at all, which is why
+    Claude Code's own loop-breaker had no effect.
+  - **New `.claude/scripts/gate-inflight.sh`**, wired to the `SubagentStart` /
+    `SubagentStop` hooks (both fire in the main agent's context): it keeps a
+    marker per running subagent, and the gate stands down while any is live.
+    Leaked markers are swept after `CREW_GATE_INFLIGHT_TTL_MIN` (default 60).
+  - A working-tree fingerprint (tracked diff + untracked file contents + the
+    gate command, captured before *and* after each run so an artifact-producing
+    gate doesn't invalidate its own memo): the same state is never validated —
+    or blocked on — twice.
+  - `CREW_GATE_SKIP=1`, honored only from the human's environment, matching
+    `PR_GATE_SKIP` in `pre-pr-gate.sh`.
+- **The Stop-hook gate now notices untracked files.** Its "did anything change?"
+  check was `git diff` + `git diff --cached`, so a turn whose entire output was
+  new, never-staged files counted as a clean tree and skipped validation.
+- Gate state (subagent markers, memoized verdicts) lives in the temp dir keyed
+  by project directory — no repo pollution, no `.gitignore` entry to propagate
+  into existing installs.
+- The advisory (non-blocking) failure message no longer says "fix the failures
+  before finishing" when nothing is actually being blocked.
+- **New `scripts/test-stop-gate.sh`**, wired into `scripts/check.sh` (so CI runs
+  it): 18 behavior checks that drive the two hook scripts with synthetic Claude
+  Code payloads and assert on how many times the gate command actually ran —
+  the loop, the mid-flight skip, the TTL sweep, and the escape hatch.
+
 ## 2.4.0 — 2026-07-10
 
 ### Added
