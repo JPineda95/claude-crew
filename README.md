@@ -229,6 +229,7 @@ No design tools? Nothing changes — the designer writes repo-only specs.
 | `/comply [target]` | Data-compliance audit + generate privacy policy, ToS, cookie-banner spec |
 | `/diagram [focus]` | Refresh `docs/ARCHITECTURE.md` — Mermaid component graph, core-flow sequences, and data-model ERD, reverse-engineered from the code |
 | `/tests [focus]` | Bootstrap or backfill the test suite — audit gaps by risk, then unit/integration/Cypress e2e for the core flows |
+| `/tech-debt [focus]` | Read-only debt audit — dead code, vulnerabilities, refactor candidates — ranked report + optional tickets |
 | `/ship [context]` | Commit the work, push the feature branch, and open a PR for review |
 | `/deploy [context]` | Merge the integration branch into the production branch and push — the human-authorized deploy step |
 | `/crew-update [ref]` | Pull crew updates via `crew-update.sh`, then interactively walk any `.crew-new` merge conflicts |
@@ -320,7 +321,7 @@ claude-crew/
 ├── skills-lock.json           # hash-tracked vendored-skill versions (verify-skills.sh)
 ├── .claude/
 │   ├── agents/                 # the 15 specialist subagents
-│   ├── commands/                # /onboard /status /work /board /feature /bug /spike /epic /plan /review /harden /comply /diagram /tests /ship /deploy /crew-update
+│   ├── commands/                # /onboard /status /work /board /feature /bug /spike /epic /plan /review /harden /comply /diagram /tests /tech-debt /ship /deploy /crew-update
 │   ├── skills/                  # the taste library — 9 anti-slop design skills
 │   ├── scripts/                 # validate.sh, gate-inflight.sh, pre-pr-gate.sh, crew-update.sh, verify-skills.sh
 │   └── settings.json            # permissions + quality-gate hooks
