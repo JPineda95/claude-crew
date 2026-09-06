@@ -111,6 +111,12 @@ core-flow sequence diagrams, data-model ERD) reverse-engineered from the actual
 code, so the system stays legible as the crew keeps shipping. It's read-only on
 application code and renders on GitHub/Obsidian with no dependency.
 
+**Know what you owe.** Periodically run **`/tech-debt`** — a strictly read-only
+audit (three reviewers in parallel) that hunts dead code, vulnerabilities, and
+refactor candidates, reports them ranked by severity and effort, and offers to
+file the chosen findings as tickets so debt enters the normal
+Backlog → triage → `/work` pipeline instead of living in someone's head.
+
 **When a subagent fails or stalls** (e.g. "Agent stalled: no progress"), do not
 re-run it blindly: its partial work persists in its worktree. Inspect the state
 (`git status`, what got written), then respawn the same specialist with a prompt

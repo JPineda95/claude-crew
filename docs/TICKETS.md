@@ -335,8 +335,9 @@ board-touching command runs. The **sweep** reconciles:
    (`cd <worktree> && gh pr create …`) may need the same treatment — bare
    `gh pr create` rules don't match the `cd`-prefixed compound.
 6. **Resolving ticketing mode (ticket-creation commands: `/feature`, `/bug`,
-   `/spike`, `/epic`).** The two gates from rule 1, applied at the top of each
-   command, in order:
+   `/spike`, `/epic`; `/tech-debt` resolves it only at its ticket-filing
+   step — the audit itself needs no board).** The two gates from rule 1,
+   applied at the top of each command, in order:
    - **`Ticketing: notion` and the tools respond** → run the command's ticket
      flow.
    - **`Ticketing: none`** (or §12 deleted) → silently run the command's
@@ -358,6 +359,7 @@ board-touching command runs. The **sweep** reconciles:
    | `/bug` | The ticketless `/work` lifecycle on the bug description |
    | `/epic` | `/plan` (architect design brief + execution plan, no cards) |
    | `/spike` | `/plan` (an architect investigation without a card) |
+   | `/tech-debt` | Print the finished cards as markdown for the human to paste |
 
 ## 10. Non-goals
 
